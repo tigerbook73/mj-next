@@ -6,6 +6,11 @@
 - [ ] Try out Storybook
   - [ ] add button stories & understand how it works
 
+- [ ] Learn NextJS App Router
+  - [ ] Understand the new App Router in Next.js 13
+  - [ ] Learn about the new file conventions (page.tsx, layout.tsx, etc.)
+  - [ ] Understand Server Components and Client Components
+
 - [ ] Create NextJS static page
   - [ ] Create login page
   - [ ] Create lobby page
