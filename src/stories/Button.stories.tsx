@@ -2,27 +2,60 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Button } from "../components/ui/button";
 import { ChevronRight, Download, Plus, Search } from "lucide-react";
 
+/**
+ * Button component built with Radix UI and styled with Tailwind CSS.
+ *
+ * Buttons are used to trigger actions or events, such as submitting a form,
+ * opening a dialog, canceling an action, or performing a delete operation.
+ */
 const meta: Meta<typeof Button> = {
   title: "UI/Button",
   component: Button,
   parameters: {
     layout: "centered",
+    docs: {
+      description: {
+        component:
+          "A versatile button component with multiple variants, sizes, and states. Built with accessibility and performance in mind.",
+      },
+    },
   },
   tags: ["autodocs"],
   argTypes: {
     variant: {
       control: { type: "select" },
       options: ["default", "destructive", "outline", "secondary", "ghost", "link"],
+      description: "The visual style variant of the button",
+      table: {
+        type: { summary: "string" },
+        defaultValue: { summary: "default" },
+      },
     },
     size: {
       control: { type: "select" },
       options: ["default", "sm", "lg", "icon", "icon-sm", "icon-lg"],
+      description: "The size of the button",
+      table: {
+        type: { summary: "string" },
+        defaultValue: { summary: "default" },
+      },
     },
     asChild: {
       control: { type: "boolean" },
+      description:
+        "Change the default rendered element for the one passed as a child, merging their props and behavior",
+      table: {
+        type: { summary: "boolean" },
+        defaultValue: { summary: "false" },
+      },
     },
     disabled: {
       control: { type: "boolean" },
+      description: "When true, prevents the user from interacting with the button",
+      table: {
+        type: { summary: "boolean" },
+        defaultValue: { summary: "false" },
+      },
     },
   },
 };
@@ -34,6 +67,13 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     children: "Button",
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: "The default button style with primary styling.",
+      },
+    },
   },
 };
 
@@ -49,6 +89,13 @@ export const Variants: Story = {
       <Button variant="link">Link</Button>
     </div>
   ),
+  parameters: {
+    docs: {
+      description: {
+        story: "All available button variants showcased together. Each variant serves different purposes and contexts.",
+      },
+    },
+  },
 };
 
 // All sizes
@@ -60,6 +107,14 @@ export const Sizes: Story = {
       <Button size="lg">Large</Button>
     </div>
   ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Different button sizes for various use cases. Small for compact interfaces, default for general use, and large for prominent actions.",
+      },
+    },
+  },
 };
 
 // Icon buttons
@@ -77,6 +132,13 @@ export const IconButtons: Story = {
       </Button>
     </div>
   ),
+  parameters: {
+    docs: {
+      description: {
+        story: "Icon-only buttons in different sizes. Perfect for toolbars, action bars, and compact interfaces.",
+      },
+    },
+  },
 };
 
 // Buttons with icons
@@ -97,6 +159,14 @@ export const WithIcons: Story = {
       </Button>
     </div>
   ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Buttons combined with icons for enhanced visual communication. Icons can be placed before or after the text.",
+      },
+    },
+  },
 };
 
 // States
@@ -107,63 +177,13 @@ export const States: Story = {
       <Button disabled>Disabled</Button>
     </div>
   ),
-};
-
-// Individual variant stories
-export const Primary: Story = {
-  args: {
-    variant: "default",
-    children: "Primary Button",
-  },
-};
-
-export const Destructive: Story = {
-  args: {
-    variant: "destructive",
-    children: "Delete",
-  },
-};
-
-export const Outline: Story = {
-  args: {
-    variant: "outline",
-    children: "Outline Button",
-  },
-};
-
-export const Secondary: Story = {
-  args: {
-    variant: "secondary",
-    children: "Secondary Button",
-  },
-};
-
-export const Ghost: Story = {
-  args: {
-    variant: "ghost",
-    children: "Ghost Button",
-  },
-};
-
-export const Link: Story = {
-  args: {
-    variant: "link",
-    children: "Link Button",
-  },
-};
-
-// Size variations
-export const Small: Story = {
-  args: {
-    size: "sm",
-    children: "Small Button",
-  },
-};
-
-export const Large: Story = {
-  args: {
-    size: "lg",
-    children: "Large Button",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Different button states including normal and disabled. Disabled buttons prevent user interaction and provide visual feedback.",
+      },
+    },
   },
 };
 
@@ -181,4 +201,12 @@ export const Loading: Story = {
       </Button>
     </div>
   ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Loading state examples showing how to combine spinners with buttons for async operations. The buttons are disabled during loading to prevent multiple submissions.",
+      },
+    },
+  },
 };
