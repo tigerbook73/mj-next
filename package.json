@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack -p 9000",
     "build": "next build --turbopack",
-    "start": "next start",
+    "start": "next start -p 9000",
     "lint": "eslint",
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build"
