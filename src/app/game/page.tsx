@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Game() {
   return (
     <div className="h-screen w-screen">
@@ -14,7 +16,9 @@ export default function Game() {
               <div className="text-lg">Player </div>
             </div>
             <div className="w-1/10 flex h-full items-center justify-center bg-amber-300">
-              <div className="text-lg">Top-Right </div>
+              <div className="text-lg">
+                <Link href="/lobby">Quit </Link>
+              </div>
             </div>
           </div>
           <div className="h-8/10 flex w-full items-center justify-center">
