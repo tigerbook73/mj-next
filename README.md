@@ -12,7 +12,7 @@ A modern, full-stack Next.js application built with the latest web technologies 
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **State Management**: [Zustand](https://zustand-demo.pmnd.rs/)
 - **Form Handling**: [React Hook Form](https://react-hook-form.com/) with [Zod](https://zod.dev/) validation
-- **Styling Utilities**: 
+- **Styling Utilities**:
   - [Class Variance Authority (CVA)](https://cva.style/docs) for component variants
   - [clsx](https://github.com/lukeed/clsx) and [tailwind-merge](https://github.com/dcastil/tailwind-merge) for conditional styling
 - **Development Tools**:
@@ -42,18 +42,20 @@ src/
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - Yarn (recommended) or npm
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd mj-next
 ```
 
 2. Install dependencies:
+
 ```bash
 yarn install
 # or
@@ -61,6 +63,7 @@ npm install
 ```
 
 3. Start the development server:
+
 ```bash
 yarn dev
 # or
@@ -83,6 +86,7 @@ npm run dev
 This project uses a modern component development workflow:
 
 ### Storybook
+
 Components are documented and developed in isolation using Storybook. Start the Storybook server:
 
 ```bash
@@ -92,19 +96,21 @@ yarn storybook
 Visit [http://localhost:6006](http://localhost:6006) to view the component library.
 
 ### UI Components
+
 The project includes a comprehensive UI component library built with:
+
 - **Radix UI** primitives for accessibility
 - **Tailwind CSS** for styling
 - **CVA** for variant management
 - **TypeScript** for type safety
 
 Example component usage:
-```tsx
-import { Button } from "@/components/ui/button"
 
+```tsx
+import { Button } from "@/components/ui/button";
 <Button variant="outline" size="lg">
   Click me
-</Button>
+</Button>;
 ```
 
 ## 🧪 Testing
@@ -129,12 +135,15 @@ The project is set up with modern testing tools:
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
+
 The easiest way to deploy is using [Vercel](https://vercel.com):
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/tigerbook73/mj-next)
 
 ### Other Platforms
+
 This Next.js application can be deployed to any platform that supports Node.js:
+
 - [Netlify](https://www.netlify.com/)
 - [Railway](https://railway.app/)
 - [DigitalOcean App Platform](https://www.digitalocean.com/products/app-platform)

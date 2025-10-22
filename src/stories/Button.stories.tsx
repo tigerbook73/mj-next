@@ -24,7 +24,14 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     variant: {
       control: { type: "select" },
-      options: ["default", "destructive", "outline", "secondary", "ghost", "link"],
+      options: [
+        "default",
+        "destructive",
+        "outline",
+        "secondary",
+        "ghost",
+        "link",
+      ],
       description: "The visual style variant of the button",
       table: {
         type: { summary: "string" },
@@ -51,7 +58,8 @@ const meta: Meta<typeof Button> = {
     },
     disabled: {
       control: { type: "boolean" },
-      description: "When true, prevents the user from interacting with the button",
+      description:
+        "When true, prevents the user from interacting with the button",
       table: {
         type: { summary: "boolean" },
         defaultValue: { summary: "false" },
@@ -92,7 +100,8 @@ export const Variants: Story = {
   parameters: {
     docs: {
       description: {
-        story: "All available button variants showcased together. Each variant serves different purposes and contexts.",
+        story:
+          "All available button variants showcased together. Each variant serves different purposes and contexts.",
       },
     },
   },
@@ -135,7 +144,8 @@ export const IconButtons: Story = {
   parameters: {
     docs: {
       description: {
-        story: "Icon-only buttons in different sizes. Perfect for toolbars, action bars, and compact interfaces.",
+        story:
+          "Icon-only buttons in different sizes. Perfect for toolbars, action bars, and compact interfaces.",
       },
     },
   },
@@ -192,11 +202,11 @@ export const Loading: Story = {
   render: () => (
     <div className="flex gap-4">
       <Button disabled>
-        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+        <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
         Loading...
       </Button>
       <Button variant="outline" disabled>
-        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+        <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-current"></div>
         Processing...
       </Button>
     </div>
