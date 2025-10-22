@@ -41,7 +41,7 @@ export default function SignUp() {
               type="submit"
               className="rounded bg-blue-500 p-2 text-white hover:bg-blue-600"
             >
-              <Link href="/signin">Sign Up</Link>
+              <Link href="/">Sign Up</Link>
             </button>
           </form>
         </div>
