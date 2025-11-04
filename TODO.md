@@ -16,6 +16,9 @@
   - [ ] Create lobby page
   - [ ] Create game page (Empty)
 
+- [ ] create Shadcn UI elements
+  - [ ] add input/input-group card components
+
 - [ ] Game page layout
   - [ ] Create game layout with tailwindcss
 
