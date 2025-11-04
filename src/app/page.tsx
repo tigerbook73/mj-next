@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -44,6 +44,7 @@ export default function SignIn() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -59,8 +60,37 @@ export default function SignIn() {
     },
   });
 
+  const togglePasswordVisibility = () => {
+    // Save the current cursor position before changing visibility
+    const currentPosition = passwordInputRef.current?.selectionStart || 0;
+
+    setShowPassword(!showPassword);
+
+    // Restore focus and cursor position after the DOM update
+    setTimeout(() => {
+      if (passwordInputRef.current) {
+        passwordInputRef.current.focus();
+        passwordInputRef.current.setSelectionRange(
+          currentPosition,
+          currentPosition,
+        );
+      }
+    }, 0);
+  };
+
+  // Create a ref callback that works with React Hook Form
+  const { ref: registerRef, ...registerRest } = register("password");
+  const passwordRef = useCallback(
+    (e: HTMLInputElement | null) => {
+      registerRef(e);
+      passwordInputRef.current = e;
+    },
+    [registerRef],
+  );
+
   const onSubmit = async (data: SignInFormData) => {
     try {
+      console.log("Sign in data:", data);
       // TODO: Add actual authentication logic here
       // For now, just simulate a delay and redirect
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -135,9 +165,10 @@ export default function SignIn() {
                   <InputGroup className="flex-1">
                     <InputGroupInput
                       id="password"
+                      ref={passwordRef}
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
-                      {...register("password")}
+                      {...registerRest}
                       aria-invalid={errors.password ? "true" : "false"}
                       className="h-11 text-base sm:h-9 sm:text-sm" // Larger touch targets on mobile
                     />
@@ -146,7 +177,7 @@ export default function SignIn() {
                         type="button"
                         variant="ghost"
                         size="icon-sm" // Larger touch target for mobile
-                        onClick={() => setShowPassword(!showPassword)}
+                        onClick={togglePasswordVisibility}
                         aria-label={
                           showPassword ? "Hide password" : "Show password"
                         }

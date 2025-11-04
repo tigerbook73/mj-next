@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -58,8 +58,10 @@ type SignUpFormData = z.infer<typeof signUpSchema>;
 export default function SignUp() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  // const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -70,12 +72,72 @@ export default function SignUp() {
     mode: "onBlur",
     reValidateMode: "onBlur",
     defaultValues: {
-      email: "",
-      username: "",
-      password: "",
-      confirmPassword: "",
+      email:
+        process.env.NODE_ENV === "development" ? "newuser@example.com" : "",
+      username: process.env.NODE_ENV === "development" ? "newuser" : "",
+      password: process.env.NODE_ENV === "development" ? "password123" : "",
+      confirmPassword:
+        process.env.NODE_ENV === "development" ? "password123" : "",
     },
   });
+
+  const togglePasswordVisibility = () => {
+    // Save the current cursor position before changing visibility
+    const currentPosition = passwordInputRef.current?.selectionStart || 0;
+
+    setShowPassword(!showPassword);
+
+    // Restore focus and cursor position after the DOM update
+    setTimeout(() => {
+      if (passwordInputRef.current) {
+        passwordInputRef.current.focus();
+        passwordInputRef.current.setSelectionRange(
+          currentPosition,
+          currentPosition,
+        );
+      }
+    }, 0);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    // Save the current cursor position before changing visibility
+    const currentPosition =
+      confirmPasswordInputRef.current?.selectionStart || 0;
+
+    setShowConfirmPassword(!showConfirmPassword);
+
+    // Restore focus and cursor position after the DOM update
+    setTimeout(() => {
+      if (confirmPasswordInputRef.current) {
+        confirmPasswordInputRef.current.focus();
+        confirmPasswordInputRef.current.setSelectionRange(
+          currentPosition,
+          currentPosition,
+        );
+      }
+    }, 0);
+  };
+
+  // Create ref callbacks that work with React Hook Form
+  const { ref: passwordRegisterRef, ...passwordRegisterRest } =
+    register("password");
+  const passwordRef = useCallback(
+    (e: HTMLInputElement | null) => {
+      passwordRegisterRef(e);
+      passwordInputRef.current = e;
+    },
+    [passwordRegisterRef],
+  );
+
+  const { ref: confirmPasswordRegisterRef, ...confirmPasswordRegisterRest } =
+    register("confirmPassword");
+  const confirmPasswordRef = useCallback(
+    (e: HTMLInputElement | null) => {
+      confirmPasswordRegisterRef(e);
+      confirmPasswordInputRef.current = e;
+    },
+    [confirmPasswordRegisterRef],
+  );
 
   const onSubmit = async (data: SignUpFormData) => {
     setAuthError(null);
@@ -185,9 +247,10 @@ export default function SignUp() {
                   <InputGroup className="flex-1">
                     <InputGroupInput
                       id="password"
+                      ref={passwordRef}
                       type={showPassword ? "text" : "password"}
                       placeholder="Create a password"
-                      {...register("password")}
+                      {...passwordRegisterRest}
                       aria-invalid={errors.password ? "true" : "false"}
                       className="h-11 text-base sm:h-9 sm:text-sm"
                     />
@@ -196,7 +259,7 @@ export default function SignUp() {
                         type="button"
                         variant="ghost"
                         size="icon-sm"
-                        onClick={() => setShowPassword(!showPassword)}
+                        onClick={togglePasswordVisibility}
                         aria-label={
                           showPassword ? "Hide password" : "Show password"
                         }
@@ -233,9 +296,10 @@ export default function SignUp() {
                   <InputGroup className="flex-1">
                     <InputGroupInput
                       id="confirmPassword"
-                      type={showPassword ? "text" : "password"}
+                      ref={confirmPasswordRef}
+                      type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirm your password"
-                      {...register("confirmPassword")}
+                      {...confirmPasswordRegisterRest}
                       aria-invalid={errors.confirmPassword ? "true" : "false"}
                       className="h-11 text-base sm:h-9 sm:text-sm"
                     />
@@ -244,13 +308,15 @@ export default function SignUp() {
                         type="button"
                         variant="ghost"
                         size="icon-sm"
-                        onClick={() => setShowPassword(!showPassword)}
+                        onClick={toggleConfirmPasswordVisibility}
                         aria-label={
-                          showPassword ? "Hide password" : "Show password"
+                          showConfirmPassword
+                            ? "Hide password"
+                            : "Show password"
                         }
                         className="h-9 w-9 sm:h-7 sm:w-7"
                       >
-                        {showPassword ? (
+                        {showConfirmPassword ? (
                           <EyeOff className="h-4 w-4" />
                         ) : (
                           <Eye className="h-4 w-4" />
