@@ -56,7 +56,7 @@ export default function SignIn() {
     reValidateMode: "onBlur", // Re-validate on blur after first validation
     defaultValues: {
       email: process.env.NODE_ENV === "development" ? "dev@example.com" : "",
-      password: process.env.NODE_ENV === "development" ? "dev123" : "",
+      password: process.env.NODE_ENV === "development" ? "password123" : "",
     },
   });
 
