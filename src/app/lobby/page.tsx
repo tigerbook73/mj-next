@@ -11,7 +11,7 @@ export default function LobbyPage() {
 
       <div className="grid w-full max-w-[1024px] grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
         {games.map((i) => (
-          <Room key={i} name={`${i}`} />
+          <Room key={i} name={`Room ${i}`} />
         ))}
       </div>
     </div>
