@@ -1,9 +1,12 @@
 "use client";
 
 import Room from "@/components/room";
+import FloatingButton from "@/components/floating-button";
+import { useRouter } from "next/navigation";
 
 export default function LobbyPage() {
   const games = [1, 2, 3, 4, 5];
+  const router = useRouter();
 
   return (
     <div className="flex min-h-screen w-screen flex-col items-center gap-16 p-8 sm:p-20">
@@ -14,6 +17,8 @@ export default function LobbyPage() {
           <Room key={i} name={`Room ${i}`} />
         ))}
       </div>
+
+      <FloatingButton label="Sign Out" onClick={() => router.push("/")} />
     </div>
   );
 }
