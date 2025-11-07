@@ -1,13 +1,30 @@
 "use client";
 
+import SpeedDial from "@/components/ui-ex/speed-dial";
 import { Button } from "@/components/ui/button";
+import { LogOut, PersonStandingIcon } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Game() {
   // Define grid proportions as variables for easy adjustment
   const outerEdge = "grid-cols-[10%_1fr_10%] grid-rows-[10%_1fr_10%]"; // Outer player edge width/height
   const middleEdge = "grid-cols-[15%_1fr_15%] grid-rows-[15%_1fr_15%]"; // Middle wall edge width/height
   const innerEdge = "grid-cols-[20%_1fr_20%] grid-rows-[20%_1fr_20%]"; // Inner discard edge width/height
+
+  const router = useRouter();
+  const actions = [
+    {
+      icon: <PersonStandingIcon className="h-5 w-5" />,
+      label: "Quit Game",
+      onClick: () => router.push("/lobby"),
+    },
+    {
+      icon: <LogOut className="h-5 w-5" />,
+      label: "Sign Out",
+      onClick: () => router.push("/"),
+    },
+  ];
 
   return (
     // Outer container: full screen, center content
@@ -119,6 +136,8 @@ export default function Game() {
           P-BR
         </div>
       </div>
+
+      <SpeedDial actions={actions} position="top-right" direction="down" />
     </div>
   );
 }

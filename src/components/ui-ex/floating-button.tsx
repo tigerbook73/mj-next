@@ -3,14 +3,13 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LogOut } from "lucide-react";
 
 interface FloatingButtonProps extends React.ComponentProps<typeof Button> {
   /** 图标（默认 Plus） */
   icon?: React.ReactNode;
   /** tooltip 文字（可选） */
   label?: string;
-  /** 自定义位置（默认 bottom-6 right-6） */
+  /** 自定义位置（默认 top-6 right-6） */
   positionClass?: string;
   className?: string;
 }

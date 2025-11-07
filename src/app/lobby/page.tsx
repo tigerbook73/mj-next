@@ -1,12 +1,26 @@
 "use client";
 
 import Room from "@/components/room";
-import FloatingButton from "@/components/floating-button";
 import { useRouter } from "next/navigation";
+import SpeedDial from "@/components/ui-ex/speed-dial";
+import { LogOut, PersonStandingIcon } from "lucide-react";
 
 export default function LobbyPage() {
   const games = [1, 2, 3, 4, 5];
   const router = useRouter();
+
+  const actions = [
+    {
+      icon: <PersonStandingIcon className="h-5 w-5" />,
+      label: "Leave Current Room",
+      onClick: () => 0,
+    },
+    {
+      icon: <LogOut className="h-5 w-5" />,
+      label: "Sign Out",
+      onClick: () => router.push("/"),
+    },
+  ];
 
   return (
     <div className="flex min-h-screen w-screen flex-col items-center gap-16 p-8 sm:p-20">
@@ -18,7 +32,7 @@ export default function LobbyPage() {
         ))}
       </div>
 
-      <FloatingButton label="Sign Out" onClick={() => router.push("/")} />
+      <SpeedDial actions={actions} position="top-right" direction="down" />
     </div>
   );
 }
