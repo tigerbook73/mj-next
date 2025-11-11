@@ -10,6 +10,7 @@ import {
 import { Button } from "./ui/button";
 import { User2, UserPlus } from "lucide-react";
 import Link from "next/link";
+import { Card } from "./ui/card";
 
 type Chair = {
   id: number;
@@ -49,18 +50,18 @@ export default function Room({
 
   return (
     <TooltipProvider>
-      <div className="flex h-full w-full flex-col items-center justify-center rounded-2xl border border-black p-4 shadow-lg transition-shadow hover:shadow-xl">
-        <h2 className="mb-4 text-xl font-semibold">{name}</h2>
+      <Card className="flex h-full w-full flex-col items-center justify-center border-black bg-lime-100 p-4">
+        <div className="mb-4 text-xl font-semibold">{name}</div>
 
         <div className="relative flex aspect-square w-full max-w-[400px] items-center justify-center">
           {/* 中间桌子区域 */}
-          <div className="flex h-[40%] min-h-[100px] w-[40%] min-w-[100px] items-center justify-center rounded-lg bg-cyan-600 font-bold text-white">
+          <div className="flex h-[40%] min-h-[100px] w-[40%] min-w-[100px] items-center justify-center rounded-lg bg-teal-600 font-bold text-white">
             {gameStarted ? (
               "Playing..."
             ) : (
               <Link href="/game" className="hover:underline">
                 <Button variant="ghost" onClick={handleStart}>
-                  Start
+                  START
                 </Button>
               </Link>
             )}
@@ -93,7 +94,7 @@ export default function Room({
             );
           })}
         </div>
-      </div>
+      </Card>
     </TooltipProvider>
   );
 }
