@@ -1,4 +1,5 @@
 import * as React from "react";
+import Image from "next/image";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
@@ -55,7 +56,7 @@ const TILE_MAP: Record<number, string> = {
 };
 
 const tileVariants = cva(
-  "relative inline-block cursor-pointer select-none rounded-[15%] bg-white transition-all duration-200",
+  "relative inline-block cursor-pointer select-none rounded-[15%] bg-white shadow-md transition-all duration-200",
   {
     variants: {
       size: {
@@ -167,6 +168,7 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
             direction,
           }),
           isValidTile && "border border-gray-900",
+          theme === "Black" ? "bg-gray-800" : "bg-white",
           onClick && !back && "cursor-pointer",
           className,
         )}
@@ -182,11 +184,13 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
         {...props}
       >
         {isValidTile ? (
-          <img
+          <Image
             src={imagePath}
             alt={back ? "Tile back" : `Mahjong tile ${tileFileName}`}
-            className="h-full w-full object-contain"
+            fill
+            className="object-contain"
             draggable={false}
+            unoptimized
           />
         ) : (
           // Empty space for invalid tiles - maintains layout
