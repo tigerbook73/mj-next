@@ -127,11 +127,24 @@ export const Interactive: Story = {
 };
 
 export const Selected: Story = {
-  args: {
-    tileId: 1,
-    selected: true,
-    hoverable: true,
-  },
+  // args: {
+  //   tileId: 1,
+  //   selected: true,
+  //   hoverable: true,
+  // },
+  args: { tileId: 1 },
+  render: () => (
+    <div className="grid grid-cols-2 gap-4">
+      <Tile tileId={1} />
+      <Tile tileId={1} selected />
+      <Tile tileId={1} direction="90" />
+      <Tile tileId={1} direction="90" selected />
+      <Tile tileId={1} direction="180" />
+      <Tile tileId={1} direction="180" selected />
+      <Tile tileId={1} direction="270" />
+      <Tile tileId={1} direction="270" selected />
+    </div>
+  ),
 };
 
 // Special effects

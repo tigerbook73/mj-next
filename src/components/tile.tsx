@@ -5,53 +5,85 @@ import { cn } from "@/lib/utils";
 // Tile mapping - based on the SVG files available
 const TILE_MAP: Record<number, string> = {
   // Characters (Man) 1-9
-  1: "Man1", 2: "Man2", 3: "Man3", 4: "Man4", 5: "Man5", 6: "Man6", 7: "Man7", 8: "Man8", 9: "Man9",
-  // Dots (Pin) 11-19  
-  11: "Pin1", 12: "Pin2", 13: "Pin3", 14: "Pin4", 15: "Pin5", 16: "Pin6", 17: "Pin7", 18: "Pin8", 19: "Pin9",
+  1: "Man1",
+  2: "Man2",
+  3: "Man3",
+  4: "Man4",
+  5: "Man5",
+  6: "Man6",
+  7: "Man7",
+  8: "Man8",
+  9: "Man9",
+  // Dots (Pin) 11-19
+  11: "Pin1",
+  12: "Pin2",
+  13: "Pin3",
+  14: "Pin4",
+  15: "Pin5",
+  16: "Pin6",
+  17: "Pin7",
+  18: "Pin8",
+  19: "Pin9",
   // Bamboo (Sou) 21-29
-  21: "Sou1", 22: "Sou2", 23: "Sou3", 24: "Sou4", 25: "Sou5", 26: "Sou6", 27: "Sou7", 28: "Sou8", 29: "Sou9",
+  21: "Sou1",
+  22: "Sou2",
+  23: "Sou3",
+  24: "Sou4",
+  25: "Sou5",
+  26: "Sou6",
+  27: "Sou7",
+  28: "Sou8",
+  29: "Sou9",
   // Winds 31-34
-  31: "Ton", 32: "Nan", 33: "Shaa", 34: "Pei",
+  31: "Ton",
+  32: "Nan",
+  33: "Shaa",
+  34: "Pei",
   // Dragons 35-37
-  35: "Haku", 36: "Hatsu", 37: "Chun",
+  35: "Haku",
+  36: "Hatsu",
+  37: "Chun",
   // Dora tiles 41-43
-  41: "Man5-Dora", 42: "Pin5-Dora", 43: "Sou5-Dora",
+  41: "Man5-Dora",
+  42: "Pin5-Dora",
+  43: "Sou5-Dora",
   // Special tiles
-  50: "Blank", 51: "Front",
+  50: "Blank",
+  51: "Front",
   // Back tile
-  0: "Back"
+  0: "Back",
 };
 
 const tileVariants = cva(
-  "relative inline-block transition-all duration-200 select-none cursor-pointer",
+  "relative inline-block cursor-pointer select-none rounded-[15%] bg-white transition-all duration-200",
   {
     variants: {
       size: {
-        sm: "w-8 h-11",
-        md: "w-12 h-16", 
-        lg: "w-16 h-22",
-        xl: "w-20 h-28",
-        "1": "w-6 h-8",
-        "2": "w-8 h-11", 
-        "3": "w-10 h-14",
-        "4": "w-12 h-16",
-        "6": "w-16 h-22",
-        "7": "w-18 h-24",
-        "8": "w-20 h-28",
-        "9": "w-24 h-32",
+        sm: "h-11 w-8",
+        md: "h-16 w-12",
+        lg: "h-22 w-16",
+        xl: "h-28 w-20",
+        "1": "h-8 w-6",
+        "2": "h-11 w-8",
+        "3": "h-14 w-10",
+        "4": "h-16 w-12",
+        "6": "h-22 w-16",
+        "7": "h-24 w-18",
+        "8": "h-28 w-20",
+        "9": "h-32 w-24",
       },
       hoverable: {
-        true: "hover:brightness-110 hover:scale-105",
+        true: "hover:scale-105 hover:brightness-110",
         false: "",
       },
       selected: {
-        true: "transform -translate-y-2 brightness-110 shadow-lg",
+        true: "-translate-y-2 transform shadow-lg brightness-110",
         false: "",
       },
       special: {
         normal: "",
-        highlighted: "ring-2 ring-yellow-400 shadow-lg",
-        focused: "ring-2 ring-blue-400 shadow-md",
+        highlighted: "shadow-lg ring-2 ring-yellow-400",
+        focused: "shadow-md ring-2 ring-blue-400",
         disabled: "opacity-50 grayscale",
         warning: "ring-2 ring-red-400",
         success: "ring-2 ring-green-400",
@@ -59,10 +91,10 @@ const tileVariants = cva(
       direction: {
         "0": "rotate-0",
         "90": "rotate-90",
-        "180": "rotate-180", 
+        "180": "rotate-180",
         "270": "-rotate-90",
         "-90": "-rotate-90",
-      }
+      },
     },
     defaultVariants: {
       size: "md",
@@ -71,7 +103,7 @@ const tileVariants = cva(
       special: "normal",
       direction: "0",
     },
-  }
+  },
 );
 
 export interface TileProps extends VariantProps<typeof tileVariants> {
@@ -88,23 +120,26 @@ export interface TileProps extends VariantProps<typeof tileVariants> {
 }
 
 export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
-  ({ 
-    tileId, 
-    back = false, 
-    size, 
-    hoverable, 
-    selected, 
-    special, 
-    direction,
-    className,
-    onClick,
-    theme = "Regular",
-    ...props 
-  }, ref) => {
+  (
+    {
+      tileId,
+      back = false,
+      size,
+      hoverable,
+      selected,
+      special,
+      direction,
+      className,
+      onClick,
+      theme = "Regular",
+      ...props
+    },
+    ref,
+  ) => {
     // Determine which tile to show
     const getTileFileName = (): string => {
       if (back) return "Back";
-      
+
       const tileName = TILE_MAP[tileId];
       return tileName || "Blank";
     };
@@ -124,15 +159,16 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
       <div
         ref={ref}
         className={cn(
-          tileVariants({ 
-            size, 
-            hoverable: hoverable && !back, 
-            selected: selected && !back, 
-            special, 
-            direction 
+          tileVariants({
+            size,
+            hoverable: hoverable && !back,
+            selected: selected && !back,
+            special,
+            direction,
           }),
+          isValidTile && "border border-gray-900",
           onClick && !back && "cursor-pointer",
-          className
+          className,
         )}
         onClick={handleClick}
         role={onClick ? "button" : undefined}
@@ -149,16 +185,16 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
           <img
             src={imagePath}
             alt={back ? "Tile back" : `Mahjong tile ${tileFileName}`}
-            className="w-full h-full object-contain"
+            className="h-full w-full object-contain"
             draggable={false}
           />
         ) : (
           // Empty space for invalid tiles - maintains layout
-          <div className="w-full h-full" />
+          <div className="h-full w-full" />
         )}
       </div>
     );
-  }
+  },
 );
 
 Tile.displayName = "Tile";
