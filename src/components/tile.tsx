@@ -137,16 +137,16 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
     },
     ref,
   ) => {
+    // Handle special empty space case
+    const isEmptySpace = tileId === -1;
+
     // Determine which tile to show
     const getTileFileName = (): string => {
-      if (back) return "Back";
-
       const tileName = TILE_MAP[tileId];
       return tileName || "Blank";
     };
 
-    // Handle invalid tiles by showing empty space
-    const isValidTile = back || TILE_MAP[tileId];
+    // Handle valid tiles - valid if in TILE_MAP or if back is true (but not empty space)
     const tileFileName = getTileFileName();
     const imagePath = `/tiles/${theme}/${tileFileName}.svg`;
 
@@ -156,22 +156,44 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
       }
     };
 
+    const tileClassName = cn(
+      // Only apply tile variants if not empty space
+      !isEmptySpace &&
+        tileVariants({
+          size,
+          hoverable: hoverable && !back && !isEmptySpace,
+          selected: selected && !back && !isEmptySpace,
+          special,
+          direction,
+        }),
+      // Only show border and background if not empty space
+      !isEmptySpace && "border border-gray-900",
+      !isEmptySpace &&
+        (back ? "bg-gray-600" : theme === "Black" ? "bg-gray-800" : "bg-white"),
+      // For empty space, only apply size classes to maintain layout
+      isEmptySpace &&
+        {
+          sm: "h-11 w-8",
+          md: "h-16 w-12",
+          lg: "h-22 w-16",
+          xl: "h-28 w-20",
+          "1": "h-8 w-6",
+          "2": "h-11 w-8",
+          "3": "h-14 w-10",
+          "4": "h-16 w-12",
+          "6": "h-22 w-16",
+          "7": "h-24 w-18",
+          "8": "h-28 w-20",
+          "9": "h-32 w-24",
+        }[size || "md"],
+      onClick && !back && !isEmptySpace && "cursor-pointer",
+      className,
+    );
+
     return (
       <div
         ref={ref}
-        className={cn(
-          tileVariants({
-            size,
-            hoverable: hoverable && !back,
-            selected: selected && !back,
-            special,
-            direction,
-          }),
-          isValidTile && "border border-gray-900",
-          theme === "Black" ? "bg-gray-800" : "bg-white",
-          onClick && !back && "cursor-pointer",
-          className,
-        )}
+        className={tileClassName}
         onClick={handleClick}
         role={onClick ? "button" : undefined}
         tabIndex={onClick && !back ? 0 : undefined}
@@ -183,18 +205,22 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
         }}
         {...props}
       >
-        {isValidTile ? (
+        {isEmptySpace ? (
+          // Empty space for id -1 - maintains layout but shows nothing
+          <div className="h-full w-full" />
+        ) : back ? (
+          // Valid tile with back=true - show gray background only
+          <div className="h-full w-full" />
+        ) : (
+          // Valid tile with front - show image
           <Image
             src={imagePath}
-            alt={back ? "Tile back" : `Mahjong tile ${tileFileName}`}
+            alt={`Mahjong tile ${tileFileName}`}
             fill
             className="object-contain"
             draggable={false}
             unoptimized
           />
-        ) : (
-          // Empty space for invalid tiles - maintains layout
-          <div className="h-full w-full" />
         )}
       </div>
     );
