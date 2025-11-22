@@ -141,16 +141,12 @@ export const SpecialEffects: Story = {
   args: { ...defaultArgs },
   render: (args) => (
     <div className="flex gap-4">
-      {[
-        "normal",
-        "highlighted",
-        "focused",
-        "disabled",
-        "warning",
-        "success",
-      ].map((special) => (
-        <Tile key={special} {...args} special={special} />
-      ))}
+      <Tile {...args} special="normal" />
+      <Tile {...args} special="highlighted" />
+      <Tile {...args} special="focused" />
+      <Tile {...args} special="disabled" />
+      <Tile {...args} special="warning" />
+      <Tile {...args} special="success" />
     </div>
   ),
 };
