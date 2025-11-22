@@ -2,7 +2,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-// --- TILE_MAP (保持不变) ---
+// --- TILE_MAP ---
 const TILE_MAP: Record<number, string> = {
   1: "Man1",
   2: "Man2",
@@ -124,7 +124,7 @@ const tileVariants = cva(
         false: "",
       },
       selected: {
-        true: "-translate-y-2 transform shadow-lg brightness-110",
+        true: "-translate-y-1/4 transform shadow-lg brightness-110",
         false: "",
       },
       special: {
@@ -252,11 +252,11 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
 
 Tile.displayName = "Tile";
 
-// --- 辅助函数 (保持不变) ---
+// --- 辅助函数 ---
 export const getTileName = (tileId: number) => TILE_MAP[tileId] || "Unknown";
 export const isValidTileId = (tileId: number) => tileId in TILE_MAP;
 
-// --- TILE_CATEGORIES (保持不变) ---
+// --- TILE_CATEGORIES ---
 export const TILE_CATEGORIES = {
   CHARACTERS: [1, 2, 3, 4, 5, 6, 7, 8, 9],
   DOTS: [11, 12, 13, 14, 15, 16, 17, 18, 19],

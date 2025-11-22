@@ -52,129 +52,120 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const defaultArgs = {
+  tileId: 1,
+  size: "md",
+};
+
 // Basic tile stories
 export const Default: Story = {
   args: {
-    tileId: 1, // Man1
-    size: "md",
+    ...defaultArgs,
   },
 };
 
 export const TileBack: Story = {
   args: {
-    tileId: 1,
+    ...defaultArgs,
     back: true,
-    size: "md",
   },
 };
 
 export const InvalidTile: Story = {
   args: {
+    ...defaultArgs,
     tileId: 999, // Invalid ID
-    size: "md",
   },
 };
 
 // Size variations
 export const Sizes: Story = {
-  args: { tileId: 1 },
-  render: () => (
+  args: { ...defaultArgs },
+  render: (args) => (
     <div className="flex items-end gap-2">
-      <Tile tileId={1} size="sm" />
-      <Tile tileId={1} size="md" />
-      <Tile tileId={1} size="lg" />
-      <Tile tileId={1} size="xl" />
+      {["sm", "md", "lg", "xl"].map((size) => (
+        <div className="flex flex-col items-center" key={size}>
+          <Tile {...args} size={size} />
+          <div>{size}</div>
+        </div>
+      ))}
     </div>
   ),
 };
 
 export const NumericSizes: Story = {
-  args: { tileId: 1 },
-  render: () => (
+  args: { ...defaultArgs },
+  render: (args) => (
     <div className="flex items-end gap-2">
-      <Tile tileId={1} size="1" />
-      <Tile tileId={1} size="2" />
-      <Tile tileId={1} size="3" />
-      <Tile tileId={1} size="4" />
-      <Tile tileId={1} size="6" />
-      <Tile tileId={1} size="7" />
-      <Tile tileId={1} size="8" />
-      <Tile tileId={1} size="9" />
+      {["1", "2", "3", "4", "6", "7", "8", "9"].map((size) => (
+        <div className="flex flex-col items-center" key={size}>
+          <Tile {...args} size={size} />
+          <div>{size}</div>
+        </div>
+      ))}
     </div>
   ),
 };
 
 // Direction variations
 export const Directions: Story = {
-  args: { tileId: 1 },
-  render: () => (
+  args: { ...defaultArgs },
+  render: (args) => (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-1">
-        <Tile tileId={1} rotate="0" />
-        <Tile tileId={2} rotate="0" />
-        <Tile tileId={3} rotate="0" />
-      </div>
-      <div className="flex gap-1">
-        <Tile tileId={1} rotate="90" />
-        <Tile tileId={2} rotate="90" />
-        <Tile tileId={3} rotate="90" />
-      </div>
-      <div className="flex gap-1">
-        <Tile tileId={1} rotate="180" />
-        <Tile tileId={2} rotate="180" />
-        <Tile tileId={3} rotate="180" />
-      </div>
-      <div className="flex gap-1">
-        <Tile tileId={1} rotate="270" />
-        <Tile tileId={2} rotate="270" />
-        <Tile tileId={3} rotate="270" />
-      </div>
+      {["0", "90", "180", "270"].map((dir) => (
+        <div key={dir} className="flex flex-row items-center">
+          <div className="w-10">{dir}°</div>
+          <div className="flex gap-1">
+            <Tile {...args} rotate={dir as "0" | "90" | "180" | "270"} />
+            <Tile {...args} rotate={dir as "0" | "90" | "180" | "270"} />
+          </div>
+        </div>
+      ))}
     </div>
   ),
 };
 
 export const Selected: Story = {
-  // args: {
-  //   tileId: 1,
-  //   selected: true,
-  //   hoverable: true,
-  // },
-  args: { tileId: 1 },
-  render: () => (
+  args: { ...defaultArgs },
+  render: (args) => (
     <div className="flex gap-1">
-      <Tile tileId={1} />
-      <Tile tileId={2} selected />
-      <Tile tileId={3} />
+      <Tile {...args} />
+      <Tile {...args} selected />
+      <Tile {...args} />
     </div>
   ),
 };
 
 // Special effects
 export const SpecialEffects: Story = {
-  args: { tileId: 1 },
-  render: () => (
-    <div className="grid grid-cols-3 gap-4">
-      <Tile tileId={1} special="normal" />
-      <Tile tileId={1} special="highlighted" />
-      <Tile tileId={1} special="focused" />
-      <Tile tileId={1} special="disabled" />
-      <Tile tileId={1} special="warning" />
-      <Tile tileId={1} special="success" />
+  args: { ...defaultArgs },
+  render: (args) => (
+    <div className="flex gap-4">
+      {[
+        "normal",
+        "highlighted",
+        "focused",
+        "disabled",
+        "warning",
+        "success",
+      ].map((special) => (
+        <Tile key={special} {...args} special={special} />
+      ))}
     </div>
   ),
 };
 
 // Theme variations
 export const Themes: Story = {
-  args: { tileId: 1 },
-  render: () => (
+  args: { ...defaultArgs },
+  render: (args) => (
     <div className="flex gap-4">
       <div className="text-center">
-        <Tile tileId={1} theme="Regular" />
+        <Tile {...args} theme="Regular" />
         <p className="mt-2 text-sm">Regular</p>
       </div>
       <div className="text-center">
-        <Tile tileId={1} theme="Black" />
+        <Tile {...args} theme="Black" />
         <p className="mt-2 text-sm">Black</p>
       </div>
     </div>
@@ -183,55 +174,55 @@ export const Themes: Story = {
 
 // Tile categories showcase
 export const Characters: Story = {
-  args: { tileId: 1 },
-  render: () => (
+  args: { ...defaultArgs },
+  render: (args) => (
     <div className="flex gap-1">
       {TILE_CATEGORIES.CHARACTERS.map((id) => (
-        <Tile key={id} tileId={id} size="sm" />
+        <Tile key={id} {...args} tileId={id} />
       ))}
     </div>
   ),
 };
 
 export const Dots: Story = {
-  args: { tileId: 1 },
-  render: () => (
+  args: { ...defaultArgs },
+  render: (args) => (
     <div className="flex gap-1">
       {TILE_CATEGORIES.DOTS.map((id) => (
-        <Tile key={id} tileId={id} size="sm" />
+        <Tile key={id} {...args} tileId={id} />
       ))}
     </div>
   ),
 };
 
 export const Bamboo: Story = {
-  args: { tileId: 1 },
-  render: () => (
+  args: { ...defaultArgs },
+  render: (args) => (
     <div className="flex gap-1">
       {TILE_CATEGORIES.BAMBOO.map((id) => (
-        <Tile key={id} tileId={id} size="sm" />
+        <Tile key={id} {...args} tileId={id} />
       ))}
     </div>
   ),
 };
 
 export const Winds: Story = {
-  args: { tileId: 1 },
-  render: () => (
+  args: { ...defaultArgs },
+  render: (args) => (
     <div className="flex gap-1">
       {TILE_CATEGORIES.WINDS.map((id) => (
-        <Tile key={id} tileId={id} size="sm" />
+        <Tile key={id} {...args} tileId={id} />
       ))}
     </div>
   ),
 };
 
 export const Dragons: Story = {
-  args: { tileId: 1 },
-  render: () => (
+  args: { ...defaultArgs },
+  render: (args) => (
     <div className="flex gap-1">
       {TILE_CATEGORIES.DRAGONS.map((id) => (
-        <Tile key={id} tileId={id} size="sm" />
+        <Tile key={id} {...args} tileId={id} />
       ))}
     </div>
   ),
@@ -239,23 +230,24 @@ export const Dragons: Story = {
 
 // Game-like demonstration
 export const MahjongHand: Story = {
-  args: { tileId: 1 },
-  render: () => (
+  args: { ...defaultArgs },
+  render: (args) => (
     <div className="rounded-lg bg-green-800 p-4">
       <div className="flex gap-1">
-        <Tile tileId={1} hoverable />
-        <Tile tileId={2} hoverable selected />
-        <Tile tileId={3} hoverable />
-        <Tile tileId={11} hoverable />
-        <Tile tileId={12} hoverable />
-        <Tile tileId={13} hoverable />
-        <Tile tileId={21} hoverable />
-        <Tile tileId={22} hoverable />
-        <Tile tileId={23} hoverable />
-        <Tile tileId={31} hoverable />
-        <Tile tileId={31} hoverable />
-        <Tile tileId={35} hoverable />
-        <Tile tileId={35} hoverable />
+        <Tile {...args} tileId={1} hoverable />
+        <Tile {...args} tileId={2} hoverable selected />
+        <Tile {...args} tileId={3} hoverable />
+        <Tile {...args} tileId={11} hoverable />
+        <Tile {...args} tileId={12} hoverable />
+        <Tile {...args} tileId={13} hoverable />
+        <Tile {...args} tileId={21} hoverable />
+        <Tile {...args} tileId={22} hoverable />
+        <Tile {...args} tileId={23} hoverable />
+        <Tile {...args} tileId={31} hoverable />
+        <Tile {...args} tileId={31} hoverable />
+        <Tile {...args} tileId={35} hoverable />
+        <Tile {...args} tileId={-1} hoverable />
+        <Tile {...args} tileId={35} hoverable />
       </div>
     </div>
   ),
