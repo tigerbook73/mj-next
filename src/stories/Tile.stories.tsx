@@ -21,9 +21,9 @@ const meta = {
       control: "select",
       options: ["sm", "md", "lg", "xl", "1", "2", "3", "4", "6", "7", "8", "9"],
     },
-    direction: {
+    rotate: {
       control: "select",
-      options: ["0", "90", "180", "270", "-90"],
+      options: ["0", "90", "180", "270"],
     },
     hoverable: {
       control: "boolean",
@@ -108,22 +108,29 @@ export const NumericSizes: Story = {
 export const Directions: Story = {
   args: { tileId: 1 },
   render: () => (
-    <div className="flex gap-4">
-      <Tile tileId={1} direction="0" />
-      <Tile tileId={1} direction="90" />
-      <Tile tileId={1} direction="180" />
-      <Tile tileId={1} direction="270" />
+    <div className="flex flex-col gap-4">
+      <div className="flex gap-1">
+        <Tile tileId={1} rotate="0" />
+        <Tile tileId={2} rotate="0" />
+        <Tile tileId={3} rotate="0" />
+      </div>
+      <div className="flex gap-1">
+        <Tile tileId={1} rotate="90" />
+        <Tile tileId={2} rotate="90" />
+        <Tile tileId={3} rotate="90" />
+      </div>
+      <div className="flex gap-1">
+        <Tile tileId={1} rotate="180" />
+        <Tile tileId={2} rotate="180" />
+        <Tile tileId={3} rotate="180" />
+      </div>
+      <div className="flex gap-1">
+        <Tile tileId={1} rotate="270" />
+        <Tile tileId={2} rotate="270" />
+        <Tile tileId={3} rotate="270" />
+      </div>
     </div>
   ),
-};
-
-// Interactive states
-export const Interactive: Story = {
-  args: {
-    tileId: 1,
-    hoverable: true,
-    onClick: (id) => alert(`Clicked tile ${id}`),
-  },
 };
 
 export const Selected: Story = {
@@ -134,15 +141,10 @@ export const Selected: Story = {
   // },
   args: { tileId: 1 },
   render: () => (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="flex gap-1">
       <Tile tileId={1} />
-      <Tile tileId={1} selected />
-      <Tile tileId={1} direction="90" />
-      <Tile tileId={1} direction="90" selected />
-      <Tile tileId={1} direction="180" />
-      <Tile tileId={1} direction="180" selected />
-      <Tile tileId={1} direction="270" />
-      <Tile tileId={1} direction="270" selected />
+      <Tile tileId={2} selected />
+      <Tile tileId={3} />
     </div>
   ),
 };
@@ -241,8 +243,8 @@ export const MahjongHand: Story = {
   render: () => (
     <div className="rounded-lg bg-green-800 p-4">
       <div className="flex gap-1">
-        <Tile tileId={1} hoverable selected />
-        <Tile tileId={2} hoverable />
+        <Tile tileId={1} hoverable />
+        <Tile tileId={2} hoverable selected />
         <Tile tileId={3} hoverable />
         <Tile tileId={11} hoverable />
         <Tile tileId={12} hoverable />

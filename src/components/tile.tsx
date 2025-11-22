@@ -1,11 +1,9 @@
 import * as React from "react";
-import Image from "next/image";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-// Tile mapping - based on the SVG files available
+// --- TILE_MAP (保持不变) ---
 const TILE_MAP: Record<number, string> = {
-  // Characters (Man) 1-9
   1: "Man1",
   2: "Man2",
   3: "Man3",
@@ -15,7 +13,6 @@ const TILE_MAP: Record<number, string> = {
   7: "Man7",
   8: "Man8",
   9: "Man9",
-  // Dots (Pin) 11-19
   11: "Pin1",
   12: "Pin2",
   13: "Pin3",
@@ -25,7 +22,6 @@ const TILE_MAP: Record<number, string> = {
   17: "Pin7",
   18: "Pin8",
   19: "Pin9",
-  // Bamboo (Sou) 21-29
   21: "Sou1",
   22: "Sou2",
   23: "Sou3",
@@ -35,46 +31,96 @@ const TILE_MAP: Record<number, string> = {
   27: "Sou7",
   28: "Sou8",
   29: "Sou9",
-  // Winds 31-34
   31: "Ton",
   32: "Nan",
   33: "Shaa",
   34: "Pei",
-  // Dragons 35-37
   35: "Haku",
   36: "Hatsu",
   37: "Chun",
-  // Dora tiles 41-43
   41: "Man5-Dora",
   42: "Pin5-Dora",
   43: "Sou5-Dora",
-  // Special tiles
   50: "Blank",
   51: "Front",
-  // Back tile
   0: "Back",
 };
 
+// --- TILE ID 常量 ---
+const TILE_ID = {
+  BACK: 0,
+  BLANK: 50,
+  FRONT: 51,
+  EMPTY_SPACE: -1,
+} as const;
+
+const TILE_RATIO = "aspect-[3/4]"; // 正常比例 (高/宽 = 4/3)
+const TILE_RATIO_ROTATE = "aspect-[4/3]"; // 旋转比例 (宽/高 = 4/3)
+
+// --- 尺寸配置 ---
+const portraitSizeClass: Record<string, string> = {
+  sm: "w-8",
+  md: "w-12",
+  lg: "w-16",
+  xl: "w-20",
+  "1": "w-6",
+  "2": "w-8",
+  "3": "w-10",
+  "4": "w-12",
+  "6": "w-16",
+  "7": "w-18",
+  "8": "w-20",
+  "9": "w-24",
+};
+
+// 旋转时使用的尺寸类 (宽高互换)
+const landscapeSizeClass: Record<string, string> = {
+  sm: "h-8",
+  md: "h-12",
+  lg: "h-16",
+  xl: "h-20",
+  "1": "h-6",
+  "2": "h-8",
+  "3": "h-10",
+  "4": "h-12",
+  "6": "h-16",
+  "7": "h-18",
+  "8": "h-20",
+  "9": "h-24",
+};
+
+type TileSize = keyof typeof portraitSizeClass;
+type RotateDirection = "0" | "90" | "180" | "270";
+
+/**
+ * 根据尺寸和旋转方向，获取容器的尺寸类。
+ */
+function getContainerClasses(size: TileSize, isVertical: boolean): string {
+  return isVertical
+    ? cn(landscapeSizeClass[size], TILE_RATIO_ROTATE)
+    : cn(portraitSizeClass[size], TILE_RATIO);
+}
+
+/**
+ * 图像的大小，内部的旋转、居中和对齐类
+ */
+function getImageClasses(size: TileSize, direction: RotateDirection): string {
+  return cn(
+    "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
+    "origin-center object-contain",
+    `rotate-${direction}`,
+    portraitSizeClass[size],
+  );
+}
+
+// --- cva 变体 ---
 const tileVariants = cva(
-  "relative inline-block cursor-pointer select-none rounded-[15%] bg-white shadow-md transition-all duration-200",
+  // 基础样式
+  "relative inline-block select-none overflow-hidden rounded-[15%] border border-gray-900 shadow-md transition-all duration-200",
   {
     variants: {
-      size: {
-        sm: "h-11 w-8",
-        md: "h-16 w-12",
-        lg: "h-22 w-16",
-        xl: "h-28 w-20",
-        "1": "h-8 w-6",
-        "2": "h-11 w-8",
-        "3": "h-14 w-10",
-        "4": "h-16 w-12",
-        "6": "h-22 w-16",
-        "7": "h-24 w-18",
-        "8": "h-28 w-20",
-        "9": "h-32 w-24",
-      },
       hoverable: {
-        true: "hover:scale-105 hover:brightness-110",
+        true: "hover:shadow-lg hover:brightness-110",
         false: "",
       },
       selected: {
@@ -89,47 +135,36 @@ const tileVariants = cva(
         warning: "ring-2 ring-red-400",
         success: "ring-2 ring-green-400",
       },
-      direction: {
-        "0": "rotate-0",
-        "90": "rotate-90",
-        "180": "rotate-180",
-        "270": "-rotate-90",
-        "-90": "-rotate-90",
-      },
     },
     defaultVariants: {
-      size: "md",
       hoverable: false,
       selected: false,
       special: "normal",
-      direction: "0",
     },
   },
 );
 
 export interface TileProps extends VariantProps<typeof tileVariants> {
-  /** Unique identifier for the tile. If invalid, shows empty space */
   tileId: number;
-  /** Whether to show back or front of tile */
   back?: boolean;
-  /** Additional CSS classes */
   className?: string;
-  /** Click handler */
   onClick?: (tileId: number) => void;
-  /** Theme variant - Regular or Black tiles */
   theme?: "Regular" | "Black";
+  size?: TileSize;
+  rotate?: RotateDirection;
 }
 
+// --- 组件主体 ---
 export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
   (
     {
       tileId,
       back = false,
-      size,
+      size = "md",
       hoverable,
       selected,
       special,
-      direction,
+      rotate = "0",
       className,
       onClick,
       theme = "Regular",
@@ -137,89 +172,77 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
     },
     ref,
   ) => {
-    // Handle special empty space case
-    const isEmptySpace = tileId === -1;
+    // 确定牌的状态
+    const currentSize: TileSize = size || "md";
+    const isEmptySpace = tileId === TILE_ID.EMPTY_SPACE;
+    const isBack = back || tileId === TILE_ID.BACK;
+    const isVertical = rotate === "90" || rotate === "270";
 
-    // Determine which tile to show
-    const getTileFileName = (): string => {
-      const tileName = TILE_MAP[tileId];
-      return tileName || "Blank";
-    };
+    // 父容器占位尺寸 (已考虑旋转互换)
+    const containerSizeClasses = getContainerClasses(currentSize, isVertical);
+    // 旋转图片的原始尺寸
+    const imageClasses = getImageClasses(currentSize, rotate);
 
-    // Handle valid tiles - valid if in TILE_MAP or if back is true (but not empty space)
-    const tileFileName = getTileFileName();
+    // 获取文件名
+    const tileFileName = TILE_MAP[tileId] || TILE_MAP[TILE_ID.BLANK];
     const imagePath = `/tiles/${theme}/${tileFileName}.svg`;
 
     const handleClick = () => {
-      if (onClick && !back) {
+      if (onClick && !isBack && !isEmptySpace) {
         onClick(tileId);
       }
     };
 
+    // 1. **空白占位逻辑**：必须应用旋转后的尺寸类
+    if (isEmptySpace) {
+      return (
+        <div
+          ref={ref}
+          className={cn(containerSizeClasses, className)}
+          {...props}
+        />
+      );
+    }
+
+    // 2. **非空白牌的样式**
     const tileClassName = cn(
-      // Only apply tile variants if not empty space
-      !isEmptySpace &&
-        tileVariants({
-          size,
-          hoverable: hoverable && !back && !isEmptySpace,
-          selected: selected && !back && !isEmptySpace,
-          special,
-          direction,
-        }),
-      // Only show border and background if not empty space
-      !isEmptySpace && "border border-gray-900",
-      !isEmptySpace &&
-        (back ? "bg-gray-600" : theme === "Black" ? "bg-gray-800" : "bg-white"),
-      // For empty space, only apply size classes to maintain layout
-      isEmptySpace &&
-        {
-          sm: "h-11 w-8",
-          md: "h-16 w-12",
-          lg: "h-22 w-16",
-          xl: "h-28 w-20",
-          "1": "h-8 w-6",
-          "2": "h-11 w-8",
-          "3": "h-14 w-10",
-          "4": "h-16 w-12",
-          "6": "h-22 w-16",
-          "7": "h-24 w-18",
-          "8": "h-28 w-20",
-          "9": "h-32 w-24",
-        }[size || "md"],
-      onClick && !back && !isEmptySpace && "cursor-pointer",
+      tileVariants({
+        hoverable: hoverable && !isBack,
+        selected: selected && !isBack,
+        special,
+      }),
+      containerSizeClasses, // 应用计算后的尺寸占位类
+      // 背景色和边框
+      isBack
+        ? "border-gray-700 bg-gray-600"
+        : theme === "Black"
+          ? "bg-gray-800"
+          : "bg-white",
+      onClick && !isBack && "cursor-pointer",
       className,
     );
 
+    // 3. **渲染**
     return (
       <div
         ref={ref}
         className={tileClassName}
         onClick={handleClick}
-        role={onClick ? "button" : undefined}
-        tabIndex={onClick && !back ? 0 : undefined}
-        onKeyDown={(e) => {
-          if ((e.key === "Enter" || e.key === " ") && onClick && !back) {
-            e.preventDefault();
-            handleClick();
-          }
-        }}
+        role={onClick && !isBack ? "button" : undefined}
+        tabIndex={onClick && !isBack ? 0 : undefined}
         {...props}
       >
-        {isEmptySpace ? (
-          // Empty space for id -1 - maintains layout but shows nothing
-          <div className="h-full w-full" />
-        ) : back ? (
-          // Valid tile with back=true - show gray background only
+        {isBack ? (
+          // 渲染牌背
           <div className="h-full w-full" />
         ) : (
-          // Valid tile with front - show image
-          <Image
+          // 渲染牌面
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={imagePath}
-            alt={`Mahjong tile ${tileFileName}`}
-            fill
-            className="object-contain"
+            alt={`Mahjong tile ${getTileName(tileId)}`}
+            className={imageClasses}
             draggable={false}
-            unoptimized
           />
         )}
       </div>
@@ -229,16 +252,11 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
 
 Tile.displayName = "Tile";
 
-// Utility functions for tile management
-export const getTileName = (tileId: number): string => {
-  return TILE_MAP[tileId] || "Unknown";
-};
+// --- 辅助函数 (保持不变) ---
+export const getTileName = (tileId: number) => TILE_MAP[tileId] || "Unknown";
+export const isValidTileId = (tileId: number) => tileId in TILE_MAP;
 
-export const isValidTileId = (tileId: number): boolean => {
-  return tileId in TILE_MAP;
-};
-
-// Tile categories for easy grouping
+// --- TILE_CATEGORIES (保持不变) ---
 export const TILE_CATEGORIES = {
   CHARACTERS: [1, 2, 3, 4, 5, 6, 7, 8, 9],
   DOTS: [11, 12, 13, 14, 15, 16, 17, 18, 19],
