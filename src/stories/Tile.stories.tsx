@@ -19,11 +19,25 @@ const meta = {
     },
     size: {
       control: "select",
-      options: ["sm", "md", "lg", "xl", "1", "2", "3", "4", "6", "7", "8", "9"],
+      options: [
+        "auto",
+        "sm",
+        "md",
+        "lg",
+        "xl",
+        "1",
+        "2",
+        "3",
+        "4",
+        "6",
+        "7",
+        "8",
+        "9",
+      ],
     },
     rotate: {
       control: "select",
-      options: ["0", "90", "180", "270"],
+      options: ["0", "90", "180", "-90"],
     },
     hoverable: {
       control: "boolean",
@@ -78,6 +92,13 @@ export const InvalidTile: Story = {
   },
 };
 
+export const AutoSize: Story = {
+  args: {
+    ...defaultArgs,
+    size: "auto", // Auto size
+  },
+};
+
 // Size variations
 export const Sizes: Story = {
   args: { ...defaultArgs },
@@ -112,12 +133,12 @@ export const Directions: Story = {
   args: { ...defaultArgs },
   render: (args) => (
     <div className="flex flex-col gap-4">
-      {["0", "90", "180", "270"].map((dir) => (
+      {["0", "90", "180", "-90"].map((dir) => (
         <div key={dir} className="flex flex-row items-center">
           <div className="w-10">{dir}°</div>
           <div className="flex gap-1">
-            <Tile {...args} rotate={dir as "0" | "90" | "180" | "270"} />
-            <Tile {...args} rotate={dir as "0" | "90" | "180" | "270"} />
+            <Tile {...args} rotate={dir as "0" | "90" | "180" | "-90"} />
+            <Tile {...args} rotate={dir as "0" | "90" | "180" | "-90"} />
           </div>
         </div>
       ))}

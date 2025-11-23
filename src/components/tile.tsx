@@ -89,27 +89,54 @@ const landscapeSizeClass: Record<string, string> = {
   "9": "h-24",
 };
 
-type TileSize = keyof typeof portraitSizeClass;
-type RotateDirection = "0" | "90" | "180" | "270";
+const rotateClasses: Record<RotateDirection, string> = {
+  "0": "rotate-0",
+  "90": "rotate-90",
+  "180": "rotate-180",
+  "-90": "-rotate-90",
+  "270": "-rotate-90",
+};
+
+// 响应式尺寸类 (当未指定 size 时使用)，注意：这里的size需要和上面定义的匹配
+const responsivePortraitClasses = "w-5 sm:w-6 md:w-8 lg:w-10";
+const responsiveLandscapeClasses = "h-5 sm:h-6 md:h-8 lg:h-10";
+type TileSize = keyof typeof portraitSizeClass | "auto";
+type RotateDirection = "0" | "90" | "180" | "-90" | "270";
 
 /**
  * 根据尺寸和旋转方向，获取容器的尺寸类。
+ * 当 size 为 auto 时，使用响应式尺寸类。
  */
 function getContainerClasses(size: TileSize, isVertical: boolean): string {
+  if (size === "auto") {
+    // 未指定尺寸时使用响应式类
+    return isVertical
+      ? cn(responsiveLandscapeClasses, TILE_RATIO_ROTATE)
+      : cn(responsivePortraitClasses, TILE_RATIO);
+  }
   return isVertical
     ? cn(landscapeSizeClass[size], TILE_RATIO_ROTATE)
     : cn(portraitSizeClass[size], TILE_RATIO);
 }
 
+function getRotateClass(direction: RotateDirection): string {
+  return rotateClasses[direction];
+}
+
 /**
  * 图像的大小，内部的旋转、居中和对齐类
  */
-function getImageClasses(size: TileSize, direction: RotateDirection): string {
+function getImageClasses(
+  size: TileSize | undefined,
+  direction: RotateDirection,
+): string {
+  const sizeClass = size ? portraitSizeClass[size] : responsivePortraitClasses;
   return cn(
     "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
     "origin-center object-contain",
-    `rotate-${direction}`,
-    portraitSizeClass[size],
+    getRotateClass(direction),
+    sizeClass,
+    TILE_RATIO,
   );
 }
 
@@ -160,7 +187,7 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
     {
       tileId,
       back = false,
-      size = "md",
+      size = "auto",
       hoverable,
       selected,
       special,
@@ -173,15 +200,15 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
     ref,
   ) => {
     // 确定牌的状态
-    const currentSize: TileSize = size || "md";
     const isEmptySpace = tileId === TILE_ID.EMPTY_SPACE;
     const isBack = back || tileId === TILE_ID.BACK;
-    const isVertical = rotate === "90" || rotate === "270";
+    const isVertical = rotate === "90" || rotate === "-90" || rotate === "270";
 
     // 父容器占位尺寸 (已考虑旋转互换)
-    const containerSizeClasses = getContainerClasses(currentSize, isVertical);
+    // size 未指定时，getContainerClasses 会使用响应式类
+    const containerSizeClasses = getContainerClasses(size, isVertical);
     // 旋转图片的原始尺寸
-    const imageClasses = getImageClasses(currentSize, rotate);
+    const imageClasses = getImageClasses(size, rotate);
 
     // 获取文件名
     const tileFileName = TILE_MAP[tileId] || TILE_MAP[TILE_ID.BLANK];
