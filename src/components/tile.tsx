@@ -83,6 +83,7 @@ const landscapeSizeClass: Record<string, string> = {
   "2": "h-8",
   "3": "h-10",
   "4": "h-12",
+  "5": "h-14",
   "6": "h-16",
   "7": "h-18",
   "8": "h-20",

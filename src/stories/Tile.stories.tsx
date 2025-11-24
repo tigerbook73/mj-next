@@ -118,7 +118,7 @@ export const NumericSizes: Story = {
   args: { ...defaultArgs },
   render: (args) => (
     <div className="flex items-end gap-2">
-      {["1", "2", "3", "4", "6", "7", "8", "9"].map((size) => (
+      {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((size) => (
         <div className="flex flex-col items-center" key={size}>
           <Tile {...args} size={size} />
           <div>{size}</div>
