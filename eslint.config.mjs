@@ -22,6 +22,7 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
       "src/common/**",
+      "storybook-static/**",
     ],
   },
   ...storybook.configs["flat/recommended"],

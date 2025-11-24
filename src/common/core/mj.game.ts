@@ -1,16 +1,4 @@
-import { type TileId, TileCore } from "./mj.tile-core";
-
-/**
- * 动作类型
- */
-export const enum ActionType {
-  Peng = "peng",
-  Chi = "chi",
-  Gang = "gang",
-  Angang = "angang",
-  Hu = "hu",
-  Pass = "pass",
-}
+import { type TileId, TileCore, ActionType } from "./mj.tile-core";
 
 export const enum ActionResult {
   Waiting = "waiting", // waiting for action
@@ -94,7 +82,7 @@ export class Player {
 export const enum GameState {
   Init = "init", // 初始
   Dispatching = "dispatching", // 发牌中，后续可以拆分成更小的状态
-  WaitingAction = "wating_action", // 等待玩家操作: 胡/暗杠/打牌
+  WaitingAction = "waiting_action", // 等待玩家操作: 胡/暗杠/打牌
   WaitingPass = "waiting-pass", // 等待玩家按顺序操作: 过/碰/杠/吃/胡, 在这个状态下，下一个玩家还没有确定，current还是打出牌的玩家
   // 顺序：
   // 判断是否有人碰/胡/杠/吃
@@ -135,6 +123,7 @@ export class Discard {
 }
 
 export class Game {
+  public name;
   public players: (Player | null)[] = []; // 玩家
   public walls: Wall[] = []; // 牌墙
   public discards: Discard[] = []; // 打出的牌
@@ -150,8 +139,11 @@ export class Game {
   public passedPlayers: Player[] = []; // 已经过的玩家，该属性仅用于client side
   public queuedActions: ActionDetail[] = []; // 等待处理的动作，该属性不用于Client Side
 
-  constructor() {
-    //
+  // logger
+  static logger = console;
+
+  constructor(name: string = "default") {
+    this.name = name;
   }
 
   /**
@@ -215,6 +207,8 @@ export class Game {
     this.assignDealer();
     this.dice();
     this.dispatch();
+
+    Game.logger.log(`Game "${this.name}": started.`);
   }
 
   /**
@@ -254,6 +248,9 @@ export class Game {
     // need a timeout
     this.handleQueuedActions();
 
+    Game.logger.log(
+      `Game "${this.name}": Player ${this.current.position}: dropped "${TileCore.fromId(tile).name}".`,
+    );
     return this;
   }
 
@@ -297,6 +294,10 @@ export class Game {
 
     this.pickReverse();
     this.setState(GameState.WaitingAction);
+
+    Game.logger.log(
+      `Game "${this.name}": Player ${this.current.position}: angang "${TileCore.fromId(tileIds[0]).name}".`,
+    );
   }
 
   /**
@@ -316,6 +317,10 @@ export class Game {
     }
 
     this.setState(GameState.End);
+
+    Game.logger.log(
+      `Game "${this.name}": Player ${this.current.position}: zimo.`,
+    );
     return this;
   }
 
@@ -356,6 +361,8 @@ export class Game {
     }
 
     this.handleQueuedActions();
+
+    Game.logger.log(`Game "${this.name}": Player ${player.position}: pass.`);
     return this;
   }
 
@@ -406,7 +413,13 @@ export class Game {
       }
     }
 
+    const latestTile = this.latestTile;
+
     this.handleQueuedActions();
+
+    Game.logger.log(
+      `Game "${this.name}": Player ${player.position}: chi "${TileCore.fromId(tileIds[0]).name}" "${TileCore.fromId(tileIds[1]).name}" => "${TileCore.fromId(latestTile).name}".`,
+    );
     return this;
   }
 
@@ -460,6 +473,9 @@ export class Game {
     }
 
     this.handleQueuedActions();
+    Game.logger.log(
+      `Game "${this.name}": Player ${player.position}: peng "${TileCore.fromId(tileIds[0]).name}".`,
+    );
     return this;
   }
 
@@ -509,6 +525,9 @@ export class Game {
     }
 
     this.handleQueuedActions();
+    Game.logger.log(
+      `Game "${this.name}": Player ${player.position}: gang "${TileCore.fromId(tileIds[0]).name}".`,
+    );
     return this;
   }
 
@@ -555,6 +574,9 @@ export class Game {
     }
 
     this.handleQueuedActions();
+    Game.logger.log(
+      `Game "${this.name}": Player ${player.position}: hu "${TileCore.fromId(this.latestTile).name}".`,
+    );
     return this;
   }
 
@@ -1096,6 +1118,7 @@ export class Game {
 
   static fromJSON(data: any): Game {
     const game = new Game();
+    game.name = data.name || "default";
     game.players = data.players.map((playerData: any) =>
       playerData ? Player.fromJSON(playerData) : null,
     );

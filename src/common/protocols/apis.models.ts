@@ -604,12 +604,14 @@ export class ClientApi {
    */
   parseEvent(event: any): GameEvent {
     return {
-      type: event.type,
+      type: event.type as GameEventType,
       data: {
         clients: event.data.clients.map((data: any) =>
           ClientModel.fromJSON(data),
-        ),
-        rooms: event.data.rooms.map((data: any) => RoomModel.fromJSON(data)),
+        ) as ClientModel[],
+        rooms: event.data.rooms.map((data: any) =>
+          RoomModel.fromJSON(data),
+        ) as RoomModel[],
       },
     };
   }

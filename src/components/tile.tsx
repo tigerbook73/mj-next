@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import { TileCore } from "@/common/core/mj.tile-core";
 
 // --- TILE_MAP ---
 const TILE_MAP: Record<number, string> = {
@@ -47,7 +48,7 @@ const TILE_MAP: Record<number, string> = {
 };
 
 // --- TILE ID 常量 ---
-const TILE_ID = {
+const TID = {
   BACK: 0,
   BLANK: 50,
   FRONT: 51,
@@ -200,9 +201,11 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
     },
     ref,
   ) => {
+    const tile = TileCore.fromId(tileId);
+
     // 确定牌的状态
-    const isEmptySpace = tileId === TILE_ID.EMPTY_SPACE;
-    const isBack = back || tileId === TILE_ID.BACK;
+    const isEmptySpace = tile.tid === TID.EMPTY_SPACE;
+    const isBack = back || tile.tid === TID.BACK;
     const isVertical = rotate === "90" || rotate === "-90" || rotate === "270";
 
     // 父容器占位尺寸 (已考虑旋转互换)
@@ -212,12 +215,12 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
     const imageClasses = getImageClasses(size, rotate);
 
     // 获取文件名
-    const tileFileName = TILE_MAP[tileId] || TILE_MAP[TILE_ID.BLANK];
+    const tileFileName = TILE_MAP[tile.tid] || TILE_MAP[TID.BLANK];
     const imagePath = `/tiles/${theme}/${tileFileName}.svg`;
 
     const handleClick = () => {
       if (onClick && !isBack && !isEmptySpace) {
-        onClick(tileId);
+        onClick(tile.id);
       }
     };
 
@@ -268,7 +271,7 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={imagePath}
-            alt={`Mahjong tile ${getTileName(tileId)}`}
+            alt={`Mahjong tile ${getTileName(tile.tid)}`}
             className={imageClasses}
             draggable={false}
           />
@@ -281,8 +284,8 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
 Tile.displayName = "Tile";
 
 // --- 辅助函数 ---
-export const getTileName = (tileId: number) => TILE_MAP[tileId] || "Unknown";
-export const isValidTileId = (tileId: number) => tileId in TILE_MAP;
+export const getTileName = (tid: number) => TILE_MAP[tid] || "Unknown";
+export const isValidTId = (tid: number) => tid in TILE_MAP;
 
 // --- TILE_CATEGORIES ---
 export const TILE_CATEGORIES = {

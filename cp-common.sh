@@ -4,4 +4,4 @@
 project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Execute the copy command
-cp -r "${project_dir}/../learn/mj/mj-server/src/common" "${project_dir}/src/"
+cp -r "${project_dir}/../learn/mj/mj/server/src/common" "${project_dir}/src/"

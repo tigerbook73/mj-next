@@ -1,5 +1,5 @@
 import { Game, Position, GameState } from "./mj.game";
-import { TileCore, type TileId } from "./mj.tile-core";
+import { TileCore } from "./mj.tile-core";
 
 describe("Game Play", () => {
   let game: Game;
@@ -28,22 +28,5 @@ describe("Game Play", () => {
     expect(game.state).toBe(GameState.WaitingAction);
     expect(game.dealer).toBe(game.players[Position.East]);
     expect(game.current).toBe(game.dealer);
-  });
-
-  it("discard(picked)", () => {
-    game.drop(game.current?.picked as TileId);
-    expect(game.state).toBe(GameState.WaitingPass);
-  });
-
-  it("pass(all)", () => {
-    const nextPlayer = game.getNextPlayer();
-    game.pass(nextPlayer);
-    expect(game.state).toBe(GameState.WaitingAction);
-    expect(game.current).toBe(nextPlayer);
-  });
-
-  it("discard(0)", () => {
-    game.drop(game.current?.handTiles[0] as TileId);
-    expect(game.state).toBe(GameState.WaitingPass);
   });
 });
