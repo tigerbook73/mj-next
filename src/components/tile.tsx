@@ -74,6 +74,8 @@ const portraitSizeClass: Record<string, string> = {
   "9": "w-24",
 };
 
+type TileSize = keyof typeof portraitSizeClass | "auto";
+
 // 旋转时使用的尺寸类 (宽高互换)
 const landscapeSizeClass: Record<string, string> = {
   sm: "h-8",
@@ -100,9 +102,8 @@ const rotateClasses: Record<RotateDirection, string> = {
 };
 
 // 响应式尺寸类 (当未指定 size 时使用)，注意：这里的size需要和上面定义的匹配
-const responsivePortraitClasses = "w-5 sm:w-6 md:w-7 lg:w-9";
-const responsiveLandscapeClasses = "h-5 sm:h-6 md:h-7 lg:h-9";
-type TileSize = keyof typeof portraitSizeClass | "auto";
+const responsivePortraitClasses = "w-6 xs:w-7 sm:w-8 md:w-9";
+const responsiveLandscapeClasses = "h-6 xs:h-7 sm:h-8 md:h-9";
 type RotateDirection = "0" | "90" | "180" | "-90" | "270";
 
 /**
