@@ -8,7 +8,9 @@ const config: Config = {
     "./src/stories/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      screen: { xs: "475px" },
+    },
   },
   plugins: [],
 };
