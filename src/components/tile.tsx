@@ -100,8 +100,8 @@ const rotateClasses: Record<RotateDirection, string> = {
 };
 
 // 响应式尺寸类 (当未指定 size 时使用)，注意：这里的size需要和上面定义的匹配
-const responsivePortraitClasses = "w-5 sm:w-6 md:w-8 lg:w-10";
-const responsiveLandscapeClasses = "h-5 sm:h-6 md:h-8 lg:h-10";
+const responsivePortraitClasses = "w-5 sm:w-6 md:w-7 lg:w-9";
+const responsiveLandscapeClasses = "h-5 sm:h-6 md:h-7 lg:h-9";
 type TileSize = keyof typeof portraitSizeClass | "auto";
 type RotateDirection = "0" | "90" | "180" | "-90" | "270";
 
@@ -149,11 +149,11 @@ const tileVariants = cva(
   {
     variants: {
       hoverable: {
-        true: "hover:shadow-lg hover:brightness-110",
+        true: "transform transition-transform duration-200 hover:scale-110",
         false: "",
       },
       selected: {
-        true: "-translate-y-1/4 transform shadow-lg brightness-110",
+        true: "-translate-y-1/8 transform duration-200",
         false: "",
       },
       special: {
