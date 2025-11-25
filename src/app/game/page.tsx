@@ -1,5 +1,6 @@
 "use client";
 
+import { PlayAreaMe } from "@/components/playarea-me";
 import SpeedDial from "@/components/ui-ex/speed-dial";
 import { Button } from "@/components/ui/button";
 import { LogOut, PersonStandingIcon } from "lucide-react";
@@ -31,7 +32,7 @@ export default function Game() {
     <div className="flex h-screen w-screen items-center justify-center bg-gray-300">
       {/* Player layer (outer 3x3 grid) */}
       <div
-        className={`grid aspect-square min-h-[300px] w-[95vmin] min-w-[300px] ${outerEdge} overflow-hidden bg-green-700 font-mono text-sm text-white`}
+        className={`grid aspect-square min-h-[300px] w-[98vmin] min-w-[300px] ${outerEdge} overflow-hidden bg-green-700 font-mono text-sm text-white`}
       >
         {/* First row */}
         <div className="flex items-center justify-center bg-yellow-500">
@@ -130,7 +131,7 @@ export default function Game() {
           P-BL
         </div>
         <div className="flex items-center justify-center bg-yellow-600">
-          P-B
+          <PlayAreaMe />
         </div>
         <div className="flex items-center justify-center bg-yellow-500">
           P-BR
