@@ -102,8 +102,8 @@ const rotateClasses: Record<RotateDirection, string> = {
 };
 
 // 响应式尺寸类 (当未指定 size 时使用)，注意：这里的size需要和上面定义的匹配
-const responsivePortraitClasses = "w-6 xs:w-7 sm:w-8 md:w-9";
-const responsiveLandscapeClasses = "h-6 xs:h-7 sm:h-8 md:h-9";
+const responsivePortraitClasses = "w-6 xs:w-7 sm:w-7 md:w-8";
+const responsiveLandscapeClasses = "h-6 xs:h-7 sm:h-7 md:h-8";
 type RotateDirection = "0" | "90" | "180" | "-90" | "270";
 
 /**
