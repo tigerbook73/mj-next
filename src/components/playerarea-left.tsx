@@ -7,6 +7,7 @@ export function PlayerAreaLeft() {
     <div className="flex h-full w-full flex-col items-center justify-between">
       <PlayerAreaOpenSet position={Position.West} />
       <PlayerAreaHand position={Position.West} />
+      <div className="h-1/8 w-full"></div>
     </div>
   );
 }
