@@ -2,13 +2,15 @@ import type { Game } from "@/common/core/mj.game";
 import { Position } from "@/common/core/mj.game";
 import type { TileId } from "@/common/core/mj.tile-core";
 
-export enum Direction {
-  Top = "top",
-  Bottom = "bottom",
-  Right = "right",
-  Left = "left",
-  None = "none",
-}
+export const Direction = {
+  Top: "top",
+  Bottom: "bottom",
+  Right: "right",
+  Left: "left",
+  None: "none",
+} as const;
+
+export type Direction = (typeof Direction)[keyof typeof Direction];
 
 const directionTextMap = {
   [Direction.Top]: "上",

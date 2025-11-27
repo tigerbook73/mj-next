@@ -6,11 +6,13 @@ export interface RoomCreateDto {
   name: string;
 }
 
-export const enum RoomStatus {
-  Open = "open",
-  Started = "started",
-  Finished = "finished",
-}
+export const RoomStatus = {
+  Open: "open",
+  Started: "started",
+  Finished: "finished",
+} as const;
+
+export type RoomStatus = (typeof RoomStatus)[keyof typeof RoomStatus];
 
 export class RoomModel {
   constructor(

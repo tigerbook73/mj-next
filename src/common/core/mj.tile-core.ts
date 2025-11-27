@@ -7,22 +7,26 @@ export type TileId = number;
 /**
  * 动作类型
  */
-export const enum ActionType {
-  Peng = "peng",
-  Chi = "chi",
-  Gang = "gang",
-  Angang = "angang",
-  Hu = "hu",
-  Pass = "pass",
-}
+export const ActionType = {
+  Peng: "peng",
+  Chi: "chi",
+  Gang: "gang",
+  Angang: "angang",
+  Hu: "hu",
+  Pass: "pass",
+} as const;
 
-export const enum TileType {
-  WAN = "万",
-  TONG = "筒",
-  TIAO = "条",
-  JIAN = "箭",
-  KONG = " ",
-}
+export type ActionType = (typeof ActionType)[keyof typeof ActionType];
+
+export const TileType = {
+  WAN: "万",
+  TONG: "筒",
+  TIAO: "条",
+  JIAN: "箭",
+  KONG: " ",
+} as const;
+
+export type TileType = (typeof TileType)[keyof typeof TileType];
 
 export class TileCore {
   /**

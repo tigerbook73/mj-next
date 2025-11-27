@@ -1,11 +1,13 @@
 import { type TileId, TileCore, ActionType } from "./mj.tile-core";
 
-export const enum ActionResult {
-  Waiting = "waiting", // waiting for action
-  Passed = "passed", // action is passed (rejected)
-  Accepting = "accepting", // action is accepting, however, there might be other high priority actions to be decided
-  Accepted = "accepted", // action is accepted
-}
+export const ActionResult = {
+  Waiting: "waiting", // waiting for action
+  Passed: "passed", // action is passed (rejected)
+  Accepting: "accepting", // action is accepting, however, there might be other high priority actions to be decided
+  Accepted: "accepted", // action is accepted
+} as const;
+
+export type ActionResult = (typeof ActionResult)[keyof typeof ActionResult];
 
 /**
  * 动作的细节
@@ -22,12 +24,29 @@ export class ActionDetail {
 /**
  * 玩家的位置
  */
-export enum Position {
-  East = 0,
-  South = 1,
-  West = 2,
-  North = 3,
-  None = -1,
+export const Position = {
+  East: 0,
+  South: 1,
+  West: 2,
+  North: 3,
+  None: -1,
+} as const;
+
+export type Position = (typeof Position)[keyof typeof Position];
+
+export function getPositionName(position: Position): string {
+  switch (position) {
+    case Position.East:
+      return "East";
+    case Position.South:
+      return "South";
+    case Position.West:
+      return "West";
+    case Position.North:
+      return "North";
+    default:
+      return "None";
+  }
 }
 
 /**
@@ -79,11 +98,11 @@ export class Player {
 /**
  * 游戏状态
  */
-export const enum GameState {
-  Init = "init", // 初始
-  Dispatching = "dispatching", // 发牌中，后续可以拆分成更小的状态
-  WaitingAction = "waiting_action", // 等待玩家操作: 胡/暗杠/打牌
-  WaitingPass = "waiting-pass", // 等待玩家按顺序操作: 过/碰/杠/吃/胡, 在这个状态下，下一个玩家还没有确定，current还是打出牌的玩家
+export const GameState = {
+  Init: "init", // 初始
+  Dispatching: "dispatching", // 发牌中，后续可以拆分成更小的状态
+  WaitingAction: "waiting_action", // 等待玩家操作: 胡/暗杠/打牌
+  WaitingPass: "waiting-pass", // 等待玩家按顺序操作: 过/碰/杠/吃/胡, 在这个状态下，下一个玩家还没有确定，current还是打出牌的玩家
   // 顺序：
   // 判断是否有人碰/胡/杠/吃
   // 如果有
@@ -94,8 +113,10 @@ export const enum GameState {
   //      吃 -> WaitingAction
   //      过 -> WaitingPass
   // 如果没有或者全过 -> 发牌 -> 进入下一轮的WaitingAction
-  End = "end", // 游戏结束
-}
+  End: "end", // 游戏结束
+} as const;
+
+export type GameState = (typeof GameState)[keyof typeof GameState];
 
 /**
  *
@@ -215,7 +236,7 @@ export class Game {
    * 打牌，打完牌后进入 WaitingPass 状态
    */
   public drop(tile: TileId): this {
-    if (![GameState.WaitingAction].includes(this.state)) {
+    if (!([GameState.WaitingAction] as GameState[]).includes(this.state)) {
       throw new Error("Discard can only be done in WaitingAction state");
     }
 
@@ -258,7 +279,7 @@ export class Game {
    * 暗杠, 暗杠后仍然是WaitingAction状态
    */
   public angang(tileIds: [TileId, TileId, TileId, TileId]) {
-    if (![GameState.WaitingAction].includes(this.state)) {
+    if (!([GameState.WaitingAction] as GameState[]).includes(this.state)) {
       throw new Error("Gang can only be done in WaitingAction state");
     }
 
@@ -304,7 +325,7 @@ export class Game {
    * 自摸胡, 自摸胡后进入 End 状态
    */
   public zimo(): this {
-    if (![GameState.WaitingAction].includes(this.state)) {
+    if (!([GameState.WaitingAction] as GameState[]).includes(this.state)) {
       throw new Error("Hu can only be done in WaitingAction state");
     }
 
@@ -328,7 +349,7 @@ export class Game {
    * 过，所有其他玩家都过了以后，下一个玩家变为当前玩家，抓牌，进入 WaitingAction 状态
    */
   public pass(player: Player): this {
-    if (![GameState.WaitingPass].includes(this.state)) {
+    if (!([GameState.WaitingPass] as GameState[]).includes(this.state)) {
       throw new Error("Pass can only be done in WaitingPass state");
     }
 
@@ -370,7 +391,7 @@ export class Game {
    * 吃, 吃完后进入 WaitingAction 状态
    */
   public chi(tileIds: [TileId, TileId]): this {
-    if (![GameState.WaitingPass].includes(this.state)) {
+    if (!([GameState.WaitingPass] as GameState[]).includes(this.state)) {
       throw new Error("Chi can only be done in WaitingPass state");
     }
 
@@ -427,7 +448,7 @@ export class Game {
    * 碰, 碰完后进入 WaitingAction 状态
    */
   public peng(player: Player, tileIds: [TileId, TileId]) {
-    if (![GameState.WaitingPass].includes(this.state)) {
+    if (!([GameState.WaitingPass] as GameState[]).includes(this.state)) {
       throw new Error("Peng can only be done in WaitingPass state");
     }
 
@@ -483,7 +504,7 @@ export class Game {
    * 杠, 杠完后进入 WaitingAction 状态
    */
   public gang(player: Player, tileIds: [TileId, TileId, TileId]) {
-    if (![GameState.WaitingPass].includes(this.state)) {
+    if (!([GameState.WaitingPass] as GameState[]).includes(this.state)) {
       throw new Error("Gang can only be done in WaitingPass state");
     }
 
@@ -535,7 +556,7 @@ export class Game {
    * 胡, 胡完后进入 End 状态
    */
   public hu(player: Player) {
-    if (![GameState.WaitingPass].includes(this.state)) {
+    if (!([GameState.WaitingPass] as GameState[]).includes(this.state)) {
       throw new Error("Hu can only be done in WaitingPass state");
     }
 
@@ -659,7 +680,7 @@ export class Game {
       return this;
     }
 
-    if (![GameState.WaitingPass].includes(this.state)) {
+    if (!([GameState.WaitingPass] as GameState[]).includes(this.state)) {
       throw new Error(
         "Queued actions can only be handled in WaitingPass state",
       );
@@ -800,7 +821,7 @@ export class Game {
    * add player to the game
    */
   setPlayer(player: Player): void {
-    if (![GameState.Init].includes(this.state)) {
+    if (!([GameState.Init] as GameState[]).includes(this.state)) {
       throw new Error("Players can only be set in init state");
     }
 
@@ -811,7 +832,11 @@ export class Game {
    * Set the current player
    */
   setCurrentPlayer(player: Player): Game {
-    if (![GameState.Dispatching, GameState.WaitingPass].includes(this.state)) {
+    if (
+      !([GameState.Dispatching, GameState.WaitingPass] as GameState[]).includes(
+        this.state,
+      )
+    ) {
       throw new Error(
         "Current player can only be set in Dispatching/WaitingPass state",
       );
@@ -883,7 +908,7 @@ export class Game {
    * assign a player as dealer
    */
   assignDealer() {
-    if (![GameState.Init].includes(this.state)) {
+    if (!([GameState.Init] as GameState[]).includes(this.state)) {
       throw new Error("Dealer can only be assigned in init state");
     }
 
@@ -899,14 +924,15 @@ export class Game {
       throw new Error("dealer is not assigned");
     }
 
-    if (![GameState.Init].includes(this.state)) {
+    if (!([GameState.Init] as GameState[]).includes(this.state)) {
       throw new Error("Dice can only be rolled in init state");
     }
 
     const dice1 = Math.floor(Math.random() * 6) + 1;
     const dice2 = Math.floor(Math.random() * 6) + 1;
 
-    this.pickPosition = (this.dealer?.position + dice1 + dice2) % 4;
+    this.pickPosition = ((this.dealer?.position + dice1 + dice2) %
+      4) as Position;
     this.pickIndex = (Math.max(dice1, dice2) + 1) * 2;
 
     this.reversePickPosition = this.pickPosition;
@@ -924,7 +950,7 @@ export class Game {
       this.pickIndex++;
       if (this.pickIndex >= this.walls[this.pickPosition].tiles.length) {
         this.pickIndex = 0;
-        this.pickPosition = (this.pickPosition + 1) % 4;
+        this.pickPosition = ((this.pickPosition + 1) % 4) as Position;
       }
       return taken;
     } else {
@@ -938,7 +964,8 @@ export class Game {
       if (this.reversePickIndex < 0) {
         this.reversePickIndex =
           this.walls[this.reversePickPosition].tiles.length - 1;
-        this.reversePickPosition = (this.reversePickPosition + 3) % 4;
+        this.reversePickPosition = ((this.reversePickPosition + 3) %
+          4) as Position;
       }
       return taken;
     }
@@ -958,7 +985,7 @@ export class Game {
       throw new Error("dealer is not assigned");
     }
 
-    if (![GameState.Init].includes(this.state)) {
+    if (!([GameState.Init] as GameState[]).includes(this.state)) {
       throw new Error("Dispatch can only be done in init state");
     }
 
@@ -1017,7 +1044,7 @@ export class Game {
   }
 
   pick(): this {
-    if (![GameState.WaitingPass].includes(this.state)) {
+    if (!([GameState.WaitingPass] as GameState[]).includes(this.state)) {
       throw new Error("Pick can only be done in WaitingPass state");
     }
 
@@ -1035,7 +1062,7 @@ export class Game {
   }
 
   pickReverse() {
-    if (![GameState.WaitingPass].includes(this.state)) {
+    if (!([GameState.WaitingPass] as GameState[]).includes(this.state)) {
       throw new Error("Pick can only be done when all players have passed");
     }
 

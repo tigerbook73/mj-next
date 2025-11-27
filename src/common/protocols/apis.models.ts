@@ -7,41 +7,44 @@ import { type RoomCreateDto, RoomModel } from "../models/room.model";
 import { UserModel } from "../models/user.model";
 import type { GameSocket } from "./game-socket";
 
-export const enum GameRequestType {
+export const GameRequestType = {
   // Authentication
-  SIGN_IN = "signIn",
-  SIGN_OUT = "signOut",
+  SIGN_IN: "signIn",
+  SIGN_OUT: "signOut",
 
   // clients
-  LIST_CLIENT = "listClient",
+  LIST_CLIENT: "listClient",
 
   // users
-  LIST_USER = "listUser",
-  DELETE_USER = "deleteUser",
+  LIST_USER: "listUser",
+  DELETE_USER: "deleteUser",
 
   // rooms
-  CREATE_ROOM = "createRoom",
-  DELETE_ROOM = "deleteRoom",
-  LIST_ROOM = "listRoom",
-  JOIN_ROOM = "joinRoom",
-  LEAVE_ROOM = "leaveRoom",
-  ENTER_GAME = "enterGame",
-  QUIT_GAME = "quitGame",
+  CREATE_ROOM: "createRoom",
+  DELETE_ROOM: "deleteRoom",
+  LIST_ROOM: "listRoom",
+  JOIN_ROOM: "joinRoom",
+  LEAVE_ROOM: "leaveRoom",
+  ENTER_GAME: "enterGame",
+  QUIT_GAME: "quitGame",
 
   // MJGame
-  START_GAME = "startGame",
-  RESET_GAME = "resetGame",
+  START_GAME: "startGame",
+  RESET_GAME: "resetGame",
 
   // Game Action
-  ACTION_DROP = "actionDrop",
-  ACTION_ANGANG = "actionAngang",
-  ACTION_ZIMO = "actionZimo",
-  ACTION_PASS = "actionPass",
-  ACTION_CHI = "actionChi",
-  ACTION_PENG = "actionPeng",
-  ACTION_GANG = "actionGang",
-  ACTION_HU = "actionHu",
-}
+  ACTION_DROP: "actionDrop",
+  ACTION_ANGANG: "actionAngang",
+  ACTION_ZIMO: "actionZimo",
+  ACTION_PASS: "actionPass",
+  ACTION_CHI: "actionChi",
+  ACTION_PENG: "actionPeng",
+  ACTION_GANG: "actionGang",
+  ACTION_HU: "actionHu",
+} as const;
+
+export type GameRequestType =
+  (typeof GameRequestType)[keyof typeof GameRequestType];
 
 export interface GameRequest {
   type: GameRequestType;
@@ -56,7 +59,7 @@ export interface GameResponse {
 }
 
 export interface SignInRequest extends GameRequest {
-  type: GameRequestType.SIGN_IN;
+  type: typeof GameRequestType.SIGN_IN;
   data: {
     email: string;
     password: string;
@@ -64,79 +67,79 @@ export interface SignInRequest extends GameRequest {
 }
 
 export interface SignInResponse extends GameResponse {
-  type: GameRequestType.SIGN_IN;
+  type: typeof GameRequestType.SIGN_IN;
   data: UserModel;
 }
 
 export interface SignOutRequest extends GameRequest {
-  type: GameRequestType.SIGN_OUT;
+  type: typeof GameRequestType.SIGN_OUT;
 }
 
 export interface SignOutResponse extends GameResponse {
-  type: GameRequestType.SIGN_OUT;
+  type: typeof GameRequestType.SIGN_OUT;
 }
 
 export interface ListClientRequest extends GameRequest {
-  type: GameRequestType.LIST_CLIENT;
+  type: typeof GameRequestType.LIST_CLIENT;
 }
 
 export interface ListClientResponse extends GameResponse {
-  type: GameRequestType.LIST_CLIENT;
+  type: typeof GameRequestType.LIST_CLIENT;
   data: ClientModel[];
 }
 
 export interface ListUserRequest extends GameRequest {
-  type: GameRequestType.LIST_USER;
+  type: typeof GameRequestType.LIST_USER;
 }
 
 export interface ListUserResponse extends GameResponse {
-  type: GameRequestType.LIST_USER;
+  type: typeof GameRequestType.LIST_USER;
   data: UserModel[];
 }
 
 export interface DeleteUserRequest extends GameRequest {
-  type: GameRequestType.DELETE_USER;
+  type: typeof GameRequestType.DELETE_USER;
   data: {
     name: string;
   };
 }
 
 export interface DeleteUserResponse extends GameResponse {
-  type: GameRequestType.DELETE_USER;
+  type: typeof GameRequestType.DELETE_USER;
 }
 
 export interface CreateRoomRequest extends GameRequest {
-  type: GameRequestType.CREATE_ROOM;
+  type: typeof GameRequestType.CREATE_ROOM;
   data: RoomCreateDto;
 }
 
 export interface CreateRoomResponse extends GameResponse {
-  type: GameRequestType.CREATE_ROOM;
+  type: typeof GameRequestType.CREATE_ROOM;
   data: RoomModel;
 }
 
 export interface DeleteRoomRequest extends GameRequest {
-  type: GameRequestType.DELETE_ROOM;
+  type: typeof GameRequestType.DELETE_ROOM;
   data: {
     name: string;
   };
 }
 
 export interface DeleteRoomResponse extends GameResponse {
-  type: GameRequestType.DELETE_ROOM;
+  type: typeof GameRequestType.DELETE_ROOM;
 }
 
 export interface ListRoomRequest extends GameRequest {
-  type: GameRequestType.LIST_ROOM;
+  type: typeof GameRequestType.LIST_ROOM;
 }
 
 export interface ListRoomResponse extends GameResponse {
-  type: GameRequestType.LIST_ROOM;
+  type: typeof GameRequestType.LIST_ROOM;
   data: RoomModel[];
 }
 
 export interface JoinRoomRequest extends GameRequest {
-  type: GameRequestType.JOIN_ROOM;
+  type: typeof GameRequestType.JOIN_ROOM;
   data: {
     roomName: string;
     position: Position;
@@ -144,154 +147,156 @@ export interface JoinRoomRequest extends GameRequest {
 }
 
 export interface JoinRoomResponse extends GameResponse {
-  type: GameRequestType.JOIN_ROOM;
+  type: typeof GameRequestType.JOIN_ROOM;
   data: RoomModel;
 }
 
 export interface LeaveRoomRequest extends GameRequest {
-  type: GameRequestType.LEAVE_ROOM;
+  type: typeof GameRequestType.LEAVE_ROOM;
   data: {
     roomName: string;
   };
 }
 
 export interface LeaveRoomResponse extends GameResponse {
-  type: GameRequestType.LEAVE_ROOM;
+  type: typeof GameRequestType.LEAVE_ROOM;
   data: RoomModel;
 }
 
 export interface EnterGameRequest extends GameRequest {
-  type: GameRequestType.ENTER_GAME;
+  type: typeof GameRequestType.ENTER_GAME;
   data: {
     roomName: string;
   };
 }
 
 export interface EnterGameResponse extends GameResponse {
-  type: GameRequestType.ENTER_GAME;
+  type: typeof GameRequestType.ENTER_GAME;
   data: RoomModel;
 }
 
 export interface QuitGameRequest extends GameRequest {
-  type: GameRequestType.QUIT_GAME;
+  type: typeof GameRequestType.QUIT_GAME;
   data: {
     roomName: string;
   };
 }
 
 export interface QuitGameResponse extends GameResponse {
-  type: GameRequestType.QUIT_GAME;
+  type: typeof GameRequestType.QUIT_GAME;
   data: RoomModel;
 }
 
 export interface StartGameRequest extends GameRequest {
-  type: GameRequestType.START_GAME;
+  type: typeof GameRequestType.START_GAME;
 }
 
 export interface StartGameResponse extends GameResponse {
-  type: GameRequestType.START_GAME;
+  type: typeof GameRequestType.START_GAME;
   data: Game;
 }
 
 export interface ResetGameRequest extends GameRequest {
-  type: GameRequestType.RESET_GAME;
+  type: typeof GameRequestType.RESET_GAME;
 }
 
 export interface ResetGameResponse extends GameResponse {
-  type: GameRequestType.RESET_GAME;
+  type: typeof GameRequestType.RESET_GAME;
   data: Game;
 }
 
 export interface ActionDropRequest extends GameRequest {
-  type: GameRequestType.ACTION_DROP;
+  type: typeof GameRequestType.ACTION_DROP;
   data: {
     tileId: TileId;
   };
 }
 
 export interface ActionDropResponse extends GameResponse {
-  type: GameRequestType.ACTION_DROP;
+  type: typeof GameRequestType.ACTION_DROP;
   data: Game;
 }
 
 export interface ActionAngangRequest extends GameRequest {
-  type: GameRequestType.ACTION_ANGANG;
+  type: typeof GameRequestType.ACTION_ANGANG;
   data: {
     tileIds: [TileId, TileId, TileId, TileId];
   };
 }
 
 export interface ActionAngangResponse extends GameResponse {
-  type: GameRequestType.ACTION_ANGANG;
+  type: typeof GameRequestType.ACTION_ANGANG;
   data: Game;
 }
 
 export interface ActionZimoRequest extends GameRequest {
-  type: GameRequestType.ACTION_ZIMO;
+  type: typeof GameRequestType.ACTION_ZIMO;
 }
 
 export interface ActionZimoResponse extends GameResponse {
-  type: GameRequestType.ACTION_ZIMO;
+  type: typeof GameRequestType.ACTION_ZIMO;
   data: Game;
 }
 
 export interface ActionPassRequest extends GameRequest {
-  type: GameRequestType.ACTION_PASS;
+  type: typeof GameRequestType.ACTION_PASS;
 }
 
 export interface ActionPassResponse extends GameResponse {
-  type: GameRequestType.ACTION_PASS;
+  type: typeof GameRequestType.ACTION_PASS;
   data: Game;
 }
 
 export interface ActionChiRequest extends GameRequest {
-  type: GameRequestType.ACTION_CHI;
+  type: typeof GameRequestType.ACTION_CHI;
   data: {
     tileIds: [TileId, TileId];
   };
 }
 
 export interface ActionChiResponse extends GameResponse {
-  type: GameRequestType.ACTION_CHI;
+  type: typeof GameRequestType.ACTION_CHI;
   data: Game;
 }
 
 export interface ActionPengRequest extends GameRequest {
-  type: GameRequestType.ACTION_PENG;
+  type: typeof GameRequestType.ACTION_PENG;
   data: {
     tileIds: [TileId, TileId];
   };
 }
 
 export interface ActionPengResponse extends GameResponse {
-  type: GameRequestType.ACTION_PENG;
+  type: typeof GameRequestType.ACTION_PENG;
   data: Game;
 }
 
 export interface ActionGangRequest extends GameRequest {
-  type: GameRequestType.ACTION_GANG;
+  type: typeof GameRequestType.ACTION_GANG;
   data: {
     tileIds: [TileId, TileId, TileId];
   };
 }
 
 export interface ActionGangResponse extends GameResponse {
-  type: GameRequestType.ACTION_GANG;
+  type: typeof GameRequestType.ACTION_GANG;
   data: Game;
 }
 
 export interface ActionHuRequest extends GameRequest {
-  type: GameRequestType.ACTION_HU;
+  type: typeof GameRequestType.ACTION_HU;
 }
 
 export interface ActionHuResponse extends GameResponse {
-  type: GameRequestType.ACTION_HU;
+  type: typeof GameRequestType.ACTION_HU;
   data: Game;
 }
 
-export const enum GameEventType {
-  GAME_UPDATED = "gameUpdated",
-}
+export const GameEventType = {
+  GAME_UPDATED: "gameUpdated",
+} as const;
+
+export type GameEventType = (typeof GameEventType)[keyof typeof GameEventType];
 
 export interface GameEvent {
   type: GameEventType;
