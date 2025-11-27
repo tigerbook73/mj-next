@@ -2,6 +2,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { TileCore } from "@/common/core/mj.tile-core";
+import { Direction } from "@/lib/game-utils";
 
 // --- TILE_MAP ---
 const TILE_MAP: Record<number, string> = {
@@ -55,8 +56,8 @@ const TID = {
   EMPTY_SPACE: -1,
 } as const;
 
-const TILE_RATIO = "aspect-[3/4]"; // 正常比例 (高/宽 = 4/3)
-const TILE_RATIO_ROTATE = "aspect-[4/3]"; // 旋转比例 (宽/高 = 4/3)
+const PORTRAIT_RATIO = "aspect-[3/4]"; // 正常比例 (高/宽 = 4/3)
+const LANDSCAPE_RATIO = "aspect-[4/3]"; // 旋转比例 (宽/高 = 4/3)
 
 // --- 尺寸配置 ---
 const portraitSizeClass: Record<string, string> = {
@@ -93,18 +94,17 @@ const landscapeSizeClass: Record<string, string> = {
   "9": "h-24",
 };
 
-const rotateClasses: Record<RotateDirection, string> = {
-  "0": "rotate-0",
-  "90": "rotate-90",
-  "180": "rotate-180",
-  "-90": "-rotate-90",
-  "270": "-rotate-90",
+const rotateClasses: Record<Direction, string> = {
+  [Direction.Bottom]: "rotate-0",
+  [Direction.Left]: "rotate-90",
+  [Direction.Top]: "rotate-180",
+  [Direction.Right]: "-rotate-90",
+  [Direction.None]: "rotate-0",
 };
 
 // 响应式尺寸类 (当未指定 size 时使用)，注意：这里的size需要和上面定义的匹配
 const responsivePortraitClasses = "w-6 xs:w-7 sm:w-7 md:w-8";
 const responsiveLandscapeClasses = "h-6 xs:h-7 sm:h-7 md:h-8";
-export type RotateDirection = "0" | "90" | "180" | "-90" | "270";
 
 /**
  * 根据尺寸和旋转方向，获取容器的尺寸类。
@@ -114,15 +114,15 @@ function getContainerClasses(size: TileSize, isVertical: boolean): string {
   if (size === "auto") {
     // 未指定尺寸时使用响应式类
     return isVertical
-      ? cn(responsiveLandscapeClasses, TILE_RATIO_ROTATE)
-      : cn(responsivePortraitClasses, TILE_RATIO);
+      ? cn(responsiveLandscapeClasses, LANDSCAPE_RATIO)
+      : cn(responsivePortraitClasses, PORTRAIT_RATIO);
   }
   return isVertical
-    ? cn(landscapeSizeClass[size], TILE_RATIO_ROTATE)
-    : cn(portraitSizeClass[size], TILE_RATIO);
+    ? cn(landscapeSizeClass[size], LANDSCAPE_RATIO)
+    : cn(portraitSizeClass[size], PORTRAIT_RATIO);
 }
 
-function getRotateClass(direction: RotateDirection): string {
+function getRotateClass(direction: Direction): string {
   return rotateClasses[direction];
 }
 
@@ -131,7 +131,7 @@ function getRotateClass(direction: RotateDirection): string {
  */
 function getImageClasses(
   size: TileSize | undefined,
-  direction: RotateDirection,
+  direction: Direction,
 ): string {
   const sizeClass = size ? portraitSizeClass[size] : responsivePortraitClasses;
   return cn(
@@ -139,7 +139,7 @@ function getImageClasses(
     "origin-center object-contain",
     getRotateClass(direction),
     sizeClass,
-    TILE_RATIO,
+    PORTRAIT_RATIO,
   );
 }
 
@@ -181,7 +181,7 @@ export interface TileProps extends VariantProps<typeof tileVariants> {
   onClick?: (tileId: number) => void;
   theme?: "Regular" | "Black";
   size?: TileSize;
-  rotate?: RotateDirection;
+  direction?: Direction;
 }
 
 // --- 组件主体 ---
@@ -194,7 +194,7 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
       hoverable,
       selected,
       special,
-      rotate = "0",
+      direction = Direction.Bottom,
       className,
       onClick,
       theme = "Regular",
@@ -207,13 +207,14 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
     // 确定牌的状态
     const isEmptySpace = tile.tid === TID.EMPTY_SPACE;
     const isBack = back || tile.tid === TID.BACK;
-    const isVertical = rotate === "90" || rotate === "-90" || rotate === "270";
+    const isVertical =
+      direction === Direction.Left || direction === Direction.Right;
 
     // 父容器占位尺寸 (已考虑旋转互换)
     // size 未指定时，getContainerClasses 会使用响应式类
     const containerSizeClasses = getContainerClasses(size, isVertical);
     // 旋转图片的原始尺寸
-    const imageClasses = getImageClasses(size, rotate);
+    const imageClasses = getImageClasses(size, direction);
 
     // 获取文件名
     const tileFileName = TILE_MAP[tile.tid] || TILE_MAP[TID.BLANK];

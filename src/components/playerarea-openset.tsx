@@ -1,7 +1,23 @@
 import { cn } from "@/lib/utils";
-import { RotateDirection, Tile } from "./tile";
+import { Tile } from "./tile";
 import { Direction } from "@/lib/game-utils";
+import { JSX } from "react";
 
+const flexClasses: Record<Direction, string> = {
+  [Direction.Bottom]: "flex-row",
+  [Direction.Top]: "flex-row-reverse",
+  [Direction.Left]: "flex-col",
+  [Direction.Right]: "flex-col-reverse",
+  [Direction.None]: "flex-row",
+};
+
+const scaleClasses: Record<Direction, string> = {
+  [Direction.Bottom]: "origin-top-left scale-80 -mt-2",
+  [Direction.Top]: "origin-bottom-right scale-80 -mb-2",
+  [Direction.Left]: "origin-top-right scale-80 -mr-2",
+  [Direction.Right]: "origin-bottom-left scale-80 -ml-2",
+  [Direction.None]: "",
+};
 interface PlayerAreaOpenSetProps {
   direction: Direction;
   className?: string;
@@ -10,47 +26,32 @@ interface PlayerAreaOpenSetProps {
 export function PlayerAreaOpenSet({
   direction,
   className,
-}: PlayerAreaOpenSetProps) {
+}: PlayerAreaOpenSetProps): JSX.Element {
   const tiles = [
     [1, 2, 3],
     [11, 15, 19],
     [40, 44, 48],
   ];
 
-  let rotate: RotateDirection = "0";
-  let flexClasses = "";
-  let scaleClasses = "";
-  if (direction === Direction.Bottom) {
-    rotate = "0";
-    flexClasses = "flex-row";
-    scaleClasses = "origin-top-left scale-80 -mt-2";
-  } else if (direction === Direction.Top) {
-    rotate = "180";
-    flexClasses = "flex-row-reverse";
-    scaleClasses = "origin-bottom-right scale-80 -mb-2";
-  } else if (direction === Direction.Left) {
-    rotate = "90";
-    flexClasses = "flex-col";
-    scaleClasses = "origin-top-right scale-80 -mr-2";
-  } else if (direction === Direction.Right) {
-    rotate = "-90";
-    flexClasses = "flex-col-reverse";
-    scaleClasses = "origin-bottom-left scale-80 -ml-2";
-  }
-
   return (
     <div
       className={cn(
         "flex items-center gap-2",
-        flexClasses,
-        scaleClasses,
+        flexClasses[direction],
+        scaleClasses[direction],
         className,
       )}
     >
       {tiles.map((set, index) => (
-        <div key={index} className={cn("flex", flexClasses)}>
-          {set.map((tid) => (
-            <Tile key={tid} tileId={tid} rotate={rotate} size="sm" />
+        <div key={index} className={cn("flex", flexClasses[direction])}>
+          {set.map((tid, index) => (
+            <Tile
+              key={tid}
+              tileId={tid}
+              direction={direction}
+              size="sm"
+              special={index < 2 ? "normal" : "success"}
+            />
           ))}
         </div>
       ))}

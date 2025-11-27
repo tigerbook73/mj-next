@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Tile, TILE_CATEGORIES } from "../components/tile";
+import { Direction } from "@/lib/game-utils";
 
 const meta = {
   title: "Components/Tile",
@@ -35,9 +36,14 @@ const meta = {
         "9",
       ],
     },
-    rotate: {
+    direction: {
       control: "select",
-      options: ["0", "90", "180", "-90"],
+      options: [
+        Direction.Bottom,
+        Direction.Right,
+        Direction.Top,
+        Direction.Left,
+      ],
     },
     hoverable: {
       control: "boolean",
@@ -133,15 +139,17 @@ export const Directions: Story = {
   args: { ...defaultArgs },
   render: (args) => (
     <div className="flex flex-col gap-4">
-      {["0", "90", "180", "-90"].map((dir) => (
-        <div key={dir} className="flex flex-row items-center">
-          <div className="w-10">{dir}°</div>
-          <div className="flex gap-1">
-            <Tile {...args} rotate={dir as "0" | "90" | "180" | "-90"} />
-            <Tile {...args} rotate={dir as "0" | "90" | "180" | "-90"} />
+      {[Direction.Bottom, Direction.Right, Direction.Top, Direction.Left].map(
+        (dir) => (
+          <div key={dir} className="flex flex-row items-center">
+            <div className="w-10">{dir}</div>
+            <div className="flex gap-1">
+              <Tile {...args} direction={dir} />
+              <Tile {...args} direction={dir} />
+            </div>
           </div>
-        </div>
-      ))}
+        ),
+      )}
     </div>
   ),
 };
