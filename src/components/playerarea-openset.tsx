@@ -1,14 +1,14 @@
 import { cn } from "@/lib/utils";
 import { RotateDirection, Tile } from "./tile";
-import { Position } from "@/common/core/mj.game";
+import { Direction } from "@/lib/game-utils";
 
 interface PlayerAreaOpenSetProps {
-  position: Position;
+  direction: Direction;
   className?: string;
 }
 
 export function PlayerAreaOpenSet({
-  position,
+  direction,
   className,
 }: PlayerAreaOpenSetProps) {
   const tiles = [
@@ -20,19 +20,19 @@ export function PlayerAreaOpenSet({
   let rotate: RotateDirection = "0";
   let flexClasses = "";
   let scaleClasses = "";
-  if (position === Position.South) {
+  if (direction === Direction.Bottom) {
     rotate = "0";
     flexClasses = "flex-row";
     scaleClasses = "origin-top-left scale-80 -mt-2";
-  } else if (position === Position.North) {
+  } else if (direction === Direction.Top) {
     rotate = "180";
     flexClasses = "flex-row-reverse";
     scaleClasses = "origin-bottom-right scale-80 -mb-2";
-  } else if (position === Position.West) {
+  } else if (direction === Direction.Left) {
     rotate = "90";
     flexClasses = "flex-col";
     scaleClasses = "origin-top-right scale-80 -mr-2";
-  } else if (position === Position.East) {
+  } else if (direction === Direction.Right) {
     rotate = "-90";
     flexClasses = "flex-col-reverse";
     scaleClasses = "origin-bottom-left scale-80 -ml-2";
