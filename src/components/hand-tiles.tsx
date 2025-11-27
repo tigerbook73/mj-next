@@ -10,11 +10,11 @@ const flexClasses: Record<Direction, string> = {
   [Direction.None]: "flex-row",
 };
 
-interface PlayerAreaHandProps {
+interface HandTilesProps {
   direction: Direction;
 }
 
-export function PlayerAreaHand({ direction }: PlayerAreaHandProps) {
+export function HandTiles({ direction }: HandTilesProps) {
   const tiles = [11, 12, 13, -1, -1];
 
   return (

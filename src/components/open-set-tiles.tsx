@@ -18,15 +18,15 @@ const scaleClasses: Record<Direction, string> = {
   [Direction.Right]: "origin-bottom-left scale-80 -ml-2",
   [Direction.None]: "",
 };
-interface PlayerAreaOpenSetProps {
+interface OpenSetTilesProps {
   direction: Direction;
   className?: string;
 }
 
-export function PlayerAreaOpenSet({
+export function OpenSetTiles({
   direction,
   className,
-}: PlayerAreaOpenSetProps): JSX.Element {
+}: OpenSetTilesProps): JSX.Element {
   const tiles = [
     [1, 2, 3],
     [11, 15, 19],

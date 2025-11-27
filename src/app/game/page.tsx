@@ -1,9 +1,9 @@
 "use client";
 
-import { PlayerAreaLeft } from "@/components/playerarea-left";
-import { PlayerAreaMe } from "@/components/playerarea-me";
-import { PlayerAreaRight } from "@/components/playerarea-right";
-import { PlayerAreaTop } from "@/components/playerarea-top";
+import { PlayerTilesLeft } from "@/components/player-tiles-left";
+import { PlayerTilesBottom } from "@/components/player-tiles-bottom";
+import { PlayerTilesRight } from "@/components/player-tiles-right";
+import { PlayerTilesTop } from "@/components/player-tiles-top";
 import SpeedDial from "@/components/ui-ex/speed-dial";
 import { Button } from "@/components/ui/button";
 import { LogOut, PersonStandingIcon } from "lucide-react";
@@ -42,7 +42,7 @@ export default function Game() {
           P-TL
         </div>
         <div className="flex items-center justify-center bg-yellow-600">
-          <PlayerAreaTop />
+          <PlayerTilesTop />
         </div>
         <div className="flex items-center justify-center bg-yellow-500">
           P-TR
@@ -50,7 +50,7 @@ export default function Game() {
 
         {/* Second row */}
         <div className="flex items-center justify-center bg-yellow-600">
-          <PlayerAreaLeft />
+          <PlayerTilesLeft />
         </div>
 
         {/* Wall layer (middle 3x3 grid) */}
@@ -126,7 +126,7 @@ export default function Game() {
         </div>
 
         <div className="flex items-center justify-center bg-yellow-600">
-          <PlayerAreaRight />
+          <PlayerTilesRight />
         </div>
 
         {/* Third row */}
@@ -134,7 +134,7 @@ export default function Game() {
           P-BL
         </div>
         <div className="flex items-center justify-center bg-yellow-600">
-          <PlayerAreaMe />
+          <PlayerTilesBottom />
         </div>
         <div className="flex items-center justify-center bg-yellow-500">
           P-BR
