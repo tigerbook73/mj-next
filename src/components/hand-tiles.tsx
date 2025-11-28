@@ -12,21 +12,26 @@ const flexClasses: Record<Direction, string> = {
 
 interface HandTilesProps {
   direction: Direction;
+  className?: string;
 }
 
-export function HandTiles({ direction }: HandTilesProps) {
+export function HandTiles({ direction, className }: HandTilesProps) {
   const tiles = [11, 12, 13, -1, -1];
 
   return (
     <div
-      className={cn("flex items-center justify-center", flexClasses[direction])}
+      className={cn(
+        "flex items-center justify-center",
+        flexClasses[direction],
+        className,
+      )}
     >
-      {tiles.map((tid) => (
+      {tiles.map((tid, index) => (
         <Tile
-          key={tid}
+          key={`${tid}-${index}`}
           tileId={tid}
           direction={direction}
-          size="sm"
+          size="5"
           hoverable={direction === Direction.Bottom}
         />
       ))}

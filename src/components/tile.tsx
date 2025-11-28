@@ -61,37 +61,38 @@ const LANDSCAPE_RATIO = "aspect-[4/3]"; // 旋转比例 (宽/高 = 4/3)
 
 // --- 尺寸配置 ---
 const portraitSizeClass: Record<string, string> = {
-  sm: "w-8",
-  md: "w-12",
-  lg: "w-16",
-  xl: "w-20",
-  "1": "w-6",
-  "2": "w-8",
-  "3": "w-10",
-  "4": "w-12",
-  "6": "w-16",
-  "7": "w-18",
-  "8": "w-20",
-  "9": "w-24",
+  sm: "w-6",
+  md: "w-8",
+  lg: "w-10",
+  xl: "w-12",
+  "1": "w-4",
+  "2": "w-5",
+  "3": "w-6",
+  "4": "w-7",
+  "5": "w-8",
+  "6": "w-9",
+  "7": "w-10",
+  "8": "w-11",
+  "9": "w-12",
 };
 
 type TileSize = keyof typeof portraitSizeClass | "auto";
 
 // 旋转时使用的尺寸类 (宽高互换)
 const landscapeSizeClass: Record<string, string> = {
-  sm: "h-8",
-  md: "h-12",
-  lg: "h-16",
-  xl: "h-20",
-  "1": "h-6",
-  "2": "h-8",
-  "3": "h-10",
-  "4": "h-12",
-  "5": "h-14",
-  "6": "h-16",
-  "7": "h-18",
-  "8": "h-20",
-  "9": "h-24",
+  sm: "h-6",
+  md: "h-8",
+  lg: "h-10",
+  xl: "h-12",
+  "1": "h-4",
+  "2": "h-5",
+  "3": "h-6",
+  "4": "h-7",
+  "5": "h-8",
+  "6": "h-9",
+  "7": "h-10",
+  "8": "h-11",
+  "9": "h-12",
 };
 
 const rotateClasses: Record<Direction, string> = {

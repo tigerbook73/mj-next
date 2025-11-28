@@ -7,7 +7,6 @@ export function PlayerTilesRight() {
     <div className="flex h-full w-full flex-col-reverse items-center justify-between">
       <OpenSetTiles direction={Direction.Right} />
       <HandTiles direction={Direction.Right} />
-      <div className="w-1/8 h-full"></div>
     </div>
   );
 }

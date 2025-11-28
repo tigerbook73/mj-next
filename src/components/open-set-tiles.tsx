@@ -12,10 +12,10 @@ const flexClasses: Record<Direction, string> = {
 };
 
 const scaleClasses: Record<Direction, string> = {
-  [Direction.Bottom]: "origin-top-left scale-80 -mt-2",
-  [Direction.Top]: "origin-bottom-right scale-80 -mb-2",
-  [Direction.Left]: "origin-top-right scale-80 -mr-2",
-  [Direction.Right]: "origin-bottom-left scale-80 -ml-2",
+  [Direction.Bottom]: "origin-top-left scale-100 -mt-2",
+  [Direction.Top]: "origin-bottom-right scale-100 -mb-2",
+  [Direction.Left]: "origin-top-right scale-100 -mr-2",
+  [Direction.Right]: "origin-bottom-left scale-100 -ml-2",
   [Direction.None]: "",
 };
 interface OpenSetTilesProps {
@@ -49,7 +49,7 @@ export function OpenSetTiles({
               key={tid}
               tileId={tid}
               direction={direction}
-              size="sm"
+              size="4"
               special={index < 2 ? "normal" : "success"}
             />
           ))}

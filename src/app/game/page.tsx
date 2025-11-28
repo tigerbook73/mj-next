@@ -11,12 +11,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { WallTiles } from "@/components/wall-tiles";
 import { Direction } from "@/lib/game-utils";
+import { DiscardTiles } from "@/components/discard-tiles";
 
 export default function Game() {
   // Define grid proportions as variables for easy adjustment
   const outerEdge = "grid-cols-[10%_1fr_10%] grid-rows-[10%_1fr_10%]"; // Outer player edge width/height
   const middleEdge = "grid-cols-[15%_1fr_15%] grid-rows-[15%_1fr_15%]"; // Middle wall edge width/height
-  const innerEdge = "grid-cols-[20%_1fr_20%] grid-rows-[20%_1fr_20%]"; // Inner discard edge width/height
+  const innerEdge = "grid-cols-[20%_60%_20%] grid-rows-[20%_60%_20%]"; // Inner discard edge width/height
 
   const router = useRouter();
   const actions = [
@@ -80,7 +81,7 @@ export default function Game() {
               D-TL
             </div>
             <div className="flex items-center justify-center bg-blue-300 text-[10px]">
-              D-T
+              <DiscardTiles direction={Direction.Top} />
             </div>
             <div className="flex items-center justify-center bg-blue-400 text-[10px]">
               D-TR
@@ -88,7 +89,7 @@ export default function Game() {
 
             {/* Second row */}
             <div className="flex items-center justify-center bg-blue-300 text-[10px]">
-              D-L
+              <DiscardTiles direction={Direction.Left} />
             </div>
             <div className="flex items-center justify-center bg-blue-50 text-[10px]">
               <Button variant="default" size="sm" className="aspect-square">
@@ -96,15 +97,15 @@ export default function Game() {
               </Button>
             </div>
             <div className="flex items-center justify-center bg-blue-300 text-[10px]">
-              D-R
+              <DiscardTiles direction={Direction.Right} />
             </div>
 
             {/* Third row */}
             <div className="flex items-center justify-center bg-blue-400 text-[10px]">
               D-BL
             </div>
-            <div className="flex items-center justify-center bg-blue-300 text-[10px]">
-              D-B
+            <div className="flex h-full w-full items-center justify-center bg-blue-300 text-[10px]">
+              <DiscardTiles direction={Direction.Bottom} />
             </div>
             <div className="flex items-center justify-center bg-blue-400 text-[10px]">
               D-BR
