@@ -61,6 +61,7 @@ const LANDSCAPE_RATIO = "aspect-[4/3]"; // 旋转比例 (宽/高 = 4/3)
 
 // --- 尺寸配置 ---
 const portraitSizeClass: Record<string, string> = {
+  xs: "w-4",
   sm: "w-6",
   md: "w-8",
   lg: "w-10",
@@ -80,6 +81,7 @@ type TileSize = keyof typeof portraitSizeClass | "auto";
 
 // 旋转时使用的尺寸类 (宽高互换)
 const landscapeSizeClass: Record<string, string> = {
+  xs: "h-4",
   sm: "h-6",
   md: "h-8",
   lg: "h-10",

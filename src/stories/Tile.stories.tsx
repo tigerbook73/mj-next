@@ -22,6 +22,7 @@ const meta = {
       control: "select",
       options: [
         "auto",
+        "xs",
         "sm",
         "md",
         "lg",
@@ -110,7 +111,7 @@ export const Sizes: Story = {
   args: { ...defaultArgs },
   render: (args) => (
     <div className="flex items-end gap-2">
-      {["sm", "md", "lg", "xl"].map((size) => (
+      {["xs", "sm", "md", "lg", "xl"].map((size) => (
         <div className="flex flex-col items-center" key={size}>
           <Tile {...args} size={size} />
           <div>{size}</div>
