@@ -12,6 +12,8 @@ import { useRouter } from "next/navigation";
 import { WallTiles } from "@/components/wall-tiles";
 import { Direction } from "@/lib/game-utils";
 import { DiscardTiles } from "@/components/discard-tiles";
+import { useUIStore } from "@/store";
+import { useEffect, useRef } from "react";
 
 export default function Game() {
   // Define grid proportions as variables for easy adjustment
@@ -32,6 +34,36 @@ export default function Game() {
       onClick: () => router.push("/"),
     },
   ];
+
+  // get width of this component and set UI store tile size accordingly
+  const setTileSize = useUIStore((state) => state.setTileSize);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current || !setTileSize) return;
+
+    const updateSize = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.clientWidth;
+        setTileSize(`${width / 24}px`);
+
+        //
+        console.log(
+          "Container width:",
+          width,
+          "Setting tile size to:",
+          `${width / 24}px`,
+        );
+      }
+    };
+
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(containerRef.current);
+
+    updateSize();
+
+    return () => observer.disconnect();
+  }, [setTileSize]);
 
   return (
     // Outer container: full screen, center content
@@ -136,7 +168,10 @@ export default function Game() {
         <div className="flex items-center justify-center bg-yellow-500">
           P-BL
         </div>
-        <div className="flex items-center justify-center bg-yellow-600">
+        <div
+          ref={containerRef}
+          className="flex items-center justify-center bg-yellow-600"
+        >
           <PlayerTilesBottom />
         </div>
         <div className="flex items-center justify-center bg-yellow-500">
