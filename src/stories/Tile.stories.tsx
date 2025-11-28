@@ -37,22 +37,22 @@ const meta = {
     },
     size: {
       control: "select",
-      options: [
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-        60,
-        70,
-        80,
-        90,
-        100,
-        110,
-        120,
-        130,
-        140,
-      ],
+      options: {
+        xs: "xs",
+        sm: "sm",
+        md: "md",
+        lg: "lg",
+        xl: "xl",
+        "60 %": 60,
+        "70 %": 70,
+        "80 %": 80,
+        "90 %": 90,
+        "100 %": 100,
+        "110 %": 110,
+        "120 %": 120,
+        "130 %": 130,
+        "140 %": 140,
+      } as unknown as string[],
     },
     direction: {
       control: "select",
@@ -100,7 +100,7 @@ type Story = StoryObj<typeof meta>;
 const defaultArgs = {
   tileId: 1,
   size: "md" as TileProps["size"],
-  tileSize: 30,
+  tileSize: 40,
 };
 
 // Basic tile stories
@@ -143,7 +143,7 @@ export const NumericSizes: Story = {
   args: { ...defaultArgs },
   render: (args) => (
     <div className="flex items-end gap-2">
-      {[50, 75, 100, 125, 150].map((size) => (
+      {[60, 70, 80, 90, 100, 110, 120, 130, 140].map((size) => (
         <div className="flex flex-col items-center" key={size}>
           <Tile {...args} size={size} />
           <div>{size}%</div>
