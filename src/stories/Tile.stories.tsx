@@ -1,10 +1,27 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Tile, TILE_CATEGORIES, type TileProps } from "../components/tile";
 import { Direction } from "@/lib/game-utils";
+import { useUIStore } from "@/store";
+import { useEffect } from "react";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const StoreDecorator = (Story: any, context: any) => {
+  const setTileSize = useUIStore((state) => state.setTileSize);
+  const tileSize = context.args.tileSize;
+
+  useEffect(() => {
+    if (setTileSize && tileSize) {
+      setTileSize(tileSize);
+    }
+  }, [tileSize, setTileSize]);
+
+  return <Story />;
+};
 
 const meta = {
   title: "Components/Tile",
   component: Tile,
+  decorators: [StoreDecorator],
   parameters: {
     layout: "centered",
   },
@@ -67,8 +84,15 @@ const meta = {
       control: "select",
       options: ["Regular", "Black"],
     },
+    tileSize: {
+      control: { type: "range", min: 10, max: 100, step: 1 },
+      description: "Global tile size in pixels (UI Store)",
+      table: {
+        category: "Store",
+      },
+    },
   },
-} satisfies Meta<typeof Tile>;
+} as Meta<TileProps & { tileSize: number }>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -76,6 +100,7 @@ type Story = StoryObj<typeof meta>;
 const defaultArgs = {
   tileId: 1,
   size: "md" as TileProps["size"],
+  tileSize: 30,
 };
 
 // Basic tile stories
