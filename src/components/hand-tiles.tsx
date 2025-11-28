@@ -16,7 +16,7 @@ interface HandTilesProps {
 }
 
 export function HandTiles({ direction, className }: HandTilesProps) {
-  const tiles = [11, 12, 13, -1, -1];
+  const tiles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, -1, 14];
 
   return (
     <div
@@ -31,7 +31,7 @@ export function HandTiles({ direction, className }: HandTilesProps) {
           key={`${tid}-${index}`}
           tileId={tid}
           direction={direction}
-          size="5"
+          size="md"
           hoverable={direction === Direction.Bottom}
         />
       ))}

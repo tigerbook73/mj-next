@@ -27,10 +27,10 @@ export function OpenSetTiles({
   direction,
   className,
 }: OpenSetTilesProps): JSX.Element {
-  const tiles = [
-    [1, 2, 3],
-    [11, 15, 19],
-    [40, 44, 48],
+  const tiles: number[][] = [
+    // [1, 2, 3],
+    // [11, 15, 19],
+    // [40, 44, 48],
   ];
 
   return (
@@ -49,7 +49,7 @@ export function OpenSetTiles({
               key={tid}
               tileId={tid}
               direction={direction}
-              size="4"
+              size={80}
               special={index < 2 ? "normal" : "success"}
             />
           ))}

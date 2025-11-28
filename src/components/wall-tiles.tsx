@@ -53,7 +53,7 @@ export function WallTiles({ direction }: WallTilesProps) {
           key={index}
           tileId={tid < 0 ? tid : tid * 4}
           direction={direction}
-          size="2"
+          size={75}
         />
       ))}
     </div>

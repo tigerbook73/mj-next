@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Tile, TILE_CATEGORIES } from "../components/tile";
+import { Tile, TILE_CATEGORIES, type TileProps } from "../components/tile";
 import { Direction } from "@/lib/game-utils";
 
 const meta = {
@@ -21,20 +21,20 @@ const meta = {
     size: {
       control: "select",
       options: [
-        "auto",
         "xs",
         "sm",
         "md",
         "lg",
         "xl",
-        "1",
-        "2",
-        "3",
-        "4",
-        "6",
-        "7",
-        "8",
-        "9",
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130,
+        140,
       ],
     },
     direction: {
@@ -75,7 +75,7 @@ type Story = StoryObj<typeof meta>;
 
 const defaultArgs = {
   tileId: 1,
-  size: "md",
+  size: "md" as TileProps["size"],
 };
 
 // Basic tile stories
@@ -99,13 +99,6 @@ export const InvalidTile: Story = {
   },
 };
 
-export const AutoSize: Story = {
-  args: {
-    ...defaultArgs,
-    size: "auto", // Auto size
-  },
-};
-
 // Size variations
 export const Sizes: Story = {
   args: { ...defaultArgs },
@@ -113,7 +106,7 @@ export const Sizes: Story = {
     <div className="flex items-end gap-2">
       {["xs", "sm", "md", "lg", "xl"].map((size) => (
         <div className="flex flex-col items-center" key={size}>
-          <Tile {...args} size={size} />
+          <Tile {...args} size={size as TileProps["size"]} />
           <div>{size}</div>
         </div>
       ))}
@@ -125,10 +118,10 @@ export const NumericSizes: Story = {
   args: { ...defaultArgs },
   render: (args) => (
     <div className="flex items-end gap-2">
-      {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((size) => (
+      {[50, 75, 100, 125, 150].map((size) => (
         <div className="flex flex-col items-center" key={size}>
           <Tile {...args} size={size} />
-          <div>{size}</div>
+          <div>{size}%</div>
         </div>
       ))}
     </div>
@@ -260,20 +253,20 @@ export const MahjongHand: Story = {
   render: (args) => (
     <div className="rounded-lg bg-green-800 p-4">
       <div className="flex gap-1">
-        <Tile {...args} tileId={1} hoverable />
-        <Tile {...args} tileId={2} hoverable selected />
-        <Tile {...args} tileId={3} hoverable />
-        <Tile {...args} tileId={11} hoverable />
-        <Tile {...args} tileId={12} hoverable />
-        <Tile {...args} tileId={13} hoverable />
-        <Tile {...args} tileId={21} hoverable />
-        <Tile {...args} tileId={22} hoverable />
-        <Tile {...args} tileId={23} hoverable />
-        <Tile {...args} tileId={31} hoverable />
-        <Tile {...args} tileId={31} hoverable />
-        <Tile {...args} tileId={35} hoverable />
+        <Tile {...args} tileId={0} hoverable />
+        <Tile {...args} tileId={4} hoverable selected />
+        <Tile {...args} tileId={8} hoverable />
+        <Tile {...args} tileId={36} hoverable />
+        <Tile {...args} tileId={40} hoverable />
+        <Tile {...args} tileId={44} hoverable />
+        <Tile {...args} tileId={72} hoverable />
+        <Tile {...args} tileId={76} hoverable />
+        <Tile {...args} tileId={80} hoverable />
+        <Tile {...args} tileId={108} hoverable />
+        <Tile {...args} tileId={108} hoverable />
+        <Tile {...args} tileId={124} hoverable />
         <Tile {...args} tileId={-1} hoverable />
-        <Tile {...args} tileId={35} hoverable />
+        <Tile {...args} tileId={124} hoverable />
       </div>
     </div>
   ),

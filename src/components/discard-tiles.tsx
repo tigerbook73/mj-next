@@ -54,7 +54,7 @@ export function DiscardTiles({ direction }: WallTilesProps) {
           key={`${tid}-${index}`}
           tileId={tid < 0 ? tid : tid * 4}
           direction={direction}
-          size="2"
+          size={60}
         />
       ))}
     </div>
