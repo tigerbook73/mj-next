@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { LogOut, PersonStandingIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { WallTiles } from "@/components/wall-tiles";
+import { Direction } from "@/lib/game-utils";
 
 export default function Game() {
   // Define grid proportions as variables for easy adjustment
@@ -60,7 +62,7 @@ export default function Game() {
             W-TL
           </div>
           <div className="flex items-center justify-center bg-green-300 text-xs">
-            W-T
+            <WallTiles direction={Direction.Top} />
           </div>
           <div className="flex items-center justify-center bg-green-400 text-xs">
             W-TR
@@ -68,7 +70,7 @@ export default function Game() {
 
           {/* Second row */}
           <div className="flex items-center justify-center bg-green-300 text-xs">
-            W-L
+            <WallTiles direction={Direction.Left} />
           </div>
 
           {/* Discard layer (inner 3x3 grid) */}
@@ -110,7 +112,7 @@ export default function Game() {
           </div>
 
           <div className="flex items-center justify-center bg-green-300 text-xs">
-            W-R
+            <WallTiles direction={Direction.Right} />
           </div>
 
           {/* Third row */}
@@ -118,7 +120,7 @@ export default function Game() {
             W-BL
           </div>
           <div className="flex items-center justify-center bg-green-300 text-xs">
-            W-B
+            <WallTiles direction={Direction.Bottom} />
           </div>
           <div className="flex items-center justify-center bg-green-400 text-xs">
             W-BR
