@@ -28,7 +28,7 @@ export function OpenSetTiles({
   className,
 }: OpenSetTilesProps): JSX.Element {
   const tiles: number[][] = [
-    // [1, 2, 3],
+    [1, 2, 3],
     // [11, 15, 19],
     // [40, 44, 48],
   ];

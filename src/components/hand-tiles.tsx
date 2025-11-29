@@ -16,7 +16,7 @@ interface HandTilesProps {
 }
 
 export function HandTiles({ direction, className }: HandTilesProps) {
-  const tiles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, -1, 14];
+  const tiles = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, -1, 14];
 
   return (
     <div

@@ -65,113 +65,97 @@ export default function Game() {
     <div className="flex h-screen w-screen items-center justify-center bg-gray-300">
       {/* Player layer (outer 3x3 grid) */}
       <div
-        className={`grid aspect-square min-h-[300px] w-[98vmin] min-w-[300px] ${outerEdge} overflow-hidden bg-green-700 font-mono text-sm text-white`}
+        className={`grid aspect-square min-h-[300px] w-[98vmin] min-w-[300px] ${outerEdge} overflow-hidden bg-green-800 font-mono text-sm text-white ring-2 ring-indigo-900`}
       >
         {/* First row */}
-        <div className="flex items-center justify-center bg-yellow-500">
-          P-TL
-        </div>
-        <div className="flex items-center justify-center bg-yellow-600">
+        <div className="flex items-center justify-center">{/* P-TL */}</div>
+        <div className="flex items-center justify-center">
           <PlayerTilesTop />
         </div>
-        <div className="flex items-center justify-center bg-yellow-500">
-          P-TR
-        </div>
-
+        <div className="flex items-center justify-center">{/* P-TR */}</div>
         {/* Second row */}
-        <div className="flex items-center justify-center bg-yellow-600">
+        <div className="flex items-center justify-center">
           <PlayerTilesLeft />
         </div>
 
         {/* Wall layer (middle 3x3 grid) */}
-        <div className={`grid ${middleEdge} overflow-hidden bg-green-500`}>
+        <div
+          className={`grid ${middleEdge} overflow-hidden bg-green-700 ring-2 ring-green-500`}
+        >
           {/* First row */}
-          <div className="flex items-center justify-center bg-green-400 text-xs">
-            W-TL
-          </div>
-          <div className="flex items-center justify-center bg-green-300 text-xs">
+          <div className="flex items-center justify-center text-xs">W-TL</div>
+          <div className="flex items-center justify-center text-xs">
             <WallTiles direction={Direction.Top} />
           </div>
-          <div className="flex items-center justify-center bg-green-400 text-xs">
-            W-TR
-          </div>
+          <div className="flex items-center justify-center text-xs">W-TR</div>
 
           {/* Second row */}
-          <div className="flex items-center justify-center bg-green-300 text-xs">
+          <div className="flex items-center justify-center text-xs">
             <WallTiles direction={Direction.Left} />
           </div>
 
           {/* Discard layer (inner 3x3 grid) */}
-          <div className={`grid ${innerEdge} overflow-hidden bg-blue-300`}>
+          <div
+            className={`grid ${innerEdge} overflow-hidden bg-cyan-700 ring-2 ring-lime-500`}
+          >
             {/* First row */}
-            <div className="flex items-center justify-center bg-blue-400 text-[10px]">
-              D-TL
+            <div className="flex items-center justify-center text-[10px]">
+              {/* D-TL */}
             </div>
-            <div className="flex items-center justify-center bg-blue-300 text-[10px]">
+            <div className="flex items-center justify-center text-[10px]">
               <DiscardTiles direction={Direction.Top} />
             </div>
-            <div className="flex items-center justify-center bg-blue-400 text-[10px]">
-              D-TR
+            <div className="flex items-center justify-center text-[10px]">
+              {/* D-TR */}
             </div>
 
             {/* Second row */}
-            <div className="flex items-center justify-center bg-blue-300 text-[10px]">
+            <div className="flex items-center justify-center text-[10px]">
               <DiscardTiles direction={Direction.Left} />
             </div>
-            <div className="flex items-center justify-center bg-blue-50 text-[10px]">
+            <div className="flex items-center justify-center bg-gray-300 text-[10px]">
               <Button variant="default" size="sm" className="aspect-square">
                 <Link href="/lobby">Quit </Link>
               </Button>
             </div>
-            <div className="flex items-center justify-center bg-blue-300 text-[10px]">
+            <div className="flex items-center justify-center text-[10px]">
               <DiscardTiles direction={Direction.Right} />
             </div>
 
             {/* Third row */}
-            <div className="flex items-center justify-center bg-blue-400 text-[10px]">
-              D-BL
+            <div className="flex items-center justify-center text-[10px]">
+              {/* D-BL */}
             </div>
-            <div className="flex h-full w-full items-center justify-center bg-blue-300 text-[10px]">
+            <div className="flex h-full w-full items-center justify-center text-[10px]">
               <DiscardTiles direction={Direction.Bottom} />
             </div>
-            <div className="flex items-center justify-center bg-blue-400 text-[10px]">
-              D-BR
+            <div className="flex items-center justify-center text-[10px]">
+              {/* D-BR */}
             </div>
           </div>
 
-          <div className="flex items-center justify-center bg-green-300 text-xs">
+          <div className="flex items-center justify-center text-xs">
             <WallTiles direction={Direction.Right} />
           </div>
 
           {/* Third row */}
-          <div className="flex items-center justify-center bg-green-400 text-xs">
-            W-BL
-          </div>
-          <div className="flex items-center justify-center bg-green-300 text-xs">
+          <div className="flex items-center justify-center text-xs">W-BL</div>
+          <div className="flex items-center justify-center text-xs">
             <WallTiles direction={Direction.Bottom} />
           </div>
-          <div className="flex items-center justify-center bg-green-400 text-xs">
-            W-BR
-          </div>
+          <div className="flex items-center justify-center text-xs">W-BR</div>
         </div>
 
-        <div className="flex items-center justify-center bg-yellow-600">
+        <div className="flex items-center justify-center">
           <PlayerTilesRight />
         </div>
 
         {/* Third row */}
-        <div className="flex items-center justify-center bg-yellow-500">
-          P-BL
-        </div>
-        <div
-          ref={containerRef}
-          className="flex items-center justify-center bg-yellow-600"
-        >
+        <div className="flex items-center justify-center">P-BL</div>
+        <div ref={containerRef} className="flex items-center justify-center">
           <PlayerTilesBottom />
         </div>
-        <div className="flex items-center justify-center bg-yellow-500">
-          P-BR
-        </div>
+        <div className="flex items-center justify-center">P-BR</div>
       </div>
 
       <SpeedDial actions={actions} position="top-right" direction="down" />
