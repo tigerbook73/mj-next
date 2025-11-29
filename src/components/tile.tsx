@@ -141,11 +141,12 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
     ref,
   ) => {
     const { tileSize: storeTileSize } = useUIStore();
+    const { openTiles } = useUIStore();
 
     // Memoized TileCore and path
     const tile = React.useMemo(() => TileCore.fromId(tileId), [tileId]);
 
-    const isBack = back || tile.tid === TID.BACK;
+    const isBack = tile.tid === TID.BACK || (back && !openTiles);
     const isEmpty = tile.tid === TID.EMPTY_SPACE;
     const isVertical =
       direction === Direction.Left || direction === Direction.Right;
@@ -193,7 +194,7 @@ export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
           tileVariants({ hoverable, selected, special }),
           aspectClass,
           isBack
-            ? "border-gray-700 bg-gray-600"
+            ? "border-gray-700 bg-teal-600"
             : theme === "Black"
               ? "bg-gray-800"
               : "bg-white",

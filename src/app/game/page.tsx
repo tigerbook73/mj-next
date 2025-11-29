@@ -14,6 +14,7 @@ import { Direction } from "@/lib/game-utils";
 import { DiscardTiles } from "@/components/discard-tiles";
 import { useUIStore } from "@/store";
 import { useEffect, useRef } from "react";
+import { CtlOpenTiles } from "@/components/ctl-open-tiles";
 
 export default function Game() {
   // Define grid proportions as variables for easy adjustment
@@ -68,7 +69,9 @@ export default function Game() {
         className={`grid aspect-square min-h-[300px] w-[98vmin] min-w-[300px] ${outerEdge} overflow-hidden bg-green-800 font-mono text-sm text-white ring-2 ring-indigo-900`}
       >
         {/* First row */}
-        <div className="flex items-center justify-center">{/* P-TL */}</div>
+        <div className="flex items-center justify-center">
+          <CtlOpenTiles />
+        </div>
         <div className="flex items-center justify-center">
           <PlayerTilesTop />
         </div>
@@ -80,15 +83,18 @@ export default function Game() {
 
         {/* Wall layer (middle 3x3 grid) */}
         <div
-          className={`grid ${middleEdge} overflow-hidden bg-green-700 ring-2 ring-green-500`}
+          className={`grid ${middleEdge} overflow-hidden bg-green-800 ring-2 ring-green-500`}
         >
           {/* First row */}
-          <div className="flex items-center justify-center text-xs">W-TL</div>
+          <div className="flex items-center justify-center text-xs">
+            {/* W-TL */}
+          </div>
           <div className="flex items-center justify-center text-xs">
             <WallTiles direction={Direction.Top} />
           </div>
-          <div className="flex items-center justify-center text-xs">W-TR</div>
-
+          <div className="flex items-center justify-center text-xs">
+            {/* W-TR */}
+          </div>
           {/* Second row */}
           <div className="flex items-center justify-center text-xs">
             <WallTiles direction={Direction.Left} />
@@ -139,11 +145,15 @@ export default function Game() {
           </div>
 
           {/* Third row */}
-          <div className="flex items-center justify-center text-xs">W-BL</div>
+          <div className="flex items-center justify-center text-xs">
+            {/* W-BL */}
+          </div>
           <div className="flex items-center justify-center text-xs">
             <WallTiles direction={Direction.Bottom} />
           </div>
-          <div className="flex items-center justify-center text-xs">W-BR</div>
+          <div className="flex items-center justify-center text-xs">
+            {/* W-BR */}
+          </div>
         </div>
 
         <div className="flex items-center justify-center">
@@ -151,11 +161,11 @@ export default function Game() {
         </div>
 
         {/* Third row */}
-        <div className="flex items-center justify-center">P-BL</div>
+        <div className="flex items-center justify-center">{/* P-BL */}</div>
         <div ref={containerRef} className="flex items-center justify-center">
           <PlayerTilesBottom />
         </div>
-        <div className="flex items-center justify-center">P-BR</div>
+        <div className="flex items-center justify-center">{/* P-BR */} </div>
       </div>
 
       <SpeedDial actions={actions} position="top-right" direction="down" />

@@ -33,6 +33,7 @@ export function HandTiles({ direction, className }: HandTilesProps) {
           direction={direction}
           size="md"
           hoverable={direction === Direction.Bottom}
+          back={direction !== Direction.Bottom}
         />
       ))}
     </div>

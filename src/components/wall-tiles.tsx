@@ -54,6 +54,7 @@ export function WallTiles({ direction }: WallTilesProps) {
           tileId={tid < 0 ? tid : tid * 4}
           direction={direction}
           size={75}
+          back
         />
       ))}
     </div>
