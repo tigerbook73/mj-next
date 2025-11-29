@@ -47,9 +47,6 @@ export default function Game() {
       if (containerRef.current) {
         const width = containerRef.current.clientWidth / 20;
         setTileSize(width);
-
-        //
-        console.log("Setting tile size to:", `${width}px`);
       }
     };
 
