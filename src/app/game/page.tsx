@@ -121,7 +121,7 @@ export default function Game() {
             </div>
             <div className="flex items-center justify-center bg-gray-300 text-[10px]">
               <Button variant="default" size="sm" className="aspect-square">
-                <Link href="/lobby">Quit </Link>
+                <Link href="/lobby">退出 </Link>
               </Button>
             </div>
             <div className="flex items-center justify-center text-[10px]">

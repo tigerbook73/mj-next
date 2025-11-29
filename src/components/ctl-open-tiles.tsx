@@ -20,7 +20,7 @@ export function CtlOpenTiles() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className="flex cursor-pointer items-center space-x-2">
+        <div className="flex cursor-pointer items-center space-x-2 [&_*]:cursor-pointer">
           <Switch
             id="open"
             checked={openTiles}
