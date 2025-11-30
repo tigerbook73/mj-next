@@ -1,3 +1,5 @@
+"use client";
+
 import type { Game } from "@/common/core/mj.game";
 import { Position } from "@/common/core/mj.game";
 import type { TileId } from "@/common/core/mj.tile-core";

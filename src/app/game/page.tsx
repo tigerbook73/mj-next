@@ -14,9 +14,11 @@ import { Direction } from "@/lib/game-utils";
 import { DiscardTiles } from "@/components/DiscardTiles";
 import { CtlOpenTiles } from "@/components/CtlOpenTiles";
 import { useUIStore } from "@/store";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Game() {
+  const [isMounted, setIsMounted] = useState(false);
+
   // Define grid proportions as variables for easy adjustment
   const outerEdge = "grid-cols-[10%_1fr_10%] grid-rows-[10%_1fr_10%]"; // Outer player edge width/height
   const middleEdge = "grid-cols-[15%_1fr_15%] grid-rows-[15%_1fr_15%]"; // Middle wall edge width/height
@@ -41,7 +43,11 @@ export default function Game() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !setTileSize) return;
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted || !containerRef.current || !setTileSize) return;
 
     const updateSize = () => {
       if (containerRef.current) {
@@ -56,7 +62,15 @@ export default function Game() {
     updateSize();
 
     return () => observer.disconnect();
-  }, [setTileSize]);
+  }, [setTileSize, isMounted]);
+
+  if (!isMounted) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-gray-300">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     // Outer container: full screen, center content

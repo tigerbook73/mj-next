@@ -1,7 +1,11 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Tile } from "./Tile";
-import { Direction } from "@/lib/game-utils";
+import { CommonUtil, Direction } from "@/lib/game-utils";
 import { JSX } from "react";
+import { useGameStore } from "@/store";
+import { Position } from "@/common/core/mj.game";
 
 const flexClasses: Record<Direction, string> = {
   [Direction.Bottom]: "flex-row",
@@ -27,11 +31,11 @@ export function OpenSetTiles({
   direction,
   className,
 }: OpenSetTilesProps): JSX.Element {
-  const tiles: number[][] = [
-    [1, 2, 3],
-    // [11, 15, 19],
-    // [40, 44, 48],
-  ];
+  const game = useGameStore((state) => state.game)!;
+  const position = CommonUtil.mapPosition(Position.South, direction);
+  const player = game.players[position]!;
+
+  const openSets = player.openedSets;
 
   return (
     <div
@@ -42,15 +46,15 @@ export function OpenSetTiles({
         className,
       )}
     >
-      {tiles.map((set, index) => (
+      {openSets.map((set, index) => (
         <div key={index} className={cn("flex", flexClasses[direction])}>
-          {set.map((tid, index) => (
+          {set.tiles.map((tid) => (
             <Tile
               key={tid}
               tileId={tid}
               direction={direction}
               size={80}
-              special={index < 2 ? "normal" : "success"}
+              special={set.target === tid ? "success" : "normal"}
             />
           ))}
         </div>

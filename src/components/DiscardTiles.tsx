@@ -1,6 +1,10 @@
+"use client";
+
 import { Tile } from "./Tile";
 import { cn } from "@/lib/utils";
-import { Direction } from "@/lib/game-utils";
+import { CommonUtil, Direction } from "@/lib/game-utils";
+import { useGameStore } from "@/store";
+import { Position } from "@/common/core/mj.game";
 
 // Please node: the classes shall work with displayTiles logic below
 const flexClasses: Record<Direction, string> = {
@@ -17,10 +21,13 @@ interface WallTilesProps {
 
 export function DiscardTiles({ direction }: WallTilesProps) {
   const width = 12;
-  const tiles = [
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-    22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
-  ];
+
+  const game = useGameStore((state) => state.game)!;
+  const position = CommonUtil.mapPosition(Position.South, direction);
+  const discard = game.discards[position]!;
+
+  const tiles: number[] = discard.tiles.slice();
+
   const fullLength = width * 3;
   for (let i = tiles.length; i < fullLength; i++) {
     tiles.push(-1);
@@ -52,7 +59,7 @@ export function DiscardTiles({ direction }: WallTilesProps) {
       {displayTiles.map((tid, index) => (
         <Tile
           key={`${tid}-${index}`}
-          tileId={tid < 0 ? tid : tid * 4}
+          tileId={tid}
           direction={direction}
           size={60}
         />

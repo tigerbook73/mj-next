@@ -1,6 +1,10 @@
+"use client";
+
 import { Tile } from "./Tile";
 import { cn } from "@/lib/utils";
-import { Direction } from "@/lib/game-utils";
+import { Direction, CommonUtil } from "@/lib/game-utils";
+import { useGameStore } from "@/store";
+import { Position } from "@/common/core/mj.game";
 
 // wall tile length is always 36
 const WallTileLength = 36;
@@ -20,10 +24,12 @@ interface WallTilesProps {
 }
 
 export function WallTiles({ direction }: WallTilesProps) {
-  const tiles = [
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-    21, 22, 23, 24, 25, -1, -1, 28, 29, 30, 31, 32, 33, 34, 35,
-  ];
+  const game = useGameStore((state) => state.game)!;
+
+  const position = CommonUtil.mapPosition(Position.South, direction);
+  const wall = game.walls[position];
+
+  const tiles: number[] = wall.tiles.slice();
   for (let i = tiles.length; i < WallTileLength; i++) {
     tiles.push(-1);
   }
@@ -49,13 +55,7 @@ export function WallTiles({ direction }: WallTilesProps) {
   return (
     <div className={cn("grid", flexClasses[direction])}>
       {displayTiles.map((tid, index) => (
-        <Tile
-          key={index}
-          tileId={tid < 0 ? tid : tid * 4}
-          direction={direction}
-          size={75}
-          back
-        />
+        <Tile key={index} tileId={tid} direction={direction} size={75} back />
       ))}
     </div>
   );
