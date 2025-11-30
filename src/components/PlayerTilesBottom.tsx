@@ -1,5 +1,5 @@
-import { HandTiles } from "./hand-tiles";
-import { OpenSetTiles } from "./open-set-tiles";
+import { HandTiles } from "./HandTiles";
+import { OpenSetTiles } from "./OpenSetTiles";
 import { Direction } from "@/lib/game-utils";
 
 export function PlayerTilesBottom() {

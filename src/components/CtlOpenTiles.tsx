@@ -3,7 +3,6 @@
 import { useUIStore } from "@/store";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
-import { use } from "react";
 import { Tooltip } from "./ui/tooltip";
 import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
 

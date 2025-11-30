@@ -1,4 +1,4 @@
-import { Tile } from "./tile";
+import { Tile } from "./Tile";
 import { cn } from "@/lib/utils";
 import { Direction } from "@/lib/game-utils";
 

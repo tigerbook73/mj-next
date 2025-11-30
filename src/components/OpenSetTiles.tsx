@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Tile } from "./tile";
+import { Tile } from "./Tile";
 import { Direction } from "@/lib/game-utils";
 import { JSX } from "react";
 

@@ -1,20 +1,20 @@
 "use client";
 
-import { PlayerTilesLeft } from "@/components/player-tiles-left";
-import { PlayerTilesBottom } from "@/components/player-tiles-bottom";
-import { PlayerTilesRight } from "@/components/player-tiles-right";
-import { PlayerTilesTop } from "@/components/player-tiles-top";
-import SpeedDial from "@/components/ui-ex/speed-dial";
+import { PlayerTilesLeft } from "@/components/PlayerTilesLeft";
+import { PlayerTilesBottom } from "@/components/PlayerTilesBottom";
+import { PlayerTilesRight } from "@/components/PlayerTilesRight";
+import { PlayerTilesTop } from "@/components/PlayerTilesTop";
+import SpeedDial from "@/components/ui-ex/SpeedDial";
 import { Button } from "@/components/ui/button";
 import { LogOut, PersonStandingIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { WallTiles } from "@/components/wall-tiles";
+import { WallTiles } from "@/components/WallTiles";
 import { Direction } from "@/lib/game-utils";
-import { DiscardTiles } from "@/components/discard-tiles";
+import { DiscardTiles } from "@/components/DiscardTiles";
+import { CtlOpenTiles } from "@/components/CtlOpenTiles";
 import { useUIStore } from "@/store";
 import { useEffect, useRef } from "react";
-import { CtlOpenTiles } from "@/components/ctl-open-tiles";
 
 export default function Game() {
   // Define grid proportions as variables for easy adjustment

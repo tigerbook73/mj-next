@@ -1,8 +1,8 @@
 "use client";
 
-import Room from "@/components/room";
+import Room from "@/components/Room";
 import { useRouter } from "next/navigation";
-import SpeedDial from "@/components/ui-ex/speed-dial";
+import SpeedDial from "@/components/ui-ex/SpeedDial";
 import { LogOut, PersonStandingIcon } from "lucide-react";
 
 export default function LobbyPage() {

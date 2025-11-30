@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Tile, TILE_CATEGORIES, type TileProps } from "../components/tile";
+import { Tile, TILE_CATEGORIES, type TileProps } from "../components/Tile";
 import { Direction } from "@/lib/game-utils";
 import { useUIStore } from "@/store";
 import { useEffect } from "react";
