@@ -48,3 +48,22 @@ export const Left: Story = {
     direction: Direction.Left,
   },
 };
+
+export const FullWallArea: Story = {
+  args: {
+    direction: Direction.Bottom,
+  },
+  render: () => (
+    <div className="grid grid-cols-[15%_1fr_15%] grid-rows-[15%_1fr_15%] bg-green-900">
+      <div></div>
+      <WallTiles direction={Direction.Top} />
+      <div></div>
+      <WallTiles direction={Direction.Left} />
+      <div></div>
+      <WallTiles direction={Direction.Right} />
+      <div></div>
+      <WallTiles direction={Direction.Bottom} />
+      <div></div>
+    </div>
+  ),
+};
