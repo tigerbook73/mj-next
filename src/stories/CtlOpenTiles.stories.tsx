@@ -1,26 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { CtlOpenTiles } from "../components/CtlOpenTiles";
-import { useUIStore } from "@/store";
-import { useEffect } from "react";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const StoreDecorator = (Story: any, context: any) => {
-  const setOpenTiles = useUIStore((state) => state.setOpenTiles);
-  const openTiles = context.args.openTiles;
-
-  useEffect(() => {
-    if (setOpenTiles && typeof openTiles === "boolean") {
-      setOpenTiles(openTiles);
-    }
-  }, [openTiles, setOpenTiles]);
-
-  return <Story />;
-};
 
 const meta = {
   title: "Components/CtlOpenTiles",
   component: CtlOpenTiles,
-  decorators: [StoreDecorator],
   parameters: {
     layout: "centered",
   },

@@ -1,27 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Tile, TILE_CATEGORIES, type TileProps } from "../components/Tile";
 import { Direction } from "@/lib/game-utils";
-import { useUIStore } from "@/store";
-import { useEffect } from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const StoreDecorator = (Story: any, context: any) => {
-  const setTileSize = useUIStore((state) => state.setTileSize);
-  const tileSize = context.args.tileSize;
-
-  useEffect(() => {
-    if (setTileSize && tileSize) {
-      setTileSize(tileSize);
-    }
-  }, [tileSize, setTileSize]);
-
-  return <Story />;
-};
 
 const meta = {
   title: "Components/Tile",
   component: Tile,
-  decorators: [StoreDecorator],
   parameters: {
     layout: "centered",
   },

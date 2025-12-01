@@ -1,5 +1,7 @@
 import type { Preview } from "@storybook/nextjs-vite";
 import "../src/app/globals.css";
+import { GameStoreDecorator } from "../src/stories/game-store.decorator";
+import { UIStoreDecorator } from "../src/stories/ui-store.decorator";
 
 const preview: Preview = {
   parameters: {
@@ -17,6 +19,7 @@ const preview: Preview = {
       test: "todo",
     },
   },
+  decorators: [UIStoreDecorator, GameStoreDecorator],
 };
 
 export default preview;
