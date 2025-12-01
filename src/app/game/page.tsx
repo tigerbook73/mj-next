@@ -13,8 +13,10 @@ import { WallTiles } from "@/components/WallTiles";
 import { Direction } from "@/lib/game-utils";
 import { DiscardTiles } from "@/components/DiscardTiles";
 import { CtlOpenTiles } from "@/components/CtlOpenTiles";
-import { useUIStore } from "@/store";
+import { useGameStore, useUIStore } from "@/store";
 import { useEffect, useRef, useState } from "react";
+import { getFakeEvent } from "@/test/helper";
+import { Game as MjCoreGame } from "@/common/core/mj.game";
 
 export default function Game() {
   const [isMounted, setIsMounted] = useState(false);
@@ -63,6 +65,13 @@ export default function Game() {
 
     return () => observer.disconnect();
   }, [setTileSize, isMounted]);
+
+  // load fake game data for test
+  const setGame = useGameStore((state) => state.setGame);
+  useEffect(() => {
+    const game = MjCoreGame.fromJSON(getFakeEvent().data.rooms[0].game);
+    setGame(game);
+  }, [setGame]);
 
   if (!isMounted) {
     return (

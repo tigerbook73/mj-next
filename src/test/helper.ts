@@ -52,9 +52,16 @@ const event = {
           players: [
             {
               position: 0,
-              handTiles: [14, 33, 36, 39, 48, 74, 84, 87, 88, 93, 95, 98, 99],
+              handTiles: [18, 33, 36, 39, 48, 74, 84, 87, 88, 93],
               picked: -1,
-              openedSets: [],
+              openedSets: [
+                {
+                  tiles: [1, 4, 7],
+                  target: 7,
+                  actionType: "chi",
+                  from: 1,
+                },
+              ],
             },
             {
               position: 1,
@@ -62,8 +69,8 @@ const event = {
               picked: 97,
               openedSets: [
                 {
-                  tiles: [128, 130, 131],
-                  target: 130,
+                  tiles: [128, 130, 140],
+                  target: 140,
                   actionType: "peng",
                   from: 1,
                 },
@@ -73,13 +80,27 @@ const event = {
               position: 2,
               handTiles: [8, 9, 13, 32, 44, 45, 57, 63, 68, 73, 81, 96, 133],
               picked: -1,
-              openedSets: [],
+              openedSets: [
+                {
+                  tiles: [1, 4, 7],
+                  target: 7,
+                  actionType: "chi",
+                  from: 1,
+                },
+              ],
             },
             {
               position: 3,
               handTiles: [15, 27, 29, 40, 41, 47, 52, 58, 69, 75, 78, 80, 94],
               picked: -1,
-              openedSets: [],
+              openedSets: [
+                {
+                  tiles: [1, 4, 7],
+                  target: 7,
+                  actionType: "chi",
+                  from: 1,
+                },
+              ],
             },
           ],
           walls: [
