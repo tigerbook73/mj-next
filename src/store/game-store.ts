@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { Game } from "@/common/core/mj.game";
+import { getFakeEvent } from "@/test/helper";
 
 interface GameState {
   game: Game | null;
@@ -8,9 +9,7 @@ interface GameState {
   resetGame: () => void;
 }
 
-const testGame = new Game();
-testGame.init([0, 1, 2, 3]);
-testGame.start();
+const testGame = Game.fromJSON(getFakeEvent().data.rooms[0].game);
 
 export const useGameStore = create<GameState>()(
   devtools(

@@ -24,7 +24,9 @@ export function HandTiles({ direction, className }: HandTilesProps) {
   const position = CommonUtil.mapPosition(Position.South, direction);
   const player = game.players[position]!;
 
-  const tiles = player.handTiles;
+  const tiles = player.handTiles.slice();
+  tiles.push(-1);
+  tiles.push(player.picked);
 
   return (
     <div
