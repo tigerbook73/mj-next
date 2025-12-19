@@ -23,8 +23,8 @@ export default function Game() {
 
   // Define grid proportions as variables for easy adjustment
   const outerEdge = "grid-cols-[10%_1fr_10%] grid-rows-[10%_1fr_10%]"; // Outer player edge width/height
-  const middleEdge = "grid-cols-[15%_1fr_15%] grid-rows-[15%_1fr_15%]"; // Middle wall edge width/height
-  const innerEdge = "grid-cols-[20%_60%_20%] grid-rows-[20%_60%_20%]"; // Inner discard edge width/height
+  const middleEdge = "grid-cols-[13%_1fr_13%] grid-rows-[13%_1fr_13%]"; // Middle wall edge width/height
+  const innerEdge = "grid-cols-[15%_1fr_15%] grid-rows-[15%_1fr_15%]"; // Inner discard edge width/height
 
   const router = useRouter();
   const actions = [

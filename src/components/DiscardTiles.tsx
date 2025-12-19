@@ -6,29 +6,36 @@ import { CommonUtil, Direction } from "@/lib/game-utils";
 import { useGameStore } from "@/store";
 import { Position } from "@/common/core/mj.game";
 
+const defaultCols = 16;
+const defaultRows = 2;
+
 // Please node: the classes shall work with displayTiles logic below
 const flexClasses: Record<Direction, string> = {
-  [Direction.Bottom]: "grid-cols-12 grid-rows-3 gap-y-0.5 ",
-  [Direction.Top]: "grid-cols-12 grid-rows-3 gap-y-0.5 ",
-  [Direction.Left]: "grid-rows-12 grid-cols-2 gap-x-0.5 grid-flow-col",
-  [Direction.Right]: "grid-rows-12 grid-cols-3 gap-x-0.5 grid-flow-col",
+  [Direction.Bottom]: "gap-y-0.5",
+  [Direction.Top]: "gap-y-0.5",
+  [Direction.Left]: "gap-x-0.5 grid-flow-col",
+  [Direction.Right]: "gap-x-0.5 grid-flow-col",
   [Direction.None]: "",
 };
 
 interface WallTilesProps {
   direction: Direction;
+  cols?: number; // number of columns in horizontal layout (e.g. 12 or 15)
+  rows?: number; // number of rows in horizontal layout (e.g. 3 or 2)
 }
 
-export function DiscardTiles({ direction }: WallTilesProps) {
-  const width = 12;
-
+export function DiscardTiles({
+  direction,
+  cols = defaultCols,
+  rows = defaultRows,
+}: WallTilesProps) {
   const game = useGameStore((state) => state.game)!;
   const position = CommonUtil.mapPosition(Position.South, direction);
   const discard = game.discards[position]!;
 
   const tiles: number[] = discard.tiles.slice();
 
-  const fullLength = width * 3;
+  const fullLength = cols * rows;
   for (let i = tiles.length; i < fullLength; i++) {
     tiles.push(-1);
   }
@@ -39,29 +46,48 @@ export function DiscardTiles({ direction }: WallTilesProps) {
     } else if (direction === Direction.Bottom) {
       return tiles;
     } else if (direction === Direction.Left) {
-      return tiles
-        .slice(width * 2, width * 3)
-        .concat(tiles.slice(width, width * 2))
-        .concat(tiles.slice(0, width));
+      // Concatenate rows from bottom to top to fill columns first
+      const out: number[] = [];
+      for (let r = rows - 1; r >= 0; r--) {
+        const start = r * cols;
+        out.push(...tiles.slice(start, start + cols));
+      }
+      return out;
     } else if (direction === Direction.Right) {
-      return tiles
-        .slice(0, width)
-        .reverse()
-        .concat(tiles.slice(width, width * 2).reverse())
-        .concat(tiles.slice(width * 2, width * 3).reverse());
+      // Concatenate each row reversed to fill columns first
+      const out: number[] = [];
+      for (let r = 0; r < rows; r++) {
+        const start = r * cols;
+        out.push(...tiles.slice(start, start + cols).reverse());
+      }
+      return out;
     } else {
       return tiles;
     }
   })();
 
   return (
-    <div className={cn("grid", flexClasses[direction])}>
+    <div
+      className={cn("grid gap-[1px]", flexClasses[direction])}
+      style={
+        direction === Direction.Left || direction === Direction.Right
+          ? {
+              gridTemplateRows: `repeat(${cols}, minmax(0, 1fr))`,
+              gridTemplateColumns: `repeat(${rows}, minmax(0, 1fr))`,
+              gridAutoFlow: "column",
+            }
+          : {
+              gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+              gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+            }
+      }
+    >
       {displayTiles.map((tid, index) => (
         <Tile
           key={`${tid}-${index}`}
           tileId={tid}
           direction={direction}
-          size={60}
+          size={65}
         />
       ))}
     </div>
