@@ -123,111 +123,103 @@ export interface TileProps extends VariantProps<typeof tileVariants> {
 // ============================================================================
 //                                 COMPONENT
 // ============================================================================
-export const Tile = React.forwardRef<HTMLDivElement, TileProps>(
-  (
-    {
-      tileId,
-      back = false,
-      size = "md",
-      hoverable,
-      selected,
-      special,
-      direction = Direction.Bottom,
-      className,
-      onClick,
-      theme = "Regular",
-      ...props
-    },
-    ref,
-  ) => {
-    const { tileSize: storeTileSize } = useUIStore();
-    const { openTiles } = useUIStore();
+export const Tile = ({
+  tileId,
+  back = false,
+  size = "md",
+  hoverable,
+  selected,
+  special,
+  direction = Direction.Bottom,
+  className,
+  onClick,
+  theme = "Regular",
+  ...props
+}: TileProps) => {
+  const { tileSize: storeTileSize } = useUIStore();
+  const { openTiles } = useUIStore();
 
-    // Memoized TileCore and path
-    const tile = React.useMemo(() => TileCore.fromId(tileId), [tileId]);
+  // Memoized TileCore and path
+  const tile = React.useMemo(() => TileCore.fromId(tileId), [tileId]);
 
-    const isBack = tile.tid === TID.BACK || (back && !openTiles);
-    const isEmpty = tile.tid === TID.EMPTY_SPACE;
-    const isVertical =
-      direction === Direction.Left || direction === Direction.Right;
+  const isBack = tile.tid === TID.BACK || (back && !openTiles);
+  const isEmpty = tile.tid === TID.EMPTY_SPACE;
+  const isVertical =
+    direction === Direction.Left || direction === Direction.Right;
 
-    // Aspect ratio
-    const aspectClass = isVertical ? ASPECT_LANDSCAPE : ASPECT_PORTRAIT;
+  // Aspect ratio
+  const aspectClass = isVertical ? ASPECT_LANDSCAPE : ASPECT_PORTRAIT;
 
-    // Final pixel size
-    const scale =
-      (storeTileSize * (typeof size === "number" ? size : sizeScale[size])) /
-      100;
+  // Final pixel size
+  const scale =
+    (storeTileSize * (typeof size === "number" ? size : sizeScale[size])) / 100;
 
-    const containerStyle = {
-      [isVertical ? "height" : "width"]: scale,
-      ...props.style,
-    } as React.CSSProperties;
+  const containerStyle = {
+    [isVertical ? "height" : "width"]: scale,
+    ...props.style,
+  } as React.CSSProperties;
 
-    const imageStyle = { width: scale };
+  const imageStyle = { width: scale };
 
-    const rotate = rotateClasses[direction];
+  const rotate = rotateClasses[direction];
 
-    const fileName = TILE_MAP[tile.tid] ?? TILE_MAP[TID.BLANK];
-    const imagePath = `/tiles/${theme}/${fileName}.svg`;
+  const fileName = TILE_MAP[tile.tid] ?? TILE_MAP[TID.BLANK];
+  const imagePath = `/tiles/${theme}/${fileName}.svg`;
 
-    const clickable = !!onClick && !isBack && !isEmpty;
+  const clickable = !!onClick && !isBack && !isEmpty;
 
-    const handleClick = () => clickable && onClick?.(tile.id);
+  const handleClick = () => clickable && onClick?.(tile.id);
 
-    // --- Empty tile (pure spacing)
-    if (isEmpty) {
-      return (
-        <div
-          ref={ref}
-          className={cn(aspectClass, className)}
-          style={containerStyle}
-          {...props}
-        />
-      );
-    }
-
+  // --- Empty tile (pure spacing)
+  if (isEmpty) {
     return (
       <div
-        ref={ref}
-        className={cn(
-          tileVariants({ hoverable, selected, special }),
-          aspectClass,
-          isBack
-            ? "border-gray-700 bg-teal-600"
-            : theme === "Black"
-              ? "bg-gray-800"
-              : "bg-white",
-          clickable && "cursor-pointer",
-          className,
-        )}
+        className={cn(aspectClass, className)}
         style={containerStyle}
-        onClick={handleClick}
-        role={clickable ? "button" : undefined}
-        tabIndex={clickable ? 0 : undefined}
         {...props}
-      >
-        {isBack ? (
-          <div className="h-full w-full" />
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imagePath}
-            alt={fileName}
-            className={cn(
-              "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
-              "origin-center object-contain",
-              rotate,
-              ASPECT_PORTRAIT,
-            )}
-            style={imageStyle}
-            draggable={false}
-          />
-        )}
-      </div>
+      />
     );
-  },
-);
+  }
+
+  return (
+    <div
+      className={cn(
+        tileVariants({ hoverable, selected, special }),
+        aspectClass,
+        isBack
+          ? "border-gray-700 bg-teal-600"
+          : theme === "Black"
+            ? "bg-gray-800"
+            : "bg-white",
+        clickable && "cursor-pointer",
+        className,
+      )}
+      style={containerStyle}
+      onClick={handleClick}
+      role={clickable ? "button" : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      {...props}
+    >
+      {isBack ? (
+        <div className="h-full w-full" />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={imagePath}
+          alt={fileName}
+          className={cn(
+            "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
+            "origin-center object-contain",
+            rotate,
+            ASPECT_PORTRAIT,
+          )}
+          style={imageStyle}
+          draggable={false}
+        />
+      )}
+    </div>
+  );
+};
 
 Tile.displayName = "Tile";
 
