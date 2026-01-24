@@ -136,8 +136,8 @@ export const Tile = ({
   theme = "Regular",
   ...props
 }: TileProps) => {
-  const { tileSize: storeTileSize } = useUIStore();
-  const { openTiles } = useUIStore();
+  const storeTileSize = useUIStore((state) => state.tileSize);
+  const openTiles = useUIStore((state) => state.openTiles);
 
   // Memoized TileCore and path
   const tile = React.useMemo(() => TileCore.fromId(tileId), [tileId]);
