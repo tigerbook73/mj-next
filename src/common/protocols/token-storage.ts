@@ -17,7 +17,7 @@ export interface TokenStorage {
 /**
  * Default implementation using browser localStorage
  */
-export class LocalStorageTokenStorage implements TokenStorage {
+class LocalStorageTokenStorage implements TokenStorage {
   private readonly key = "jwt_token";
   private readonly expiryKey = "jwt_token_expiry";
 
@@ -55,3 +55,5 @@ export class LocalStorageTokenStorage implements TokenStorage {
     return Date.now() > expiry;
   }
 }
+
+export const localTokenStorage = new LocalStorageTokenStorage();
