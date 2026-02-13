@@ -103,7 +103,7 @@ export default function SignIn() {
 
       if (data?.accessToken) {
         // Store the token using TokenStorage
-        tokenStorage.setToken(data.accessToken);
+        tokenStorage.setToken(data.accessToken, data.expiresIn);
 
         // Redirect to lobby on successful login
         console.log(`Login successful: ${formData.email}`);

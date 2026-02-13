@@ -77,9 +77,9 @@ export class GameSocket {
    * Update the socket authentication token and reconnect
    * Call this after successful login/logout
    */
-  updateAuth(token: string | null) {
+  updateAuth(token: string | null, expiresIn?: number) {
     const authToken = token || NO_TOKEN;
-    this.tokenStorage.setToken(token);
+    this.tokenStorage.setToken(token, expiresIn);
     if (this.socket) {
       (this.socket.io.opts as any).auth = { token: authToken };
 

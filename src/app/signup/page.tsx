@@ -160,7 +160,7 @@ export default function SignUp() {
 
       if (data?.accessToken) {
         // Store the token using TokenStorage
-        tokenStorage.setToken(data.accessToken);
+        tokenStorage.setToken(data.accessToken, data.expiresIn);
 
         // Redirect to lobby on successful registration
         console.log(`Registration successful: ${formData.email}`);
