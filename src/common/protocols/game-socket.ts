@@ -1,6 +1,7 @@
 import type { Socket } from "socket.io-client";
 import { io } from "socket.io-client";
 import type { GameEvent, GameRequest, GameResponse } from "./apis.models";
+import { NO_TOKEN, LocalStorageTokenStorage, type TokenStorage } from "./token-storage";
 
 export class GameSocket {
   public socket: Socket | null = null;
@@ -10,9 +11,11 @@ export class GameSocket {
   public errorCallback = (err: Error) => {
     void err;
   };
+  private tokenStorage: TokenStorage;
 
-  constructor(url?: string) {
-    // Get JWT token from localStorage or use "no-token" for backward compatibility
+  constructor(url?: string, tokenStorage?: TokenStorage) {
+    this.tokenStorage = tokenStorage || new LocalStorageTokenStorage();
+    // Get JWT token from storage or use NO_TOKEN for backward compatibility
     const token = this.getAuthToken();
 
     // "undefined" means the URL will be computed from the `window.location` object
@@ -30,7 +33,7 @@ export class GameSocket {
   }
 
   private getAuthToken(): string {
-    return localStorage.getItem("jwt_token") || "no-token";
+    return this.tokenStorage.getToken();
   }
 
   private onConnected() {
@@ -48,12 +51,12 @@ export class GameSocket {
   private onConnectError(err: Error) {
     console.error("Connection error:", err.message);
 
-    // If token is invalid and not "no-token", try to fallback to guest
-    if (err.message.includes("Unauthorized") && this.getAuthToken() !== "no-token") {
+    // If token is invalid and not NO_TOKEN, try to fallback to guest
+    if (err.message.includes("Unauthorized") && this.getAuthToken() !== NO_TOKEN) {
       console.warn("Authentication failed. Token may be invalid or expired.");
       this.errorCallback(err);
       // Optionally clear the token and reconnect as guest
-      // localStorage.removeItem("jwt_token");
+      // this.tokenStorage.setToken(null);
       // this.updateAuth(null);
     }
   }
@@ -75,7 +78,8 @@ export class GameSocket {
    * Call this after successful login/logout
    */
   updateAuth(token: string | null) {
-    const authToken = token || "no-token";
+    const authToken = token || NO_TOKEN;
+    this.tokenStorage.setToken(token);
     if (this.socket) {
       (this.socket.io.opts as any).auth = { token: authToken };
 

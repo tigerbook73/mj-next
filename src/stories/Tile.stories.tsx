@@ -2,8 +2,6 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Tile, TILE_CATEGORIES, type TileProps } from "../components/Tile";
 import { Direction } from "@/lib/game-utils";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-
 const meta = {
   title: "Components/Tile",
   component: Tile,

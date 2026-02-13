@@ -23,6 +23,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { client, tokenStorage } from "@/lib/client";
 
 // Form validation schema
 const signInSchema = z.object({
@@ -86,16 +87,31 @@ export default function SignIn() {
     [registerRef],
   );
 
-  const onSubmit = async (data: SignInFormData) => {
+  const onSubmit = async (formData: SignInFormData) => {
     try {
-      console.log("Sign in data:", data);
-      // TODO: Add actual authentication logic here
-      // For now, just simulate a delay and redirect
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      router.push("/lobby");
+      const { data, error } = await client.POST("/api/auth/login", {
+        body: {
+          email: formData.email,
+          password: formData.password,
+        },
+      });
+
+      if (error) {
+        setAuthError("Invalid email or password. Please try again.");
+        return;
+      }
+
+      if (data?.accessToken) {
+        // Store the token using TokenStorage
+        tokenStorage.setToken(data.accessToken);
+
+        // Redirect to lobby on successful login
+        console.log(`Login successful: ${formData.email}`);
+        router.push("/lobby");
+      }
     } catch (error) {
       console.error("Sign in error:", error);
-      setAuthError("Invalid email or password. Please try again.");
+      setAuthError("An error occurred during sign in. Please try again.");
     }
   };
 

@@ -23,6 +23,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { client, tokenStorage } from "@/lib/client";
 
 // Form validation schema
 const signUpSchema = z
@@ -139,16 +140,35 @@ export default function SignUp() {
     [confirmPasswordRegisterRef],
   );
 
-  const onSubmit = async (data: SignUpFormData) => {
+  const onSubmit = async (formData: SignUpFormData) => {
     setAuthError(null);
     try {
-      console.log("Sign up data:", data);
-      // TODO: Add actual registration logic here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      router.push("/");
+      const { data, error } = await client.POST("/api/auth/register", {
+        body: {
+          email: formData.email,
+          name: formData.username, // Map username to name
+          password: formData.password,
+        },
+      });
+
+      if (error) {
+        setAuthError(
+          "Registration failed. Please check your information and try again.",
+        );
+        return;
+      }
+
+      if (data?.accessToken) {
+        // Store the token using TokenStorage
+        tokenStorage.setToken(data.accessToken);
+
+        // Redirect to lobby on successful registration
+        console.log(`Registration successful: ${formData.email}`);
+        router.push("/lobby");
+      }
     } catch (error) {
       console.error("Sign up error:", error);
-      setAuthError("Registration failed. Please try again.");
+      setAuthError("An error occurred during registration. Please try again.");
     }
   };
 
