@@ -81,9 +81,8 @@ export default function SignUp() {
     mode: "onBlur",
     reValidateMode: "onBlur",
     defaultValues: {
-      email:
-        process.env.NODE_ENV === "development" ? "newuser@example.com" : "",
-      username: process.env.NODE_ENV === "development" ? "newuser" : "",
+      email: process.env.NODE_ENV === "development" ? "dev@example.com" : "",
+      username: process.env.NODE_ENV === "development" ? "Dev-User" : "",
       password: process.env.NODE_ENV === "development" ? "password123" : "",
       confirmPassword:
         process.env.NODE_ENV === "development" ? "password123" : "",
