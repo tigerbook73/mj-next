@@ -3,6 +3,7 @@
 import Room from "@/components/Room";
 import { useRouter } from "next/navigation";
 import SpeedDial from "@/components/ui-ex/SpeedDial";
+import LoadingScreen from "@/components/ui-ex/LoadingScreen";
 import { LogOut, PersonStandingIcon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { authService } from "@/lib/auth-service";
@@ -33,11 +34,7 @@ export default function LobbyPage() {
 
   // Show loading state while verifying authentication
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen w-screen flex-col items-center justify-center p-8 sm:p-20">
-        <p className="text-muted-foreground text-lg">Loading...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
