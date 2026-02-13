@@ -1,4 +1,4 @@
-import { TileCore, TileId, TileType } from "./mj.tile-core";
+import { TileCore, type TileId, TileType } from "./mj.tile-core";
 
 describe("TileCore", () => {
   it("should create a tile with correct properties", () => {

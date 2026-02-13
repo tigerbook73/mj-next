@@ -7,13 +7,30 @@ export class GameSocket {
   public connected = false;
   public connectedCallback = () => {};
   public disconnectedCallback = () => {};
+  public errorCallback = (err: Error) => {
+    void err;
+  };
 
-  constructor() {
+  constructor(url?: string) {
+    // Get JWT token from localStorage or use "no-token" for backward compatibility
+    const token = this.getAuthToken();
+
     // "undefined" means the URL will be computed from the `window.location` object
-    this.socket = io(undefined);
+    this.socket = io(url, {
+      auth: {
+        token,
+      },
+      reconnection: true,
+      reconnectionAttempts: 5,
+    });
 
     this.socket.on("connect", this.onConnected.bind(this));
     this.socket.on("disconnect", this.onDisconnected.bind(this));
+    this.socket.on("connect_error", this.onConnectError.bind(this));
+  }
+
+  private getAuthToken(): string {
+    return localStorage.getItem("jwt_token") || "no-token";
   }
 
   private onConnected() {
@@ -24,16 +41,49 @@ export class GameSocket {
 
   private onDisconnected() {
     this.connected = false;
-    console.log("Connected to the server");
+    console.log("Disconnected from the server");
     this.disconnectedCallback();
   }
 
-  onConnect(callback = () => {}) {
+  private onConnectError(err: Error) {
+    console.error("Connection error:", err.message);
+
+    // If token is invalid and not "no-token", try to fallback to guest
+    if (err.message.includes("Unauthorized") && this.getAuthToken() !== "no-token") {
+      console.warn("Authentication failed. Token may be invalid or expired.");
+      this.errorCallback(err);
+      // Optionally clear the token and reconnect as guest
+      // localStorage.removeItem("jwt_token");
+      // this.updateAuth(null);
+    }
+  }
+
+  onConnect(callback: () => void) {
     this.connectedCallback = callback;
   }
 
-  onDisconnect(callback = () => {}) {
+  onDisconnect(callback: () => void) {
     this.disconnectedCallback = callback;
+  }
+
+  onError(callback: (err: Error) => void) {
+    this.errorCallback = callback;
+  }
+
+  /**
+   * Update the socket authentication token and reconnect
+   * Call this after successful login/logout
+   */
+  updateAuth(token: string | null) {
+    const authToken = token || "no-token";
+    if (this.socket) {
+      (this.socket.io.opts as any).auth = { token: authToken };
+
+      // If currently connected, reconnect with new token
+      if (this.socket.connected) {
+        this.socket.disconnect().connect();
+      }
+    }
   }
 
   send(data: unknown) {
