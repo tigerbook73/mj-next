@@ -4,10 +4,19 @@ import Room from "@/components/Room";
 import { useRouter } from "next/navigation";
 import SpeedDial from "@/components/ui-ex/SpeedDial";
 import { LogOut, PersonStandingIcon } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { authService } from "@/lib/auth-service";
 
 export default function LobbyPage() {
-  const games = [1, 2, 3, 4, 5];
   const router = useRouter();
+  const { profile, isLoading, isAuthenticated } = useAuth();
+  const games = [1, 2, 3, 4, 5];
+
+  // Handle sign out
+  const handleSignOut = () => {
+    authService.logout();
+    router.push("/");
+  };
 
   const actions = [
     {
@@ -18,13 +27,36 @@ export default function LobbyPage() {
     {
       icon: <LogOut className="h-5 w-5" />,
       label: "Sign Out",
-      onClick: () => router.push("/"),
+      onClick: handleSignOut,
     },
   ];
 
+  // Show loading state while verifying authentication
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen w-screen flex-col items-center justify-center p-8 sm:p-20">
+        <p className="text-muted-foreground text-lg">Loading...</p>
+      </div>
+    );
+  }
+
+  // If not authenticated, this shouldn't happen as useAuth redirects, but just in case
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-screen w-screen flex-col items-center justify-center p-8 sm:p-20">
+        <p className="text-destructive text-lg">Unauthorized</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen w-screen flex-col items-center gap-16 p-8 sm:p-20">
-      <h1 className="mb-4 text-center text-4xl font-bold">Lobby Page</h1>
+      <div className="w-full text-center">
+        <h1 className="mb-2 text-4xl font-bold">Lobby Page</h1>
+        {profile && (
+          <p className="text-muted-foreground">Welcome, {profile.email}</p>
+        )}
+      </div>
 
       <div className="grid w-full max-w-[1024px] grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
         {games.map((i) => (
