@@ -9,7 +9,7 @@ import { authService } from "@/lib/auth-service";
 
 export default function LobbyPage() {
   const router = useRouter();
-  const { profile, isLoading, isAuthenticated } = useAuth();
+  const { profile, isLoading } = useAuth();
   const games = [1, 2, 3, 4, 5];
 
   // Handle sign out
@@ -36,15 +36,6 @@ export default function LobbyPage() {
     return (
       <div className="flex min-h-screen w-screen flex-col items-center justify-center p-8 sm:p-20">
         <p className="text-muted-foreground text-lg">Loading...</p>
-      </div>
-    );
-  }
-
-  // If not authenticated, this shouldn't happen as useAuth redirects, but just in case
-  if (!isAuthenticated) {
-    return (
-      <div className="flex min-h-screen w-screen flex-col items-center justify-center p-8 sm:p-20">
-        <p className="text-destructive text-lg">Unauthorized</p>
       </div>
     );
   }
