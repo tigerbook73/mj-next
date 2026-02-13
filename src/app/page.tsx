@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,6 +24,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { client, tokenStorage } from "@/lib/client";
+import { authService } from "@/lib/auth-service";
 
 // Form validation schema
 const signInSchema = z.object({
@@ -44,6 +45,13 @@ export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
+
+  // Check if user is already signed in, redirect to lobby
+  useEffect(() => {
+    if (authService.isAuthenticated()) {
+      router.push("/lobby");
+    }
+  }, [router]);
 
   const {
     register,
@@ -105,9 +113,16 @@ export default function SignIn() {
         // Store the token using TokenStorage
         tokenStorage.setToken(data.accessToken, data.expiresIn);
 
-        // Redirect to lobby on successful login
-        console.log(`Login successful: ${formData.email}`);
-        router.push("/lobby");
+        // Fetch and store user profile
+        const profile = await authService.storeProfileAfterAuth();
+
+        if (profile) {
+          // Redirect to lobby on successful login with profile
+          console.log(`Login successful: ${formData.email}`);
+          router.push("/lobby");
+        } else {
+          setAuthError("Failed to load user profile. Please try again.");
+        }
       }
     } catch (error) {
       console.error("Sign in error:", error);
