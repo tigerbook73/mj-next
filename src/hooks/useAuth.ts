@@ -18,17 +18,13 @@ import type { UserProfile } from "@/lib/profile-storage";
 export function useAuth() {
   const router = useRouter();
 
-  // Check synchronously BEFORE hooks to avoid render flash
-  const cachedProfile = authService.getProfileFromCache();
-
   // Initialize state - always true initially to show loading state
-  // This prevents rendering content before auth is verified
-  const [profile, setProfile] = useState<UserProfile | null>(cachedProfile);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(!!cachedProfile);
 
   useEffect(() => {
-    // If no cached profile, redirect immediately
+    const cachedProfile = authService.getProfileFromCache();
+
     if (!cachedProfile) {
       router.push("/");
       return;
@@ -40,9 +36,7 @@ export function useAuth() {
 
       if (verifiedProfile) {
         setProfile(verifiedProfile);
-        setIsAuthenticated(true);
       } else {
-        // Verification failed, redirect to sign-in
         router.push("/");
         return;
       }
@@ -51,11 +45,10 @@ export function useAuth() {
     };
 
     verifyToken();
-  }, [cachedProfile, router]);
+  }, [router]);
 
   return {
     profile,
     isLoading,
-    isAuthenticated,
   };
 }
