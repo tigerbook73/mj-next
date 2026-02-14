@@ -1,7 +1,6 @@
 import type { Socket } from "socket.io-client";
 import { io } from "socket.io-client";
 import type { GameEvent, GameRequest, GameResponse } from "./apis.models";
-import { NO_TOKEN, localTokenStorage, type TokenStorage } from "./token-storage";
 
 export class GameSocket {
   public socket: Socket | null = null;
@@ -11,17 +10,12 @@ export class GameSocket {
   public errorCallback = (err: Error) => {
     void err;
   };
-  private tokenStorage: TokenStorage;
 
-  constructor(url?: string, tokenStorage?: TokenStorage) {
-    this.tokenStorage = tokenStorage || localTokenStorage;
-    // Get JWT token from storage or use NO_TOKEN for backward compatibility
-    const token = this.getAuthToken();
-
+  constructor(url?: string, token?: string) {
     // "undefined" means the URL will be computed from the `window.location` object
     this.socket = io(url, {
       auth: {
-        token,
+        token: token || "",
       },
       reconnection: true,
       reconnectionAttempts: 5,
@@ -30,10 +24,6 @@ export class GameSocket {
     this.socket.on("connect", this.onConnected.bind(this));
     this.socket.on("disconnect", this.onDisconnected.bind(this));
     this.socket.on("connect_error", this.onConnectError.bind(this));
-  }
-
-  private getAuthToken(): string {
-    return this.tokenStorage.getToken();
   }
 
   private onConnected() {
@@ -51,13 +41,9 @@ export class GameSocket {
   private onConnectError(err: Error) {
     console.error("Connection error:", err.message);
 
-    // If token is invalid and not NO_TOKEN, try to fallback to guest
-    if (err.message.includes("Unauthorized") && this.getAuthToken() !== NO_TOKEN) {
+    if (err.message.includes("Unauthorized")) {
       console.warn("Authentication failed. Token may be invalid or expired.");
       this.errorCallback(err);
-      // Optionally clear the token and reconnect as guest
-      // this.tokenStorage.setToken(null);
-      // this.updateAuth(null);
     }
   }
 
@@ -74,18 +60,16 @@ export class GameSocket {
   }
 
   /**
-   * Update the socket authentication token and reconnect
-   * Call this after successful login/logout
+   * Reconnect with a new WS token
    */
-  updateAuth(token: string | null, expiresIn?: number) {
-    const authToken = token || NO_TOKEN;
-    this.tokenStorage.setToken(token, expiresIn);
+  connect(token: string) {
     if (this.socket) {
-      (this.socket.io.opts as any).auth = { token: authToken };
+      (this.socket.io.opts as any).auth = { token };
 
-      // If currently connected, reconnect with new token
       if (this.socket.connected) {
         this.socket.disconnect().connect();
+      } else {
+        this.socket.connect();
       }
     }
   }

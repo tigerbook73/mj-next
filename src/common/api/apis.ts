@@ -97,17 +97,51 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/auth/profile": {
+    "/api/auth/me": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get logged-in user profile */
-        get: operations["AuthController_getProfile"];
+        /** Get current user profile */
+        get: operations["AuthController_getMe"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/ws-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a short-lived WebSocket authentication token */
+        get: operations["AuthController_getWsToken"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Logout user */
+        post: operations["AuthController_logout"];
         delete?: never;
         options?: never;
         head?: never;
@@ -191,16 +225,6 @@ export interface components {
         };
         AuthResponseDto: {
             /**
-             * @description JWT access token
-             * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-             */
-            accessToken: string;
-            /**
-             * @description Token expiration time in seconds
-             * @example 3600
-             */
-            expiresIn: number;
-            /**
              * @description User ID
              * @example 1
              */
@@ -210,6 +234,11 @@ export interface components {
              * @example user@example.com
              */
             email: string;
+            /**
+             * @description User name
+             * @example John Doe
+             */
+            name: Record<string, never> | null;
         };
         LoginDto: {
             /**
@@ -251,6 +280,13 @@ export interface components {
              * @example 2024-01-15T10:30:00Z
              */
             updatedAt: string;
+        };
+        WsTokenResponseDto: {
+            /**
+             * @description Short-lived WebSocket authentication token
+             * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+             */
+            token: string;
         };
         CreateUserDto: {
             /**
@@ -432,7 +468,7 @@ export interface operations {
             };
         };
     };
-    AuthController_getProfile: {
+    AuthController_getMe: {
         parameters: {
             query?: never;
             header?: never;
@@ -449,6 +485,44 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UserResponseDto"];
                 };
+            };
+        };
+    };
+    AuthController_getWsToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description WebSocket token generated successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WsTokenResponseDto"];
+                };
+            };
+        };
+    };
+    AuthController_logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Logged out successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
