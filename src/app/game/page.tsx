@@ -5,10 +5,13 @@ import { PlayerTilesBottom } from "@/components/PlayerTilesBottom";
 import { PlayerTilesRight } from "@/components/PlayerTilesRight";
 import { PlayerTilesTop } from "@/components/PlayerTilesTop";
 import SpeedDial from "@/components/ui-ex/SpeedDial";
+import LoadingScreen from "@/components/ui-ex/LoadingScreen";
 import { Button } from "@/components/ui/button";
 import { LogOut, PersonStandingIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { authService } from "@/lib/auth-service";
 import { WallTiles } from "@/components/WallTiles";
 import { Direction } from "@/lib/game-utils";
 import { DiscardTiles } from "@/components/DiscardTiles";
@@ -19,6 +22,7 @@ import { getFakeEvent } from "@/test/helper";
 import { Game as MjCoreGame } from "@/common/core/mj.game";
 
 export default function Game() {
+  const { isLoading } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
 
   // Define grid proportions as variables for easy adjustment
@@ -36,7 +40,10 @@ export default function Game() {
     {
       icon: <LogOut className="h-5 w-5" />,
       label: "Sign Out",
-      onClick: () => router.push("/"),
+      onClick: async () => {
+        await authService.logout();
+        router.push("/");
+      },
     },
   ];
 
@@ -73,12 +80,8 @@ export default function Game() {
     setGame(game);
   }, [setGame]);
 
-  if (!isMounted) {
-    return (
-      <div className="flex h-screen w-screen items-center justify-center bg-gray-300">
-        Loading...
-      </div>
-    );
+  if (isLoading || !isMounted) {
+    return <LoadingScreen />;
   }
 
   return (

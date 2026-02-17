@@ -23,8 +23,8 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { client } from "@/lib/client";
 import { authService } from "@/lib/auth-service";
+import LoadingScreen from "@/components/ui-ex/LoadingScreen";
 
 // Form validation schema
 const signInSchema = z.object({
@@ -44,13 +44,18 @@ export default function SignIn() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
   // Check if user is already signed in, redirect to lobby
   useEffect(() => {
-    if (authService.getProfileFromCache()) {
-      router.push("/lobby");
-    }
+    authService.initialize().then((user) => {
+      if (user) {
+        router.push("/lobby");
+      } else {
+        setCheckingAuth(false);
+      }
+    });
   }, [router]);
 
   const {
@@ -97,35 +102,14 @@ export default function SignIn() {
 
   const onSubmit = async (formData: SignInFormData) => {
     try {
-      const { data, error } = await client.POST("/api/auth/login", {
-        body: {
-          email: formData.email,
-          password: formData.password,
-        },
-      });
-
-      if (error) {
-        setAuthError("Invalid email or password. Please try again.");
-        return;
-      }
-
-      if (data) {
-        // Auth cookie is set automatically by the server response.
-        // Fetch and cache the full user profile.
-        const profile = await authService.fetchAndStoreProfile();
-
-        if (profile) {
-          console.log(`Login successful: ${formData.email}`);
-          router.push("/lobby");
-        } else {
-          setAuthError("Failed to load user profile. Please try again.");
-        }
-      }
-    } catch (error) {
-      console.error("Sign in error:", error);
-      setAuthError("An error occurred during sign in. Please try again.");
+      await authService.login(formData.email, formData.password);
+      router.push("/lobby");
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : "Sign in failed.");
     }
   };
+
+  if (checkingAuth) return <LoadingScreen />;
 
   return (
     <div className="from-background to-muted flex min-h-screen flex-col items-center justify-center bg-gradient-to-br p-4 sm:p-8">

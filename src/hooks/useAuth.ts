@@ -1,48 +1,39 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { authService } from "@/lib/auth-service";
-import type { UserProfile } from "@/lib/profile-storage";
+import { authService, type UserProfile } from "@/lib/auth-service";
 
 /**
- * useAuth Hook
- *
- * Guards protected pages by verifying authentication with the server.
- * - Checks if a cached profile exists in localStorage
- * - If not found, redirects to sign-in
- * - If found, verifies with the server (cookie-based auth)
- * - If verification fails, redirects to sign-in
+ * Guards protected pages.
+ * Waits for AuthService initialization, redirects to "/" if unauthenticated.
  */
 export function useAuth() {
   const router = useRouter();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [profile, setProfile] = useState<UserProfile | null>(
+    authService.getCurrentUser(),
+  );
+  const [isLoading, setIsLoading] = useState(!authService.isInitialized());
 
   useEffect(() => {
-    const cachedProfile = authService.getProfileFromCache();
+    const unsub = authService.subscribe((user) => {
+      setProfile(user);
+      if (!user && authService.isInitialized()) {
+        router.push("/");
+      }
+    });
 
-    if (!cachedProfile) {
+    if (!authService.isInitialized()) {
+      authService.initialize().then((user) => {
+        setIsLoading(false);
+        if (!user) router.push("/");
+      });
+    } else if (!authService.getCurrentUser) {
       router.push("/");
-      return;
+    } else {
+      setIsLoading(false);
     }
 
-    const verify = async () => {
-      const verifiedProfile = await authService.verifyAuth();
-
-      if (verifiedProfile) {
-        setProfile(verifiedProfile);
-      } else {
-        router.push("/");
-        return;
-      }
-
-      setIsLoading(false);
-    };
-
-    verify();
+    return unsub;
   }, [router]);
 
-  return {
-    profile,
-    isLoading,
-  };
+  return { profile, isLoading };
 }

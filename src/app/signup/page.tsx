@@ -23,8 +23,8 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { client } from "@/lib/client";
 import { authService } from "@/lib/auth-service";
+import LoadingScreen from "@/components/ui-ex/LoadingScreen";
 
 // Form validation schema
 const signUpSchema = z
@@ -62,14 +62,19 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const confirmPasswordInputRef = useRef<HTMLInputElement>(null);
 
   // Check if user is already signed in, redirect to lobby
   useEffect(() => {
-    if (authService.getProfileFromCache()) {
-      router.push("/lobby");
-    }
+    authService.initialize().then((user) => {
+      if (user) {
+        router.push("/lobby");
+      } else {
+        setCheckingAuth(false);
+      }
+    });
   }, [router]);
 
   const {
@@ -150,38 +155,20 @@ export default function SignUp() {
   const onSubmit = async (formData: SignUpFormData) => {
     setAuthError(null);
     try {
-      const { data, error } = await client.POST("/api/auth/register", {
-        body: {
-          email: formData.email,
-          name: formData.username, // Map username to name
-          password: formData.password,
-        },
-      });
-
-      if (error) {
-        setAuthError(
-          "Registration failed. Please check your information and try again.",
-        );
-        return;
-      }
-
-      if (data) {
-        // Auth cookie is set automatically by the server response.
-        // Fetch and cache the full user profile.
-        const profile = await authService.fetchAndStoreProfile();
-
-        if (profile) {
-          console.log(`Registration successful: ${formData.email}`);
-          router.push("/lobby");
-        } else {
-          setAuthError("Failed to load user profile. Please try again.");
-        }
-      }
-    } catch (error) {
-      console.error("Sign up error:", error);
-      setAuthError("An error occurred during registration. Please try again.");
+      await authService.register(
+        formData.email,
+        formData.username,
+        formData.password,
+      );
+      router.push("/lobby");
+    } catch (err) {
+      setAuthError(
+        err instanceof Error ? err.message : "Registration failed.",
+      );
     }
   };
+
+  if (checkingAuth) return <LoadingScreen />;
 
   return (
     <div className="from-background to-muted flex min-h-screen flex-col items-center justify-center bg-gradient-to-br p-4 sm:p-8">

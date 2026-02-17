@@ -1,104 +1,167 @@
 import { client } from "./client";
-import {
-  LocalStorageProfileStorage,
-  type UserProfile,
-} from "./profile-storage";
+import type { components } from "@/common/api/apis";
+import { socketClient } from "./socket-client";
 
-const profileStorage = new LocalStorageProfileStorage();
+export type UserProfile = components["schemas"]["UserResponseDto"];
 
-/**
- * AuthService handles authentication-related operations.
- *
- * JWT tokens are managed as HTTP-only cookies by the server.
- * The client cannot read or set tokens directly — it relies on
- * the browser cookie jar for REST auth, and fetches short-lived
- * WS tokens via `/api/auth/ws-token` for WebSocket connections.
- */
 export class AuthService {
-  /**
-   * Fetch user profile from server and store it locally.
-   * Called after successful sign-in or sign-up.
-   * The auth cookie is already set by the login/register response.
-   */
-  async fetchAndStoreProfile(): Promise<UserProfile | null> {
-    try {
-      const { data, error } = await client.GET("/api/auth/me");
+  private currentUser: UserProfile | null = null;
+  private initialized = false;
+  private initPromise: Promise<UserProfile | null> | null = null;
+  private listeners = new Set<(user: UserProfile | null) => void>();
 
-      if (error || !data) {
-        console.error("Failed to fetch profile:", error);
-        return null;
-      }
+  /** Current user profile (null if not authenticated) */
+  getCurrentUser(): UserProfile | null {
+    return this.currentUser;
+  }
 
-      profileStorage.setProfile(data as UserProfile);
-      return data as UserProfile;
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-      return null;
+  /** Whether initialize() has completed */
+  isInitialized(): boolean {
+    return this.initialized;
+  }
+
+  /** Subscribe to user state changes. Returns unsubscribe function. */
+  subscribe(listener: (user: UserProfile | null) => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  private notify(): void {
+    for (const listener of this.listeners) {
+      listener(this.currentUser);
     }
   }
 
   /**
-   * Verify auth validity by fetching profile from server.
-   * Returns the profile if the cookie is still valid, null otherwise.
+   * Initialize: restore session from server via GET /api/auth/me.
+   * If session is valid, also connects the SocketClient.
+   * Idempotent — deduplicates concurrent calls.
    */
-  async verifyAuth(): Promise<UserProfile | null> {
+  async initialize(): Promise<UserProfile | null> {
+    if (this.initialized) return this.currentUser;
+    if (!this.initPromise) {
+      this.initPromise = this.doInitialize();
+    }
+    return this.initPromise;
+  }
+
+  private async doInitialize(): Promise<UserProfile | null> {
     try {
       const { data, error } = await client.GET("/api/auth/me");
-
-      if (error || !data) {
-        console.error("Auth verification failed:", error);
-        profileStorage.clearProfile();
-        return null;
+      if (!error && data) {
+        this.currentUser = data as UserProfile;
+        await this.connectSocketClient();
       }
-
-      profileStorage.setProfile(data as UserProfile);
-      return data as UserProfile;
-    } catch (error) {
-      console.error("Error verifying auth:", error);
-      profileStorage.clearProfile();
-      return null;
+    } catch {
+      // Network error — treat as unauthenticated
     }
+    this.initialized = true;
+    this.notify();
+    return this.currentUser;
   }
 
   /**
-   * Get cached profile from localStorage.
-   * This is a weak check — the cookie may have expired.
-   * Always follow up with verifyAuth() for protected routes.
+   * Login with email and password.
+   * On success: sets currentUser, connects SocketClient, notifies listeners.
+   * Returns the user profile, or throws on failure.
    */
-  getProfileFromCache(): UserProfile | null {
-    return profileStorage.getProfile();
+  async login(email: string, password: string): Promise<UserProfile> {
+    const { data, error } = await client.POST("/api/auth/login", {
+      body: { email, password },
+    });
+
+    if (error || !data) {
+      throw new Error("Invalid email or password. Please try again.");
+    }
+
+    // Cookie is set by the server. Fetch full profile.
+    const profile = await this.fetchProfile();
+    if (!profile) {
+      throw new Error("Failed to load user profile. Please try again.");
+    }
+
+    await this.connectSocketClient();
+    return profile;
   }
 
   /**
-   * Logout: clear server cookie and local profile cache.
+   * Register a new account.
+   * On success: sets currentUser, connects SocketClient, notifies listeners.
+   * Returns the user profile, or throws on failure.
    */
+  async register(
+    email: string,
+    name: string,
+    password: string,
+  ): Promise<UserProfile> {
+    const { data, error } = await client.POST("/api/auth/register", {
+      body: { email, name, password },
+    });
+
+    if (error || !data) {
+      throw new Error(
+        "Registration failed. Please check your information and try again.",
+      );
+    }
+
+    const profile = await this.fetchProfile();
+    if (!profile) {
+      throw new Error("Failed to load user profile. Please try again.");
+    }
+
+    await this.connectSocketClient();
+    return profile;
+  }
+
+  /** Logout: disconnect socket, clear server cookie, clear in-memory state */
   async logout(): Promise<void> {
+    socketClient.disconnect();
     try {
       await client.POST("/api/auth/logout");
-    } catch (error) {
-      console.error("Error during logout:", error);
+    } catch {
+      // Best-effort
     }
-    profileStorage.clearProfile();
+    this.currentUser = null;
+    this.notify();
   }
 
-  /**
-   * Fetch a short-lived WebSocket token from the server.
-   * Requires a valid auth cookie.
-   */
-  async getWsToken(): Promise<string | null> {
+  /** Fetch a short-lived WebSocket token (requires valid cookie) */
+  private async getWsToken(): Promise<string | null> {
     try {
       const { data, error } = await client.GET("/api/auth/ws-token");
-
-      if (error || !data) {
-        console.error("Failed to fetch WS token:", error);
-        return null;
-      }
-
+      if (error || !data) return null;
       return data.token;
-    } catch (error) {
-      console.error("Error fetching WS token:", error);
+    } catch {
       return null;
     }
+  }
+
+  // --- Private helpers ---
+
+  /** Fetch profile from server, update in-memory state, notify */
+  private async fetchProfile(): Promise<UserProfile | null> {
+    try {
+      const { data, error } = await client.GET("/api/auth/me");
+      if (error || !data) return null;
+
+      this.currentUser = data as UserProfile;
+      this.initialized = true;
+      this.notify();
+      return this.currentUser;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Connect SocketClient with a fresh WS token */
+  private async connectSocketClient(): Promise<void> {
+    const wsToken = await this.getWsToken();
+    if (!wsToken) {
+      console.warn("Failed to get WS token — socket not connected");
+      return;
+    }
+
+    socketClient.connect(wsToken);
   }
 }
 
