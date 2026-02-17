@@ -3,8 +3,9 @@ import { useRouter } from "next/navigation";
 import { authService, type UserProfile } from "@/lib/auth-service";
 
 /**
- * Guards protected pages.
- * Waits for AuthService initialization, redirects to "/" if unauthenticated.
+ * Initializes auth session, provides profile state, and handles reactive logout.
+ * Route protection is handled by middleware — this hook focuses on
+ * session initialization (profile + WebSocket) and logout redirection.
  */
 export function useAuth() {
   const router = useRouter();
@@ -22,12 +23,9 @@ export function useAuth() {
     });
 
     if (!authService.isInitialized()) {
-      authService.initialize().then((user) => {
+      authService.initialize().then(() => {
         setIsLoading(false);
-        if (!user) router.push("/");
       });
-    } else if (!authService.getCurrentUser) {
-      router.push("/");
     } else {
       setIsLoading(false);
     }

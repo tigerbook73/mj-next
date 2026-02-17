@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,7 +24,6 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { authService } from "@/lib/auth-service";
-import LoadingScreen from "@/components/ui-ex/LoadingScreen";
 
 // Form validation schema
 const signUpSchema = z
@@ -62,20 +61,8 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [checkingAuth, setCheckingAuth] = useState(true);
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const confirmPasswordInputRef = useRef<HTMLInputElement>(null);
-
-  // Check if user is already signed in, redirect to lobby
-  useEffect(() => {
-    authService.initialize().then((user) => {
-      if (user) {
-        router.push("/lobby");
-      } else {
-        setCheckingAuth(false);
-      }
-    });
-  }, [router]);
 
   const {
     register,
@@ -167,8 +154,6 @@ export default function SignUp() {
       );
     }
   };
-
-  if (checkingAuth) return <LoadingScreen />;
 
   return (
     <div className="from-background to-muted flex min-h-screen flex-col items-center justify-center bg-gradient-to-br p-4 sm:p-8">
