@@ -14,8 +14,8 @@ export default function LobbyPage() {
   const games = [1, 2, 3, 4, 5];
 
   // Handle sign out
-  const handleSignOut = () => {
-    authService.logout();
+  const handleSignOut = async () => {
+    await authService.logout();
     router.push("/");
   };
 

@@ -6,19 +6,14 @@ import type { UserProfile } from "@/lib/profile-storage";
 /**
  * useAuth Hook
  *
- * Checks if user is authenticated and verifies token validity
- * - Synchronously checks if profile exists in localStorage
- * - If not found, triggers redirect to sign-in via useEffect
- * - If found, verifies token with server
+ * Guards protected pages by verifying authentication with the server.
+ * - Checks if a cached profile exists in localStorage
+ * - If not found, redirects to sign-in
+ * - If found, verifies with the server (cookie-based auth)
  * - If verification fails, redirects to sign-in
- *
- * Usage:
- * const { profile, isLoading, isAuthenticated } = useAuth();
  */
 export function useAuth() {
   const router = useRouter();
-
-  // Initialize state - always true initially to show loading state
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -30,9 +25,8 @@ export function useAuth() {
       return;
     }
 
-    // Only verify token if profile exists
-    const verifyToken = async () => {
-      const verifiedProfile = await authService.verifyToken();
+    const verify = async () => {
+      const verifiedProfile = await authService.verifyAuth();
 
       if (verifiedProfile) {
         setProfile(verifiedProfile);
@@ -44,7 +38,7 @@ export function useAuth() {
       setIsLoading(false);
     };
 
-    verifyToken();
+    verify();
   }, [router]);
 
   return {

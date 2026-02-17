@@ -8,10 +8,6 @@ import { UserModel } from "../models/user.model";
 import type { GameSocket } from "./game-socket";
 
 export const GameRequestType = {
-  // Authentication
-  SIGN_IN: "signIn",
-  SIGN_OUT: "signOut",
-
   // clients
   LIST_CLIENT: "listClient",
 
@@ -43,8 +39,7 @@ export const GameRequestType = {
   ACTION_HU: "actionHu",
 } as const;
 
-export type GameRequestType =
-  (typeof GameRequestType)[keyof typeof GameRequestType];
+export type GameRequestType = (typeof GameRequestType)[keyof typeof GameRequestType];
 
 export interface GameRequest {
   type: GameRequestType;
@@ -56,27 +51,6 @@ export interface GameResponse {
   status: "success" | "error";
   message?: string;
   data?: unknown;
-}
-
-export interface SignInRequest extends GameRequest {
-  type: typeof GameRequestType.SIGN_IN;
-  data: {
-    email: string;
-    password: string;
-  };
-}
-
-export interface SignInResponse extends GameResponse {
-  type: typeof GameRequestType.SIGN_IN;
-  data: UserModel;
-}
-
-export interface SignOutRequest extends GameRequest {
-  type: typeof GameRequestType.SIGN_OUT;
-}
-
-export interface SignOutResponse extends GameResponse {
-  type: typeof GameRequestType.SIGN_OUT;
 }
 
 export interface ListClientRequest extends GameRequest {
@@ -306,17 +280,45 @@ export interface GameEvent {
   };
 }
 
-export class ClientApi {
-  constructor(public gameSocket: GameSocket) {}
+export class SocketClient {
+  constructor(protected gameSocket: GameSocket) {}
+
+  /**
+   * Connection APIs
+   */
+  connect(token: string) {
+    this.gameSocket.connect(token);
+  }
+
+  disconnect() {
+    this.gameSocket.disconnect();
+  }
+
+  getClientId() {
+    return this.gameSocket.getSocketId();
+  }
+
+  isConnected() {
+    return this.gameSocket.isConnected();
+  }
+
+  onConnect(callback: () => void) {
+    this.gameSocket.onConnect(callback);
+  }
+
+  onDisconnect(callback: () => void) {
+    this.gameSocket.onDisconnect(callback);
+  }
+
+  onReceive(callback: (data: GameEvent) => void) {
+    this.gameSocket.onReceive(callback);
+  }
 
   /**
    * auth APIs
    */
 
-  protected async sendRequest<
-    REQ extends GameRequest,
-    RES extends GameResponse,
-  >(request: REQ): Promise<RES> {
+  protected async sendRequest<REQ extends GameRequest, RES extends GameResponse>(request: REQ): Promise<RES> {
     const response = await this.gameSocket.sendAndWait<RES>(request);
     if (response.status === "error") {
       throw new Error(response.message);
@@ -329,40 +331,13 @@ export class ClientApi {
    */
 
   /**
-   * auth APIs
-   */
-  async signIn(email: string, password: string): Promise<UserModel> {
-    const request: SignInRequest = {
-      type: GameRequestType.SIGN_IN,
-      data: {
-        email,
-        password,
-      },
-    };
-    const response = await this.sendRequest<SignInRequest, SignInResponse>(
-      request,
-    );
-    return UserModel.fromJSON(response.data);
-  }
-
-  async signOut(): Promise<void> {
-    const request: SignOutRequest = {
-      type: GameRequestType.SIGN_OUT,
-    };
-    await this.sendRequest<SignOutRequest, SignOutResponse>(request);
-  }
-
-  /**
    * client APIs
    */
   async listClient(): Promise<ClientModel[]> {
     const request: ListClientRequest = {
       type: GameRequestType.LIST_CLIENT,
     };
-    const response = await this.sendRequest<
-      ListClientRequest,
-      ListClientResponse
-    >(request);
+    const response = await this.sendRequest<ListClientRequest, ListClientResponse>(request);
     return response.data.map((data) => ClientModel.fromJSON(data));
   }
 
@@ -373,9 +348,7 @@ export class ClientApi {
     const request: ListUserRequest = {
       type: GameRequestType.LIST_USER,
     };
-    const response = await this.sendRequest<ListUserRequest, ListUserResponse>(
-      request,
-    );
+    const response = await this.sendRequest<ListUserRequest, ListUserResponse>(request);
     return response.data.map((data) => UserModel.fromJSON(data));
   }
 
@@ -399,10 +372,7 @@ export class ClientApi {
         name: roomName,
       },
     };
-    const response = await this.sendRequest<
-      CreateRoomRequest,
-      CreateRoomResponse
-    >(request);
+    const response = await this.sendRequest<CreateRoomRequest, CreateRoomResponse>(request);
     return RoomModel.fromJSON(response.data);
   }
 
@@ -420,9 +390,7 @@ export class ClientApi {
     const request: ListRoomRequest = {
       type: GameRequestType.LIST_ROOM,
     };
-    const response = await this.sendRequest<ListRoomRequest, ListRoomResponse>(
-      request,
-    );
+    const response = await this.sendRequest<ListRoomRequest, ListRoomResponse>(request);
     return response.data.map((data) => RoomModel.fromJSON(data));
   }
 
@@ -434,9 +402,7 @@ export class ClientApi {
         position,
       },
     };
-    const response = await this.sendRequest<JoinRoomRequest, JoinRoomResponse>(
-      request,
-    );
+    const response = await this.sendRequest<JoinRoomRequest, JoinRoomResponse>(request);
     return RoomModel.fromJSON(response.data);
   }
 
@@ -457,10 +423,7 @@ export class ClientApi {
         roomName,
       },
     };
-    const response = await this.sendRequest<
-      EnterGameRequest,
-      EnterGameResponse
-    >(request);
+    const response = await this.sendRequest<EnterGameRequest, EnterGameResponse>(request);
     return RoomModel.fromJSON(response.data);
   }
 
@@ -471,9 +434,7 @@ export class ClientApi {
         roomName,
       },
     };
-    const response = await this.sendRequest<QuitGameRequest, QuitGameResponse>(
-      request,
-    );
+    const response = await this.sendRequest<QuitGameRequest, QuitGameResponse>(request);
     return RoomModel.fromJSON(response.data);
   }
 
@@ -484,10 +445,7 @@ export class ClientApi {
     const request: StartGameRequest = {
       type: GameRequestType.START_GAME,
     };
-    const response = await this.sendRequest<
-      StartGameRequest,
-      StartGameResponse
-    >(request);
+    const response = await this.sendRequest<StartGameRequest, StartGameResponse>(request);
     return Game.fromJSON(response.data);
   }
 
@@ -495,10 +453,7 @@ export class ClientApi {
     const request: ResetGameRequest = {
       type: GameRequestType.RESET_GAME,
     };
-    const response = await this.sendRequest<
-      ResetGameRequest,
-      ResetGameResponse
-    >(request);
+    const response = await this.sendRequest<ResetGameRequest, ResetGameResponse>(request);
     return Game.fromJSON(response.data);
   }
 
@@ -509,10 +464,7 @@ export class ClientApi {
         tileId,
       },
     };
-    const response = await this.sendRequest<
-      ActionDropRequest,
-      ActionDropResponse
-    >(request);
+    const response = await this.sendRequest<ActionDropRequest, ActionDropResponse>(request);
     return Game.fromJSON(response.data);
   }
 
@@ -523,10 +475,7 @@ export class ClientApi {
         tileIds,
       },
     };
-    const response = await this.sendRequest<
-      ActionAngangRequest,
-      ActionAngangResponse
-    >(request);
+    const response = await this.sendRequest<ActionAngangRequest, ActionAngangResponse>(request);
     return Game.fromJSON(response.data);
   }
 
@@ -534,10 +483,7 @@ export class ClientApi {
     const request: ActionZimoRequest = {
       type: GameRequestType.ACTION_ZIMO,
     };
-    const response = await this.sendRequest<
-      ActionZimoRequest,
-      ActionZimoResponse
-    >(request);
+    const response = await this.sendRequest<ActionZimoRequest, ActionZimoResponse>(request);
     return Game.fromJSON(response.data);
   }
 
@@ -545,10 +491,7 @@ export class ClientApi {
     const request: ActionPassRequest = {
       type: GameRequestType.ACTION_PASS,
     };
-    const response = await this.sendRequest<
-      ActionPassRequest,
-      ActionPassResponse
-    >(request);
+    const response = await this.sendRequest<ActionPassRequest, ActionPassResponse>(request);
     return Game.fromJSON(response.data);
   }
 
@@ -559,10 +502,7 @@ export class ClientApi {
         tileIds,
       },
     };
-    const response = await this.sendRequest<
-      ActionChiRequest,
-      ActionChiResponse
-    >(request);
+    const response = await this.sendRequest<ActionChiRequest, ActionChiResponse>(request);
     return Game.fromJSON(response.data);
   }
 
@@ -573,10 +513,7 @@ export class ClientApi {
         tileIds,
       },
     };
-    const response = await this.sendRequest<
-      ActionPengRequest,
-      ActionPengResponse
-    >(request);
+    const response = await this.sendRequest<ActionPengRequest, ActionPengResponse>(request);
     return Game.fromJSON(response.data);
   }
 
@@ -587,10 +524,7 @@ export class ClientApi {
         tileIds,
       },
     };
-    const response = await this.sendRequest<
-      ActionGangRequest,
-      ActionGangResponse
-    >(request);
+    const response = await this.sendRequest<ActionGangRequest, ActionGangResponse>(request);
     return Game.fromJSON(response.data);
   }
 
@@ -598,9 +532,7 @@ export class ClientApi {
     const request: ActionHuRequest = {
       type: GameRequestType.ACTION_HU,
     };
-    const response = await this.sendRequest<ActionHuRequest, ActionHuResponse>(
-      request,
-    );
+    const response = await this.sendRequest<ActionHuRequest, ActionHuResponse>(request);
     return Game.fromJSON(response.data);
   }
 
@@ -611,27 +543,23 @@ export class ClientApi {
     return {
       type: event.type as GameEventType,
       data: {
-        clients: event.data.clients.map((data: any) =>
-          ClientModel.fromJSON(data),
-        ) as ClientModel[],
-        rooms: event.data.rooms.map((data: any) =>
-          RoomModel.fromJSON(data),
-        ) as RoomModel[],
+        clients: event.data.clients.map((data: any) => ClientModel.fromJSON(data)) as ClientModel[],
+        rooms: event.data.rooms.map((data: any) => RoomModel.fromJSON(data)) as RoomModel[],
       },
     };
   }
 
   findMyClient(event: GameEvent): ClientModel | null {
-    const socket = this.gameSocket.socket;
-    if (!socket) {
+    const socketId = this.gameSocket.getSocketId();
+    if (!socketId) {
       return null;
     }
 
-    if (!socket.connected) {
+    if (!this.gameSocket.isConnected()) {
       return null;
     }
 
-    return event.data.clients.find((client) => client.id === socket.id) || null;
+    return event.data.clients.find((client) => client.id === socketId) || null;
   }
 
   findMyUser(event: GameEvent): UserModel | null {
@@ -649,11 +577,7 @@ export class ClientApi {
       return null;
     }
 
-    return (
-      event.data.rooms.find((room) =>
-        room.players.find((player) => player.userName === user.name),
-      ) || null
-    );
+    return event.data.rooms.find((room) => room.players.find((player) => player.userName === user.name)) || null;
   }
 
   findMyPlayerModel(event: GameEvent): PlayerModel | null {
@@ -690,10 +614,6 @@ export class ClientApi {
       return null;
     }
 
-    return (
-      game.players.find(
-        (player) => player?.position === playerModel.position,
-      ) || null
-    );
+    return game.players.find((player) => player?.position === playerModel.position) || null;
   }
 }

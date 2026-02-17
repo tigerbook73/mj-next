@@ -16,7 +16,6 @@ export class UserModel {
     public firstName: string,
     public lastName: string,
     public email: string,
-    public password: string,
     public type: UserType,
   ) {}
 
@@ -26,7 +25,6 @@ export class UserModel {
       userCreate.firstName,
       userCreate.lastName,
       userCreate.email,
-      "",
       UserType.Human,
     );
     return user;
@@ -34,14 +32,7 @@ export class UserModel {
 
   // only for client side
   static fromJSON(data: any): UserModel {
-    const user = new UserModel(
-      data.name,
-      data.firstName,
-      data.lastName,
-      data.email,
-      data.password,
-      data.type,
-    );
+    const user = new UserModel(data.name, data.firstName, data.lastName, data.email, data.type);
     return user;
   }
 

@@ -23,7 +23,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { client, tokenStorage } from "@/lib/client";
+import { client } from "@/lib/client";
 import { authService } from "@/lib/auth-service";
 
 // Form validation schema
@@ -48,7 +48,7 @@ export default function SignIn() {
 
   // Check if user is already signed in, redirect to lobby
   useEffect(() => {
-    if (authService.isAuthenticated()) {
+    if (authService.getProfileFromCache()) {
       router.push("/lobby");
     }
   }, [router]);
@@ -109,15 +109,12 @@ export default function SignIn() {
         return;
       }
 
-      if (data?.accessToken) {
-        // Store the token using TokenStorage
-        tokenStorage.setToken(data.accessToken, data.expiresIn);
-
-        // Fetch and store user profile
-        const profile = await authService.storeProfileAfterAuth();
+      if (data) {
+        // Auth cookie is set automatically by the server response.
+        // Fetch and cache the full user profile.
+        const profile = await authService.fetchAndStoreProfile();
 
         if (profile) {
-          // Redirect to lobby on successful login with profile
           console.log(`Login successful: ${formData.email}`);
           router.push("/lobby");
         } else {

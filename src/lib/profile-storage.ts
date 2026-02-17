@@ -1,31 +1,17 @@
+import type { components } from "@/common/api/apis";
+
 /**
- * Profile data stored for authenticated user
+ * Profile data stored for authenticated user.
+ * Alias for the OpenAPI-generated UserResponseDto.
  */
-export interface UserProfile {
-  id: number;
-  email: string;
-  name: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+export type UserProfile = components["schemas"]["UserResponseDto"];
 
 /**
  * Interface for managing user profile in storage
  */
 export interface ProfileStorage {
-  /**
-   * Get the stored user profile
-   */
   getProfile(): UserProfile | null;
-
-  /**
-   * Set the user profile
-   */
   setProfile(profile: UserProfile): void;
-
-  /**
-   * Clear the stored profile
-   */
   clearProfile(): void;
 }
 

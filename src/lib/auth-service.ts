@@ -1,4 +1,4 @@
-import { client, tokenStorage } from "./client";
+import { client } from "./client";
 import {
   LocalStorageProfileStorage,
   type UserProfile,
@@ -7,19 +7,22 @@ import {
 const profileStorage = new LocalStorageProfileStorage();
 
 /**
- * AuthService handles authentication-related operations:
- * - Fetching and storing user profile
- * - Verifying token validity
- * - Clearing auth data
+ * AuthService handles authentication-related operations.
+ *
+ * JWT tokens are managed as HTTP-only cookies by the server.
+ * The client cannot read or set tokens directly — it relies on
+ * the browser cookie jar for REST auth, and fetches short-lived
+ * WS tokens via `/api/auth/ws-token` for WebSocket connections.
  */
 export class AuthService {
   /**
-   * Fetch user profile from server and store it
-   * Called after successful sign-in or sign-up
+   * Fetch user profile from server and store it locally.
+   * Called after successful sign-in or sign-up.
+   * The auth cookie is already set by the login/register response.
    */
-  async storeProfileAfterAuth(): Promise<UserProfile | null> {
+  async fetchAndStoreProfile(): Promise<UserProfile | null> {
     try {
-      const { data, error } = await client.GET("/api/auth/profile");
+      const { data, error } = await client.GET("/api/auth/me");
 
       if (error || !data) {
         console.error("Failed to fetch profile:", error);
@@ -35,49 +38,67 @@ export class AuthService {
   }
 
   /**
-   * Verify token validity by fetching profile from server
-   * Used to check if cached token is still valid
-   * Returns null if verification fails, otherwise returns the profile
+   * Verify auth validity by fetching profile from server.
+   * Returns the profile if the cookie is still valid, null otherwise.
    */
-  async verifyToken(): Promise<UserProfile | null> {
+  async verifyAuth(): Promise<UserProfile | null> {
     try {
-      const { data, error } = await client.GET("/api/auth/profile");
+      const { data, error } = await client.GET("/api/auth/me");
 
       if (error || !data) {
-        console.error("Token verification failed:", error);
-        this.logout();
+        console.error("Auth verification failed:", error);
+        profileStorage.clearProfile();
         return null;
       }
 
       profileStorage.setProfile(data as UserProfile);
       return data as UserProfile;
     } catch (error) {
-      console.error("Error verifying token:", error);
-      this.logout();
+      console.error("Error verifying auth:", error);
+      profileStorage.clearProfile();
       return null;
     }
   }
 
   /**
-   * Get cached profile from localStorage
+   * Get cached profile from localStorage.
+   * This is a weak check — the cookie may have expired.
+   * Always follow up with verifyAuth() for protected routes.
    */
   getProfileFromCache(): UserProfile | null {
     return profileStorage.getProfile();
   }
 
   /**
-   * Clear all auth data (token and profile)
+   * Logout: clear server cookie and local profile cache.
    */
-  logout(): void {
-    tokenStorage.setToken(null);
+  async logout(): Promise<void> {
+    try {
+      await client.POST("/api/auth/logout");
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
     profileStorage.clearProfile();
   }
 
   /**
-   * Check if user is authenticated (has token and profile in localStorage)
+   * Fetch a short-lived WebSocket token from the server.
+   * Requires a valid auth cookie.
    */
-  isAuthenticated(): boolean {
-    return !!tokenStorage.getToken() && !!profileStorage.getProfile();
+  async getWsToken(): Promise<string | null> {
+    try {
+      const { data, error } = await client.GET("/api/auth/ws-token");
+
+      if (error || !data) {
+        console.error("Failed to fetch WS token:", error);
+        return null;
+      }
+
+      return data.token;
+    } catch (error) {
+      console.error("Error fetching WS token:", error);
+      return null;
+    }
   }
 }
 
