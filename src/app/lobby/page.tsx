@@ -7,11 +7,12 @@ import LoadingScreen from "@/components/ui-ex/LoadingScreen";
 import { LogOut, PersonStandingIcon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { authService } from "@/lib/auth-service";
+import { useRoomStore } from "@/store/room-store";
 
 export default function LobbyPage() {
   const router = useRouter();
   const { profile, isLoading } = useAuth();
-  const games = [1, 2, 3, 4, 5];
+  const roomList = useRoomStore((s) => s.roomList);
 
   // Handle sign out
   const handleSignOut = async () => {
@@ -47,8 +48,8 @@ export default function LobbyPage() {
       </div>
 
       <div className="grid w-full max-w-[1024px] grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
-        {games.map((i) => (
-          <Room key={i} name={`Room ${i}`} />
+        {roomList.map((room) => (
+          <Room key={room.name} room={room} />
         ))}
       </div>
 
