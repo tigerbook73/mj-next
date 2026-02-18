@@ -43,10 +43,14 @@ export function ServiceInitializer() {
 
     authService.subscribe((user) => {
       const { setUser, setSignedIn } = useUserStore.getState();
+      const { setGame } = useGameStore.getState();
       if (user) {
         setUser({ email: user.email, name: user.name });
       }
       setSignedIn(!!user);
+      if (!user) {
+        setGame(null);
+      }
     });
     authService.initialize();
 
@@ -63,12 +67,12 @@ export function ServiceInitializer() {
   // 根据用户登录状态和游戏状态进行路由导航
   useEffect(() => {
     // 如果用户未登录，重定向到登录页或注册页
-    if (!user && pathname !== "/" && pathname !== "/signup") {
+    if (!user.email && pathname !== "/" && pathname !== "/signup") {
       router.push("/");
-    } else if (user && game && pathname !== "/game") {
+    } else if (user.email && game && pathname !== "/game") {
       // 用户已登录且有游戏，重定向到游戏页
       router.push("/game");
-    } else if (user && !game && pathname !== "/lobby") {
+    } else if (user.email && !game && pathname !== "/lobby") {
       // 用户已登录但没有游戏，重定向到大厅
       router.push("/lobby");
     }
