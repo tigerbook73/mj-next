@@ -5,8 +5,14 @@ import { GameEvent } from "@/common";
 import { initSocket } from "@/lib/socket-client";
 import { useGameStore, useRoomStore, useUserStore } from "@/store";
 import { authService } from "@/lib/auth-service";
+import { useRouter, usePathname } from "next/navigation";
 
 export function ServiceInitializer() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { user } = useUserStore((state) => ({ user: state.user }));
+  const { game } = useGameStore((state) => ({ game: state.game }));
+
   // 使用 useRef 确保在 React 严格模式下逻辑只执行一次
   const isInitialized = useRef(false);
 
@@ -53,6 +59,26 @@ export function ServiceInitializer() {
       // client.disconnect();
     };
   }, []);
+
+  // 根据用户登录状态和游戏状态进行路由导航
+  useEffect(() => {
+    // 如果用户未登录，重定向到登录页或注册页
+    if (!user && pathname !== "/" && pathname !== "/signup") {
+      router.push("/");
+    } else if (user && game && pathname !== "/game") {
+      // 用户已登录且有游戏，重定向到游戏页
+      router.push("/game");
+    } else if (
+      user &&
+      !game &&
+      pathname !== "/lobby" &&
+      pathname !== "/" &&
+      pathname !== "/signup"
+    ) {
+      // 用户已登录但没有游戏，重定向到大厅
+      router.push("/lobby");
+    }
+  }, [user, game, pathname, router]);
 
   return null;
 }
