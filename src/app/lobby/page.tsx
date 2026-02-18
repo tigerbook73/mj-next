@@ -10,14 +10,13 @@ import { authService } from "@/lib/auth-service";
 import { useRoomStore } from "@/store/room-store";
 
 export default function LobbyPage() {
-  const router = useRouter();
   const { profile, isLoading } = useAuth();
   const roomList = useRoomStore((s) => s.roomList);
 
   // Handle sign out
   const handleSignOut = async () => {
     await authService.logout();
-    router.push("/");
+    authService.logout();
   };
 
   const actions = [

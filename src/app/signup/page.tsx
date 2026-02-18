@@ -147,11 +147,9 @@ export default function SignUp() {
         formData.username,
         formData.password,
       );
-      router.push("/lobby");
+      // router.push("/lobby");
     } catch (err) {
-      setAuthError(
-        err instanceof Error ? err.message : "Registration failed.",
-      );
+      setAuthError(err instanceof Error ? err.message : "Registration failed.");
     }
   };
 

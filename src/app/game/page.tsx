@@ -9,40 +9,38 @@ import LoadingScreen from "@/components/ui-ex/LoadingScreen";
 import { Button } from "@/components/ui/button";
 import { LogOut, PersonStandingIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { authService } from "@/lib/auth-service";
 import { WallTiles } from "@/components/WallTiles";
 import { Direction } from "@/lib/game-utils";
 import { DiscardTiles } from "@/components/DiscardTiles";
 import { CtlOpenTiles } from "@/components/CtlOpenTiles";
-import { useGameStore, useUIStore } from "@/store";
+import { useGameStore, useRoomStore, useUIStore } from "@/store";
 import { useEffect, useRef, useState } from "react";
-import { getFakeEvent } from "@/test/helper";
-import { Game as MjCoreGame } from "@/common/core/mj.game";
+import { socketClient } from "@/lib/socket-client";
 
 export default function Game() {
   const { isLoading } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
+  const myRoom = useRoomStore((state) => state.myRoom);
+  const game = useGameStore((state) => state.game);
 
   // Define grid proportions as variables for easy adjustment
   const outerEdge = "grid-cols-[10%_1fr_10%] grid-rows-[10%_1fr_10%]"; // Outer player edge width/height
   const middleEdge = "grid-cols-[13%_1fr_13%] grid-rows-[13%_1fr_13%]"; // Middle wall edge width/height
   const innerEdge = "grid-cols-[15%_1fr_15%] grid-rows-[15%_1fr_15%]"; // Inner discard edge width/height
 
-  const router = useRouter();
   const actions = [
     {
       icon: <PersonStandingIcon className="h-5 w-5" />,
       label: "Quit Game",
-      onClick: () => router.push("/lobby"),
+      onClick: () => socketClient.quitGame(myRoom?.name || ""),
     },
     {
       icon: <LogOut className="h-5 w-5" />,
       label: "Sign Out",
       onClick: async () => {
         await authService.logout();
-        router.push("/");
       },
     },
   ];
@@ -73,15 +71,12 @@ export default function Game() {
     return () => observer.disconnect();
   }, [setTileSize, isMounted]);
 
-  // load fake game data for test
-  const setGame = useGameStore((state) => state.setGame);
-  useEffect(() => {
-    const game = MjCoreGame.fromJSON(getFakeEvent().data.rooms[0].game);
-    setGame(game);
-  }, [setGame]);
-
   if (isLoading || !isMounted) {
     return <LoadingScreen />;
+  }
+
+  if (!game) {
+    return null;
   }
 
   return (

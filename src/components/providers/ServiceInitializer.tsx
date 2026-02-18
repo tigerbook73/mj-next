@@ -10,8 +10,8 @@ import { useRouter, usePathname } from "next/navigation";
 export function ServiceInitializer() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user } = useUserStore((state) => ({ user: state.user }));
-  const { game } = useGameStore((state) => ({ game: state.game }));
+  const user = useUserStore((state) => state.user);
+  const game = useGameStore((state) => state.game);
 
   // 使用 useRef 确保在 React 严格模式下逻辑只执行一次
   const isInitialized = useRef(false);
@@ -68,13 +68,7 @@ export function ServiceInitializer() {
     } else if (user && game && pathname !== "/game") {
       // 用户已登录且有游戏，重定向到游戏页
       router.push("/game");
-    } else if (
-      user &&
-      !game &&
-      pathname !== "/lobby" &&
-      pathname !== "/" &&
-      pathname !== "/signup"
-    ) {
+    } else if (user && !game && pathname !== "/lobby") {
       // 用户已登录但没有游戏，重定向到大厅
       router.push("/lobby");
     }

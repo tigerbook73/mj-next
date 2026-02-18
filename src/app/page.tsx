@@ -90,7 +90,7 @@ export default function SignIn() {
   const onSubmit = async (formData: SignInFormData) => {
     try {
       await authService.login(formData.email, formData.password);
-      router.push("/lobby");
+      // router.push("/lobby");
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : "Sign in failed.");
     }
