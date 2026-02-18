@@ -1,6 +1,7 @@
 import { client } from "./client";
 import type { components } from "@/common/api/apis";
 import { socketClient } from "./socket-client";
+import { useAppStatusStore } from "@/store/app-status-store";
 
 export type UserProfile = components["schemas"]["UserResponseDto"];
 
@@ -46,18 +47,22 @@ export class AuthService {
   }
 
   private async doInitialize(): Promise<UserProfile | null> {
+    useAppStatusStore.getState().setReady(false);
     try {
-      const { data, error } = await client.GET("/api/auth/me");
-      if (!error && data) {
-        this.currentUser = data as UserProfile;
-        await this.connectSocketClient();
+      const profile = await this.fetchProfile();
+      if (!profile) {
+        useAppStatusStore.getState().setReady(true);
+        return null;
       }
+      this.currentUser = profile;
+      await this.connectSocketClient();
     } catch {
-      // Network error — treat as unauthenticated
+      useAppStatusStore.getState().setReady(true);
+    } finally {
+      this.initialized = true;
+      this.notify();
+      return this.currentUser;
     }
-    this.initialized = true;
-    this.notify();
-    return this.currentUser;
   }
 
   /**
@@ -77,6 +82,7 @@ export class AuthService {
     // Cookie is set by the server. Fetch full profile.
     const profile = await this.fetchProfile();
     if (!profile) {
+      useAppStatusStore.getState().setReady(true);
       throw new Error("Failed to load user profile. Please try again.");
     }
 
@@ -125,6 +131,7 @@ export class AuthService {
     this.initialized = true; // Still initialized, just no user
     this.initPromise = null; // Allow re-initialization if needed
     this.notify();
+    useAppStatusStore.getState().setReady(true);
   }
 
   /** Fetch a short-lived WebSocket token (requires valid cookie) */
@@ -162,7 +169,6 @@ export class AuthService {
       console.warn("Failed to get WS token — socket not connected");
       return;
     }
-
     socketClient.connect(wsToken);
   }
 }

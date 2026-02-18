@@ -7,7 +7,6 @@ import { PlayerTilesTop } from "@/components/PlayerTilesTop";
 import SpeedDial from "@/components/ui-ex/SpeedDial";
 import { Button } from "@/components/ui/button";
 import { LogOut, PersonStandingIcon } from "lucide-react";
-import Link from "next/link";
 import { authService } from "@/lib/auth-service";
 import { WallTiles } from "@/components/WallTiles";
 import { Direction } from "@/lib/game-utils";
