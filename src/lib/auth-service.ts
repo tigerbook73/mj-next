@@ -122,6 +122,8 @@ export class AuthService {
       // Best-effort
     }
     this.currentUser = null;
+    this.initialized = true; // Still initialized, just no user
+    this.initPromise = null; // Allow re-initialization if needed
     this.notify();
   }
 

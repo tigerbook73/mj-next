@@ -284,7 +284,7 @@ export interface components {
              * @description User full name
              * @example John Doe
              */
-            name: Record<string, never> | null;
+            name: string;
             /**
              * Format: date-time
              * @description User creation timestamp
