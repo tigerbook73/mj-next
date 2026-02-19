@@ -22,11 +22,11 @@ export function AppGuard({ children }: { children: React.ReactNode }) {
 
     // Routing logic - only runs when the app is fully ready
     if (!isSignedIn && pathname !== "/" && pathname !== "/signup") {
-      router.push("/");
+      router.replace("/");
     } else if (isSignedIn && game && pathname !== "/game") {
-      router.push("/game");
+      router.replace("/game");
     } else if (isSignedIn && !game && pathname !== "/lobby") {
-      router.push("/lobby");
+      router.replace("/lobby");
     }
   }, [isAppReady, isSignedIn, game, pathname, router]);
 
