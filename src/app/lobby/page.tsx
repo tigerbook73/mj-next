@@ -1,23 +1,19 @@
 "use client";
 
 import Room from "@/components/Room";
-import { useRouter } from "next/navigation";
 import SpeedDial from "@/components/ui-ex/SpeedDial";
-import LoadingScreen from "@/components/ui-ex/LoadingScreen";
 import { LogOut, PersonStandingIcon } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
 import { authService } from "@/lib/auth-service";
 import { useRoomStore } from "@/store/room-store";
+import { useUserStore } from "@/store";
 
 export default function LobbyPage() {
-  const router = useRouter();
-  const { profile, isLoading } = useAuth();
   const roomList = useRoomStore((s) => s.roomList);
+  const user = useUserStore((s) => s.user);
 
   // Handle sign out
   const handleSignOut = async () => {
     await authService.logout();
-    router.push("/");
   };
 
   const actions = [
@@ -33,18 +29,11 @@ export default function LobbyPage() {
     },
   ];
 
-  // Show loading state while verifying authentication
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
   return (
     <div className="flex min-h-screen w-screen flex-col items-center gap-16 p-8 sm:p-20">
       <div className="w-full text-center">
         <h1 className="mb-2 text-4xl font-bold">Lobby Page</h1>
-        {profile && (
-          <p className="text-muted-foreground">Welcome, {profile.email}</p>
-        )}
+        {user && <p className="text-muted-foreground">Welcome, {user.email}</p>}
       </div>
 
       <div className="grid w-full max-w-[1024px] grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">

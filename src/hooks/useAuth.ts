@@ -1,37 +1,28 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { authService, type UserProfile } from "@/lib/auth-service";
+import { eventBus } from "@/lib/event-bus";
 
 /**
- * Initializes auth session, provides profile state, and handles reactive logout.
- * Route protection is handled by middleware — this hook focuses on
- * session initialization (profile + WebSocket) and logout redirection.
+ * Provides the current user profile, kept in sync via the event bus.
+ * Auth initialization and routing are handled by AppService and AppGuard.
  */
 export function useAuth() {
-  const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(
     authService.getCurrentUser(),
   );
-  const [isLoading, setIsLoading] = useState(!authService.isInitialized());
 
   useEffect(() => {
-    const unsub = authService.subscribe((user) => {
-      setProfile(user);
-      if (!user && authService.isInitialized()) {
-        router.push("/");
-      }
-    });
+    const onSignedIn = (user: UserProfile) => setProfile(user);
+    const onSignedOut = () => setProfile(null);
 
-    if (!authService.isInitialized()) {
-      authService.initialize().then(() => {
-        setIsLoading(false);
-      });
-    } else {
-      setIsLoading(false);
-    }
+    eventBus.on("user:signed-in", onSignedIn);
+    eventBus.on("user:signed-out", onSignedOut);
 
-    return unsub;
-  }, [router]);
+    return () => {
+      eventBus.off("user:signed-in", onSignedIn);
+      eventBus.off("user:signed-out", onSignedOut);
+    };
+  }, []);
 
-  return { profile, isLoading };
+  return { profile };
 }

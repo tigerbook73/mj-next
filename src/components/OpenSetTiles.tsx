@@ -4,8 +4,7 @@ import { cn } from "@/lib/utils";
 import { Tile } from "./Tile";
 import { CommonUtil, Direction } from "@/lib/game-utils";
 import { JSX } from "react";
-import { useGameStore } from "@/store";
-import { Position } from "@/common/core/mj.game";
+import { useGameStore, useRoomStore } from "@/store";
 
 const flexClasses: Record<Direction, string> = {
   [Direction.Bottom]: "flex-row",
@@ -32,7 +31,9 @@ export function OpenSetTiles({
   className,
 }: OpenSetTilesProps): JSX.Element {
   const game = useGameStore((state) => state.game)!;
-  const position = CommonUtil.mapPosition(Position.South, direction);
+  const myPosition = useRoomStore((state) => state.myPosition)!;
+
+  const position = CommonUtil.mapPosition(myPosition, direction);
   const player = game.players[position]!;
 
   const openSets = player.openedSets;

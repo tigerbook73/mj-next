@@ -5,45 +5,54 @@ import { PlayerTilesBottom } from "@/components/PlayerTilesBottom";
 import { PlayerTilesRight } from "@/components/PlayerTilesRight";
 import { PlayerTilesTop } from "@/components/PlayerTilesTop";
 import SpeedDial from "@/components/ui-ex/SpeedDial";
-import LoadingScreen from "@/components/ui-ex/LoadingScreen";
 import { Button } from "@/components/ui/button";
 import { LogOut, PersonStandingIcon } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
 import { authService } from "@/lib/auth-service";
 import { WallTiles } from "@/components/WallTiles";
 import { Direction } from "@/lib/game-utils";
 import { DiscardTiles } from "@/components/DiscardTiles";
 import { CtlOpenTiles } from "@/components/CtlOpenTiles";
-import { useGameStore, useUIStore } from "@/store";
+import { useGameStore, useRoomStore, useUIStore } from "@/store";
 import { useEffect, useRef, useState } from "react";
-import { getFakeEvent } from "@/test/helper";
-import { Game as MjCoreGame } from "@/common/core/mj.game";
+import { socketClient } from "@/lib/socket-client";
+import { GameState } from "@/common";
 
 export default function Game() {
-  const { isLoading } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
+  const myRoom = useRoomStore((state) => state.myRoom);
+  const game = useGameStore((state) => state.game);
 
   // Define grid proportions as variables for easy adjustment
   const outerEdge = "grid-cols-[10%_1fr_10%] grid-rows-[10%_1fr_10%]"; // Outer player edge width/height
   const middleEdge = "grid-cols-[13%_1fr_13%] grid-rows-[13%_1fr_13%]"; // Middle wall edge width/height
   const innerEdge = "grid-cols-[15%_1fr_15%] grid-rows-[15%_1fr_15%]"; // Inner discard edge width/height
 
-  const router = useRouter();
+  const handleQuitGame = () => {
+    socketClient.quitGame(myRoom?.name || "");
+  };
+
+  const handleSignOut = async () => {
+    await authService.logout();
+  };
+
+  const handleResetGame = () => {
+    socketClient.resetGame();
+  };
+
+  const handleStartGame = () => {
+    socketClient.startGame();
+  };
+
   const actions = [
     {
       icon: <PersonStandingIcon className="h-5 w-5" />,
       label: "Quit Game",
-      onClick: () => router.push("/lobby"),
+      onClick: handleQuitGame,
     },
     {
       icon: <LogOut className="h-5 w-5" />,
       label: "Sign Out",
-      onClick: async () => {
-        await authService.logout();
-        router.push("/");
-      },
+      onClick: handleSignOut,
     },
   ];
 
@@ -73,15 +82,8 @@ export default function Game() {
     return () => observer.disconnect();
   }, [setTileSize, isMounted]);
 
-  // load fake game data for test
-  const setGame = useGameStore((state) => state.setGame);
-  useEffect(() => {
-    const game = MjCoreGame.fromJSON(getFakeEvent().data.rooms[0].game);
-    setGame(game);
-  }, [setGame]);
-
-  if (isLoading || !isMounted) {
-    return <LoadingScreen />;
+  if (!game) {
+    return null;
   }
 
   return (
@@ -143,8 +145,17 @@ export default function Game() {
               <DiscardTiles direction={Direction.Left} />
             </div>
             <div className="flex items-center justify-center bg-gray-300 text-[10px]">
-              <Button variant="default" size="sm" className="aspect-square">
-                <Link href="/lobby">退出 </Link>
+              <Button
+                variant="default"
+                size="sm"
+                className="aspect-square"
+                onClick={
+                  game.state === GameState.Init
+                    ? handleStartGame
+                    : handleResetGame
+                }
+              >
+                {game.state === GameState.Init ? "开始" : "重置"}
               </Button>
             </div>
             <div className="flex items-center justify-center text-[10px]">

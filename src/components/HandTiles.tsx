@@ -3,8 +3,7 @@
 import { Tile } from "./Tile";
 import { cn } from "@/lib/utils";
 import { CommonUtil, Direction } from "@/lib/game-utils";
-import { useGameStore } from "@/store";
-import { Position } from "@/common/core/mj.game";
+import { useGameStore, useRoomStore } from "@/store";
 
 const flexClasses: Record<Direction, string> = {
   [Direction.Bottom]: "flex-row",
@@ -21,7 +20,9 @@ interface HandTilesProps {
 
 export function HandTiles({ direction, className }: HandTilesProps) {
   const game = useGameStore((state) => state.game)!;
-  const position = CommonUtil.mapPosition(Position.South, direction);
+  const myPosition = useRoomStore((state) => state.myPosition)!;
+
+  const position = CommonUtil.mapPosition(myPosition, direction);
   const player = game.players[position]!;
 
   const tiles = player.handTiles.slice();

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,7 +56,6 @@ const signUpSchema = z
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
 export default function SignUp() {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -147,11 +145,9 @@ export default function SignUp() {
         formData.username,
         formData.password,
       );
-      router.push("/lobby");
+      // router.push("/lobby");
     } catch (err) {
-      setAuthError(
-        err instanceof Error ? err.message : "Registration failed.",
-      );
+      setAuthError(err instanceof Error ? err.message : "Registration failed.");
     }
   };
 

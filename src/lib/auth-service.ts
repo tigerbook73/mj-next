@@ -1,6 +1,6 @@
 import { client } from "./client";
 import type { components } from "@/common/api/apis";
-import { socketClient } from "./socket-client";
+import { eventBus } from "./event-bus";
 
 export type UserProfile = components["schemas"]["UserResponseDto"];
 
@@ -8,7 +8,6 @@ export class AuthService {
   private currentUser: UserProfile | null = null;
   private initialized = false;
   private initPromise: Promise<UserProfile | null> | null = null;
-  private listeners = new Set<(user: UserProfile | null) => void>();
 
   /** Current user profile (null if not authenticated) */
   getCurrentUser(): UserProfile | null {
@@ -20,21 +19,8 @@ export class AuthService {
     return this.initialized;
   }
 
-  /** Subscribe to user state changes. Returns unsubscribe function. */
-  subscribe(listener: (user: UserProfile | null) => void): () => void {
-    this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
-  }
-
-  private notify(): void {
-    for (const listener of this.listeners) {
-      listener(this.currentUser);
-    }
-  }
-
   /**
    * Initialize: restore session from server via GET /api/auth/me.
-   * If session is valid, also connects the SocketClient.
    * Idempotent — deduplicates concurrent calls.
    */
   async initialize(): Promise<UserProfile | null> {
@@ -46,23 +32,26 @@ export class AuthService {
   }
 
   private async doInitialize(): Promise<UserProfile | null> {
+    eventBus.emit("user:pending", undefined);
     try {
-      const { data, error } = await client.GET("/api/auth/me");
-      if (!error && data) {
-        this.currentUser = data as UserProfile;
-        await this.connectSocketClient();
+      const profile = await this.fetchProfile();
+      if (!profile) {
+        eventBus.emit("user:signed-out", undefined);
+        return null;
       }
+      this.currentUser = profile;
+      eventBus.emit("user:signed-in", profile);
+      await this.fetchAndEmitWsToken();
     } catch {
-      // Network error — treat as unauthenticated
+      eventBus.emit("user:signed-out", undefined);
+    } finally {
+      this.initialized = true;
     }
-    this.initialized = true;
-    this.notify();
     return this.currentUser;
   }
 
   /**
    * Login with email and password.
-   * On success: sets currentUser, connects SocketClient, notifies listeners.
    * Returns the user profile, or throws on failure.
    */
   async login(email: string, password: string): Promise<UserProfile> {
@@ -80,13 +69,13 @@ export class AuthService {
       throw new Error("Failed to load user profile. Please try again.");
     }
 
-    await this.connectSocketClient();
+    eventBus.emit("user:signed-in", profile);
+    await this.fetchAndEmitWsToken();
     return profile;
   }
 
   /**
    * Register a new account.
-   * On success: sets currentUser, connects SocketClient, notifies listeners.
    * Returns the user profile, or throws on failure.
    */
   async register(
@@ -109,13 +98,13 @@ export class AuthService {
       throw new Error("Failed to load user profile. Please try again.");
     }
 
-    await this.connectSocketClient();
+    eventBus.emit("user:signed-in", profile);
+    await this.fetchAndEmitWsToken();
     return profile;
   }
 
-  /** Logout: disconnect socket, clear server cookie, clear in-memory state */
+  /** Logout: clear server cookie, clear in-memory state, notify */
   async logout(): Promise<void> {
-    socketClient.disconnect();
     try {
       await client.POST("/api/auth/logout");
     } catch {
@@ -124,46 +113,36 @@ export class AuthService {
     this.currentUser = null;
     this.initialized = true; // Still initialized, just no user
     this.initPromise = null; // Allow re-initialization if needed
-    this.notify();
-  }
-
-  /** Fetch a short-lived WebSocket token (requires valid cookie) */
-  private async getWsToken(): Promise<string | null> {
-    try {
-      const { data, error } = await client.GET("/api/auth/ws-token");
-      if (error || !data) return null;
-      return data.token;
-    } catch {
-      return null;
-    }
+    eventBus.emit("user:signed-out", undefined);
   }
 
   // --- Private helpers ---
 
-  /** Fetch profile from server, update in-memory state, notify */
+  /** Fetch profile from server, update in-memory state */
   private async fetchProfile(): Promise<UserProfile | null> {
     try {
       const { data, error } = await client.GET("/api/auth/me");
       if (error || !data) return null;
-
       this.currentUser = data as UserProfile;
       this.initialized = true;
-      this.notify();
       return this.currentUser;
     } catch {
       return null;
     }
   }
 
-  /** Connect SocketClient with a fresh WS token */
-  private async connectSocketClient(): Promise<void> {
-    const wsToken = await this.getWsToken();
-    if (!wsToken) {
-      console.warn("Failed to get WS token — socket not connected");
-      return;
+  /** Fetch a short-lived WebSocket token and emit it */
+  private async fetchAndEmitWsToken(): Promise<void> {
+    try {
+      const { data, error } = await client.GET("/api/auth/ws-token");
+      if (error || !data) {
+        console.warn("Failed to get WS token — socket will not connect");
+        return;
+      }
+      eventBus.emit("user:ws-token", data.token);
+    } catch {
+      console.warn("Failed to get WS token — socket will not connect");
     }
-
-    socketClient.connect(wsToken);
   }
 }
 

@@ -3,8 +3,7 @@
 import { Tile } from "./Tile";
 import { cn } from "@/lib/utils";
 import { CommonUtil, Direction } from "@/lib/game-utils";
-import { useGameStore } from "@/store";
-import { Position } from "@/common/core/mj.game";
+import { useGameStore, useRoomStore } from "@/store";
 
 const defaultCols = 16;
 const defaultRows = 2;
@@ -30,7 +29,9 @@ export function DiscardTiles({
   rows = defaultRows,
 }: WallTilesProps) {
   const game = useGameStore((state) => state.game)!;
-  const position = CommonUtil.mapPosition(Position.South, direction);
+  const myPosition = useRoomStore((state) => state.myPosition)!;
+
+  const position = CommonUtil.mapPosition(myPosition, direction);
   const discard = game.discards[position]!;
 
   const tiles: number[] = discard.tiles.slice();
