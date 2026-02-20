@@ -3,8 +3,7 @@
 import { Tile } from "./Tile";
 import { cn } from "@/lib/utils";
 import { Direction, CommonUtil } from "@/lib/game-utils";
-import { useGameStore } from "@/store";
-import { Position } from "@/common/core/mj.game";
+import { useGameStore, useRoomStore } from "@/store";
 
 // wall tile length is always 36
 const WallTileLength = 36;
@@ -25,8 +24,9 @@ interface WallTilesProps {
 
 export function WallTiles({ direction }: WallTilesProps) {
   const game = useGameStore((state) => state.game)!;
+  const myPosition = useRoomStore((state) => state.myPosition)!;
 
-  const position = CommonUtil.mapPosition(Position.South, direction);
+  const position = CommonUtil.mapPosition(myPosition, direction);
   const wall = game.walls[position];
 
   const tiles: number[] = wall.tiles.slice();
