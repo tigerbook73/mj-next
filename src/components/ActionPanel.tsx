@@ -13,7 +13,23 @@ import type { TileId } from "@/common/core/mj.tile-core";
 
 export type ActionItem =
   | {
-      type: "peng" | "gang" | "angang" | "hu" | "pass";
+      type: "angang" | "hu" | "pass";
+      onAction: () => void;
+    }
+  | {
+      type: "peng";
+      /** The discarded tile being claimed */
+      latestTile: TileId;
+      /** Two hand tiles used for the Peng */
+      tiles: [TileId, TileId];
+      onAction: () => void;
+    }
+  | {
+      type: "gang";
+      /** The discarded tile being claimed */
+      latestTile: TileId;
+      /** Three hand tiles used for the Gang */
+      tiles: [TileId, TileId, TileId];
       onAction: () => void;
     }
   | {
@@ -143,6 +159,44 @@ function DropCard({ action }: DropCardProps) {
 }
 
 // ---------------------------------------------------------------------------
+
+interface TiledCardProps {
+  label: string;
+  latestTile: TileId;
+  handTiles: readonly TileId[];
+  onAction: () => void;
+}
+
+/** Renders a button + sorted tile row, highlighting the claimed tile. */
+function TiledCard({ label, latestTile, handTiles, onAction }: TiledCardProps) {
+  const sortedTiles = [
+    { tileId: latestTile, isLatest: true },
+    ...handTiles.map((tileId) => ({ tileId, isLatest: false })),
+  ].sort(
+    (a, b) => TileCore.fromId(a.tileId).index - TileCore.fromId(b.tileId).index,
+  );
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <button onClick={onAction} className={cn(buttonBaseClasses, "mb-3")}>
+        {label}
+      </button>
+      <div className="flex items-end gap-0.5">
+        {sortedTiles.map(({ tileId, isLatest }) => (
+          <Tile
+            key={tileId}
+            tileId={tileId}
+            direction={Direction.Bottom}
+            size="md"
+            special={isLatest ? "highlighted" : undefined}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // ActionPanel
 // ---------------------------------------------------------------------------
 
@@ -167,6 +221,28 @@ export function ActionPanel({ actions, className }: ActionPanelProps) {
         }
         if (action.type === "drop") {
           return <DropCard key={`${action.type}-${index}`} action={action} />;
+        }
+        if (action.type === "peng") {
+          return (
+            <TiledCard
+              key={`${action.type}-${index}`}
+              label={actionLabels.peng}
+              latestTile={action.latestTile}
+              handTiles={action.tiles}
+              onAction={action.onAction}
+            />
+          );
+        }
+        if (action.type === "gang") {
+          return (
+            <TiledCard
+              key={`${action.type}-${index}`}
+              label={actionLabels.gang}
+              latestTile={action.latestTile}
+              handTiles={action.tiles}
+              onAction={action.onAction}
+            />
+          );
         }
         return (
           <SimpleCard

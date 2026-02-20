@@ -137,6 +137,8 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
           .slice(0, 2) as [TileId, TileId];
         result.push({
           type: "peng",
+          latestTile,
+          tiles,
           onAction: () => socketClient.actionPeng(tiles),
         });
       }
@@ -165,6 +167,8 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
           .slice(0, 3) as [TileId, TileId, TileId];
         result.push({
           type: "gang",
+          latestTile,
+          tiles,
           onAction: () => socketClient.actionGang(tiles),
         });
       }

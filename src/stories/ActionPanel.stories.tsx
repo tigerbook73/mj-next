@@ -28,6 +28,8 @@ export const PengOnly: Story = {
     actions: [
       {
         type: "peng",
+        latestTile: 8, // Man3 (discarded)
+        tiles: [9, 10], // Man3 + Man3 (hand tiles)
         onAction: () => console.log("碰"),
       },
     ],
@@ -80,6 +82,8 @@ export const AllActions: Story = {
     actions: [
       {
         type: "peng",
+        latestTile: 8, // Man3 (discarded)
+        tiles: [9, 10], // Man3 + Man3 (hand tiles)
         onAction: () => console.log("碰"),
       },
       {
@@ -93,6 +97,8 @@ export const AllActions: Story = {
       },
       {
         type: "gang",
+        latestTile: 8, // Man3 (discarded)
+        tiles: [9, 10, 11], // Man3 × 3 (hand tiles)
         onAction: () => console.log("杠"),
       },
       {
