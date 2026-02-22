@@ -100,7 +100,6 @@ const tileVariants = cva(
         disabled: "opacity-50 grayscale",
         warning: "scale-110 ring-2 ring-red-400",
         success: "ring-2 ring-green-400",
-        removed: "",
       },
     },
     defaultVariants: {
@@ -114,6 +113,7 @@ const tileVariants = cva(
 export interface TileProps extends VariantProps<typeof tileVariants> {
   tileId: number;
   back?: boolean;
+  taken?: boolean;
   className?: string;
   onClick?: (tileId: number) => void;
   theme?: "Regular" | "Black";
@@ -128,6 +128,7 @@ export interface TileProps extends VariantProps<typeof tileVariants> {
 export const Tile = ({
   tileId,
   back = false,
+  taken = false,
   size = "md",
   hoverable,
   selected,
@@ -222,7 +223,7 @@ export const Tile = ({
           draggable={false}
         />
       )}
-      {special === "removed" && (
+      {taken && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-500/50">
           <X className="h-full w-full text-red-600" strokeWidth={3} />
         </div>

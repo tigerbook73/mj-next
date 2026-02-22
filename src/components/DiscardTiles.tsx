@@ -4,6 +4,7 @@ import { Tile } from "./Tile";
 import { cn } from "@/lib/utils";
 import { CommonUtil, Direction } from "@/lib/game-utils";
 import { useGameStore, useRoomStore } from "@/store";
+import { TileId } from "@/common";
 
 const defaultCols = 16;
 const defaultRows = 2;
@@ -35,6 +36,14 @@ export function DiscardTiles({
   const discard = game.discards[position]!;
 
   const tiles: number[] = discard.tiles.slice();
+
+  const takenTiles = new Set<TileId>();
+  for (const player of game.players) {
+    if (!player) continue;
+    for (const set of player.openedSets) {
+      takenTiles.add(set.target);
+    }
+  }
 
   const fullLength = cols * rows;
   for (let i = tiles.length; i < fullLength; i++) {
