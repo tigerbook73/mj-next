@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { X } from "lucide-react";
 import { useUIStore } from "@/store";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
@@ -97,8 +98,9 @@ const tileVariants = cva(
         highlighted: "ring-2 ring-yellow-400",
         focused: "ring-2 ring-blue-400",
         disabled: "opacity-50 grayscale",
-        warning: "ring-2 ring-red-400",
+        warning: "scale-110 ring-2 ring-red-400",
         success: "ring-2 ring-green-400",
+        removed: "",
       },
     },
     defaultVariants: {
@@ -152,7 +154,10 @@ export const Tile = ({
 
   // Final pixel size
   const scale =
-    (storeTileSize * (typeof size === "number" ? size : sizeScale[size])) / 100;
+    (storeTileSize *
+      (typeof size === "number" ? size : sizeScale[size]) *
+      (special === "warning" ? 1.2 : 1)) /
+    100;
 
   const containerStyle = {
     [isVertical ? "height" : "width"]: scale,
@@ -216,6 +221,11 @@ export const Tile = ({
           style={imageStyle}
           draggable={false}
         />
+      )}
+      {special === "removed" && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-500/50">
+          <X className="h-full w-full text-red-600" strokeWidth={3} />
+        </div>
       )}
     </div>
   );

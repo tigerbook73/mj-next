@@ -61,6 +61,7 @@ const meta = {
         "disabled",
         "warning",
         "success",
+        "removed",
       ],
     },
     theme: {
@@ -178,6 +179,27 @@ export const SpecialEffects: Story = {
       <Tile {...args} special="disabled" />
       <Tile {...args} special="warning" />
       <Tile {...args} special="success" />
+      <Tile {...args} special="removed" />
+    </div>
+  ),
+};
+
+export const Removed: Story = {
+  args: {
+    ...defaultArgs,
+    special: "removed",
+  },
+  render: (args) => (
+    <div className="flex flex-col items-center gap-6">
+      <div className="flex gap-4">
+        {[1, 11, 21, 31, 35, 37].map((id) => (
+          <Tile key={id} {...args} tileId={id} />
+        ))}
+      </div>
+      <div className="flex gap-4">
+        <Tile {...args} special="normal" />
+        <Tile {...args} special="removed" />
+      </div>
     </div>
   ),
 };
