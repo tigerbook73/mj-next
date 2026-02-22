@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { Game, GameState } from "@/common/core/mj.game";
-import { TileCore, type TileId } from "@/common/core/mj.tile-core";
+import { Game } from "@/common/core/mj.game";
 
 export type GameInStore = Omit<
   typeof Game.prototype,
@@ -10,28 +9,16 @@ export type GameInStore = Omit<
 
 interface GameStoreState {
   game: GameInStore | null;
-  latestTile: TileId | null;
   setGame: (game: GameInStore | null) => void;
   resetGame: () => void;
 }
 
-function deriveLatestTile(
-  game: GameInStore | null,
-  prev: TileId | null,
-): TileId | null {
-  if (!game || game.state === GameState.Init) return null;
-  if (game.latestTile !== TileCore.voidId) return game.latestTile;
-  return prev;
-}
-
 export const useGameStore = create<GameStoreState>()(
   devtools(
-    (set, get) => ({
+    (set) => ({
       game: null,
-      latestTile: null,
-      setGame: (game) =>
-        set({ game, latestTile: deriveLatestTile(game, get().latestTile) }),
-      resetGame: () => set({ game: null, latestTile: null }),
+      setGame: (game) => set({ game }),
+      resetGame: () => set({ game: null }),
     }),
     { name: "GameStore" },
   ),
