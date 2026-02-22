@@ -30,7 +30,6 @@ export function DiscardTiles({
   rows = defaultRows,
 }: WallTilesProps) {
   const game = useGameStore((state) => state.game)!;
-  const latestTile = useGameStore((state) => state.latestTile);
   const myPosition = useRoomStore((state) => state.myPosition)!;
 
   const position = CommonUtil.mapPosition(myPosition, direction);
@@ -100,7 +99,7 @@ export function DiscardTiles({
           direction={direction}
           size={65}
           taken={takenTiles.has(tid)}
-          special={tid === latestTile ? "warning" : undefined}
+          special={tid === game.latestTile ? "warning" : undefined}
         />
       ))}
     </div>
