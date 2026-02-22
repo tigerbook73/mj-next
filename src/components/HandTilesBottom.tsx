@@ -144,7 +144,7 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
       }
 
       // 吃 — only the next player after current can Chi
-      const nextPosition = ((game.current?.position ?? 0) + 1) % 4;
+      const nextPosition = ((game.current?.position ?? 0) + 3) % 4;
       if (
         myAbsolutePosition === nextPosition &&
         TileCore.canChi(player.handTiles, latestTile)
