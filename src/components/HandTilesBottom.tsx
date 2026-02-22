@@ -242,7 +242,7 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
   return (
     <div className={cn(className)}>
       {actions.length > 0 && (
-        <div className="absolute bottom-[calc(100%_+_10vh)] left-1/2 z-10 -translate-x-1/2 pb-1">
+        <div className="absolute bottom-[calc(100%_+_10vh)] left-1/2 z-20 -translate-x-1/2 pb-1">
           <ActionPanel actions={actions} />
         </div>
       )}

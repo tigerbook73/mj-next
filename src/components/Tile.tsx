@@ -98,7 +98,7 @@ const tileVariants = cva(
         highlighted: "ring-2 ring-yellow-400",
         focused: "ring-2 ring-blue-400",
         disabled: "opacity-50 grayscale",
-        warning: "scale-130 ring-2 ring-red-400",
+        warning: "scale-130 z-10 ring-2 ring-red-400",
         success: "ring-2 ring-green-400",
       },
     },
