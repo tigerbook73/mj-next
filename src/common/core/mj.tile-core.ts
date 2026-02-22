@@ -45,24 +45,10 @@ export class TileCore {
   ) {}
 
   static readonly unknownId = 999;
-  static readonly unknownTile = new TileCore(
-    TileCore.unknownId,
-    TileType.KONG,
-    0,
-    "",
-    0,
-    50,
-  );
+  static readonly unknownTile = new TileCore(TileCore.unknownId, TileType.KONG, 0, "", 0, 50);
 
   static readonly voidId = -1;
-  static readonly voidTile = new TileCore(
-    TileCore.voidId,
-    TileType.KONG,
-    0,
-    "",
-    0,
-    -1,
-  );
+  static readonly voidTile = new TileCore(TileCore.voidId, TileType.KONG, 0, "", 0, -1);
 
   static readonly allTiles = [
     new TileCore(0, TileType.WAN, 1, "一万", 0, 1),
@@ -218,24 +204,15 @@ export class TileCore {
     if (id === TileCore.voidId) {
       return TileCore.voidTile;
     }
-    return (
-      TileCore.allTiles.find((tile) => tile.id === id) || TileCore.unknownTile
-    );
+    return TileCore.allTiles.find((tile) => tile.id === id) || TileCore.unknownTile;
   }
 
   static fromNameAndIndex(name: string, index: number) {
-    return (
-      TileCore.allTiles.find(
-        (tile) => tile.name === name && tile.nameIndex === index,
-      ) || TileCore.unknownTile
-    );
+    return TileCore.allTiles.find((tile) => tile.name === name && tile.nameIndex === index) || TileCore.unknownTile;
   }
 
   static isIdentical(tile1: TileCore | TileId, tile2: TileCore | TileId) {
-    return (
-      (typeof tile1 === "number" ? tile1 : tile1.id) ===
-      (typeof tile2 === "number" ? tile2 : tile2.id)
-    );
+    return (typeof tile1 === "number" ? tile1 : tile1.id) === (typeof tile2 === "number" ? tile2 : tile2.id);
   }
 
   static isSame(
@@ -264,11 +241,7 @@ export class TileCore {
     return true;
   }
 
-  static isConsecutive(
-    tile1: TileCore | TileId,
-    tile2: TileCore | TileId,
-    tile3: TileCore | TileId = TileCore.voidId,
-  ) {
+  static isConsecutive(tile1: TileCore | TileId, tile2: TileCore | TileId, tile3: TileCore | TileId = TileCore.voidId) {
     const tiles: TileCore[] = [];
     tiles.push(tile1 instanceof TileCore ? tile1 : TileCore.fromId(tile1));
     tiles.push(tile2 instanceof TileCore ? tile2 : TileCore.fromId(tile2));
@@ -283,10 +256,7 @@ export class TileCore {
     tiles.sort((a, b) => a.index - b.index);
 
     for (let i = 0; i < tiles.length - 1; i++) {
-      if (
-        tiles[i].type !== tiles[i + 1].type ||
-        tiles[i].index + 1 !== tiles[i + 1].index
-      ) {
+      if (tiles[i].type !== tiles[i + 1].type || tiles[i].index + 1 !== tiles[i + 1].index) {
         return false;
       }
     }
@@ -320,9 +290,7 @@ export class TileCore {
         continue;
       }
       const rest = tiles.slice();
-      const result: Array<[TileId, TileId] | [TileId, TileId, TileId]> = [
-        rest.splice(i, 2) as [TileId, TileId],
-      ];
+      const result: Array<[TileId, TileId] | [TileId, TileId, TileId]> = [rest.splice(i, 2) as [TileId, TileId]];
 
       while (rest.length >= 3) {
         // try the same 3 tiles
@@ -334,15 +302,11 @@ export class TileCore {
 
         // try the consecutive 3 tiles
         const t1 = 0;
-        const t2 = rest.findIndex((tile) =>
-          TileCore.isConsecutive(rest[t1], tile),
-        );
+        const t2 = rest.findIndex((tile) => TileCore.isConsecutive(rest[t1], tile));
         if (t2 < 0) {
           break; // no consecutive tiles
         }
-        const t3 = rest.findIndex((tile) =>
-          TileCore.isConsecutive(rest[t1], rest[t2], tile),
-        );
+        const t3 = rest.findIndex((tile) => TileCore.isConsecutive(rest[t1], rest[t2], tile));
         if (t3 < 0) {
           break; // no consecutive tiles
         }
@@ -385,19 +349,14 @@ export class TileCore {
     const filteredTiles = []; // tiles list that does not contain the latest tile and duplicate tiles
     let previousTile = TileCore.voidId;
     for (const tile of handTiles) {
-      if (
-        !TileCore.isSame(tile, target) &&
-        !TileCore.isSame(tile, previousTile)
-      ) {
+      if (!TileCore.isSame(tile, target) && !TileCore.isSame(tile, previousTile)) {
         filteredTiles.push(tile);
       }
       previousTile = tile;
     }
 
     for (let i = 0; i < filteredTiles.length - 1; i++) {
-      if (
-        TileCore.isConsecutive(filteredTiles[i], filteredTiles[i + 1], target)
-      ) {
+      if (TileCore.isConsecutive(filteredTiles[i], filteredTiles[i + 1], target)) {
         return true;
       }
     }
@@ -429,7 +388,9 @@ export class TileCore {
     for (const tileId of sortedTiles) {
       const tile = TileCore.fromId(tileId);
       const key = `${tile.type}-${tile.index}`;
-      if (!tileCount.has(key)) tileCount.set(key, { ids: [], count: 0 });
+      if (!tileCount.has(key)) {
+        tileCount.set(key, { ids: [], count: 0 });
+      }
       const entry = tileCount.get(key)!;
       entry.ids.push(tileId);
       entry.count++;
@@ -466,21 +427,35 @@ export class TileCore {
         const next2Key = `${tile.type}-${tile.index + 2}`;
 
         // 存在邻牌 → 增加保留分
-        if (tileCount.has(prevKey)) score += 20;
-        if (tileCount.has(nextKey)) score += 20;
-        if (tileCount.has(prev2Key)) score += 10;
-        if (tileCount.has(next2Key)) score += 10;
+        if (tileCount.has(prevKey)) {
+          score += 20;
+        }
+        if (tileCount.has(nextKey)) {
+          score += 20;
+        }
+        if (tileCount.has(prev2Key)) {
+          score += 10;
+        }
+        if (tileCount.has(next2Key)) {
+          score += 10;
+        }
 
         // 边张（1/9）孤张 → 减分，容易打出
-        if (tile.index === 1 || tile.index === 9) score -= 15;
+        if (tile.index === 1 || tile.index === 9) {
+          score -= 15;
+        }
 
         // 中间牌（4/5/6） → 保留价值稍高
-        if (tile.index >= 4 && tile.index <= 6) score += 5;
+        if (tile.index >= 4 && tile.index <= 6) {
+          score += 5;
+        }
       } else {
         // 字牌
-        if (entry.count === 1)
+        if (entry.count === 1) {
           score -= 20; // 孤张字牌 → 优先打出
-        else if (entry.count === 2) score += 0; // 对子字牌 → 保留
+        } else if (entry.count === 2) {
+          score += 0; // 对子字牌 → 保留
+        }
       }
 
       tileScores.set(tileId, score);
@@ -499,11 +474,15 @@ export class TileCore {
    * @return 如果能胡牌，返回 null，否则返回一个 TileId
    */
   static decideDiscard(tiles: readonly TileId[]): TileId | null {
-    if (tiles.length === 0) return null;
+    if (tiles.length === 0) {
+      return null;
+    }
 
     // 1. 如果能胡牌，不出牌（返回 null 表示可以胡牌）
     const { sortedTiles, tileScores } = TileCore.analyzeTiles(tiles);
-    if (TileCore.canHu(sortedTiles)) return null;
+    if (TileCore.canHu(sortedTiles)) {
+      return null;
+    }
 
     // 2. 找到分数最低的牌打出
     let minScore = Infinity;
@@ -515,9 +494,7 @@ export class TileCore {
     }
 
     // 3. 如果有多张相同分数的牌，按类型优先级选择
-    const minScoreTiles = sortedTiles.filter(
-      (tileId) => (tileScores.get(tileId) || 0) === minScore,
-    );
+    const minScoreTiles = sortedTiles.filter((tileId) => (tileScores.get(tileId) || 0) === minScore);
 
     // 优先打孤张字牌 → 边张 → 中间数牌
     minScoreTiles.sort((a, b) => {
@@ -525,8 +502,12 @@ export class TileCore {
       const tileB = TileCore.fromId(b);
 
       const weight = (tile: TileCore) => {
-        if (tile.type === TileType.JIAN) return 3;
-        if (tile.index === 1 || tile.index === 9) return 2;
+        if (tile.type === TileType.JIAN) {
+          return 3;
+        }
+        if (tile.index === 1 || tile.index === 9) {
+          return 2;
+        }
         return 1;
       };
 
@@ -548,7 +529,9 @@ export class TileCore {
     target: TileId,
     allowActions: ActionType[],
   ): { action: ActionType; tiles: TileId[] } | null {
-    if (handTiles.length === 0) return null;
+    if (handTiles.length === 0) {
+      return null;
+    }
 
     // 1. 优先级：胡牌 > 杠 > 碰 > 吃
     // 检查是否能胡牌（加上目标牌后）
@@ -573,11 +556,7 @@ export class TileCore {
     // 4. 检查是否应该碰
     if (allowActions.includes(ActionType.Peng)) {
       if (TileCore.canPeng(handTiles, target)) {
-        const pengResult = TileCore.evaluatePengValue(
-          handTiles,
-          target,
-          tileCount,
-        );
+        const pengResult = TileCore.evaluatePengValue(handTiles, target, tileCount);
         if (pengResult.value > 30) {
           // 阈值可调
           return { action: ActionType.Peng, tiles: pengResult.tiles };
@@ -616,9 +595,7 @@ export class TileCore {
     }
 
     // 找到用于碰的两张牌
-    const pengTiles = handTiles
-      .filter((tileId) => TileCore.isSame(tileId, target))
-      .slice(0, 2);
+    const pengTiles = handTiles.filter((tileId) => TileCore.isSame(tileId, target)).slice(0, 2);
 
     let value = 20; // 基础碰牌价值
 
@@ -641,9 +618,7 @@ export class TileCore {
     }
 
     // 模拟碰牌后的手牌，看是否更接近胡牌
-    const afterPengTiles = handTiles.filter(
-      (id) => !TileCore.isSame(id, target),
-    );
+    const afterPengTiles = handTiles.filter((id) => !TileCore.isSame(id, target));
     const beforeHuPotential = TileCore.calculateHuPotential(handTiles);
     const afterHuPotential = TileCore.calculateHuPotential(afterPengTiles);
 
@@ -657,10 +632,7 @@ export class TileCore {
   /**
    * 评估吃牌的价值
    */
-  private static evaluateChiValue(
-    handTiles: readonly TileId[],
-    target: TileId,
-  ): { value: number; tiles: TileId[] } {
+  private static evaluateChiValue(handTiles: readonly TileId[], target: TileId): { value: number; tiles: TileId[] } {
     const targetTile = TileCore.fromId(target);
 
     // 字牌不能吃
@@ -669,10 +641,7 @@ export class TileCore {
     }
 
     // 检查能组成的顺子类型和数量
-    const possibleChiCombos = TileCore.getPossibleChiCombinations(
-      handTiles,
-      target,
-    );
+    const possibleChiCombos = TileCore.getPossibleChiCombinations(handTiles, target);
 
     if (possibleChiCombos.length === 0) {
       return { value: 0, tiles: [] };
@@ -716,8 +685,12 @@ export class TileCore {
     let triplets = 0;
 
     for (const [, entry] of tileCount) {
-      if (entry.count === 2) pairs++;
-      if (entry.count >= 3) triplets++;
+      if (entry.count === 2) {
+        pairs++;
+      }
+      if (entry.count >= 3) {
+        triplets++;
+      }
     }
 
     potential += pairs * 10 + triplets * 20;
@@ -748,27 +721,21 @@ export class TileCore {
   /**
    * 找到用于杠的三张牌
    */
-  private static findGangTiles(
-    handTiles: readonly TileId[],
-    target: TileId,
-  ): TileId[] {
+  private static findGangTiles(handTiles: readonly TileId[], target: TileId): TileId[] {
     // 使用 filter 找到所有匹配的牌，然后取前3张
-    return handTiles
-      .filter((tileId) => TileCore.isSame(tileId, target))
-      .slice(0, 3);
+    return handTiles.filter((tileId) => TileCore.isSame(tileId, target)).slice(0, 3);
   }
 
   /**
    * 获取可能的吃牌组合
    */
-  private static getPossibleChiCombinations(
-    handTiles: readonly TileId[],
-    target: TileId,
-  ): TileId[][] {
+  private static getPossibleChiCombinations(handTiles: readonly TileId[], target: TileId): TileId[][] {
     const targetTile = TileCore.fromId(target);
     const combinations: TileId[][] = [];
 
-    if (targetTile.type === TileType.JIAN) return combinations;
+    if (targetTile.type === TileType.JIAN) {
+      return combinations;
+    }
 
     // 检查三种吃牌可能：ABC, XAB, ABX (A是目标牌)
     const targetIndex = targetTile.index;
