@@ -2,7 +2,7 @@ import { useGameStore, useRoomStore } from "@/store";
 import { Direction, CommonUtil } from "@/lib/game-utils";
 
 export const currentPlayerClasses =
-  "bg-amber-400/10 ring-2 ring-inset ring-amber-400/60";
+  "bg-amber-400/60 ring-2 ring-inset ring-amber-400/60";
 
 export function useIsCurrentPlayer(direction: Direction): boolean {
   const game = useGameStore((state) => state.game);
