@@ -3,7 +3,7 @@
 import { HandTilesBottom } from "./HandTilesBottom";
 import { OpenSetTiles } from "./OpenSetTiles";
 import { Direction } from "@/lib/game-utils";
-import { useIsCurrentPlayer } from "@/hooks/useIsCurrentPlayer";
+import { useIsCurrentPlayer, currentPlayerClasses } from "@/hooks/useIsCurrentPlayer";
 import { cn } from "@/lib/utils";
 
 export function PlayerTilesBottom() {
@@ -13,7 +13,7 @@ export function PlayerTilesBottom() {
     <div
       className={cn(
         "relative flex h-full w-full items-center transition-colors duration-300",
-        isCurrentPlayer && "bg-amber-400/10 ring-2 ring-inset ring-amber-400/60",
+        isCurrentPlayer && currentPlayerClasses,
       )}
     >
       <OpenSetTiles direction={Direction.Bottom} />
