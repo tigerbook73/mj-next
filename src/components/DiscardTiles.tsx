@@ -4,6 +4,7 @@ import { Tile } from "./Tile";
 import { cn } from "@/lib/utils";
 import { CommonUtil, Direction } from "@/lib/game-utils";
 import { useGameStore, useRoomStore } from "@/store";
+import { TileId } from "@/common";
 
 const defaultCols = 16;
 const defaultRows = 2;
@@ -29,12 +30,21 @@ export function DiscardTiles({
   rows = defaultRows,
 }: WallTilesProps) {
   const game = useGameStore((state) => state.game)!;
+  const latestTile = useGameStore((state) => state.latestTile);
   const myPosition = useRoomStore((state) => state.myPosition)!;
 
   const position = CommonUtil.mapPosition(myPosition, direction);
   const discard = game.discards[position]!;
 
   const tiles: number[] = discard.tiles.slice();
+
+  const takenTiles = new Set<TileId>();
+  for (const player of game.players) {
+    if (!player) continue;
+    for (const set of player.openedSets) {
+      takenTiles.add(set.target);
+    }
+  }
 
   const fullLength = cols * rows;
   for (let i = tiles.length; i < fullLength; i++) {
@@ -89,6 +99,8 @@ export function DiscardTiles({
           tileId={tid}
           direction={direction}
           size={65}
+          taken={takenTiles.has(tid)}
+          special={tid === latestTile ? "warning" : undefined}
         />
       ))}
     </div>

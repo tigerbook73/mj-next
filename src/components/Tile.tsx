@@ -98,7 +98,7 @@ const tileVariants = cva(
         highlighted: "ring-2 ring-yellow-400",
         focused: "ring-2 ring-blue-400",
         disabled: "opacity-50 grayscale",
-        warning: "scale-110 ring-2 ring-red-400",
+        warning: "scale-130 ring-2 ring-red-400",
         success: "ring-2 ring-green-400",
       },
     },
@@ -155,10 +155,7 @@ export const Tile = ({
 
   // Final pixel size
   const scale =
-    (storeTileSize *
-      (typeof size === "number" ? size : sizeScale[size]) *
-      (special === "warning" ? 1.2 : 1)) /
-    100;
+    (storeTileSize * (typeof size === "number" ? size : sizeScale[size])) / 100;
 
   const containerStyle = {
     [isVertical ? "height" : "width"]: scale,
