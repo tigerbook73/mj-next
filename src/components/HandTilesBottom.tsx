@@ -107,6 +107,11 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
 
   const [selectedTile, setSelectedTile] = useState<TileId | null>(null);
 
+  const dropSelectedTile = (tile: TileId) => {
+    socketClient.actionDrop(tile);
+    setSelectedTile(null);
+  };
+
   // Reset selected tile when the game state changes (e.g. after an action)
   useEffect(() => {
     setSelectedTile(null);
@@ -173,17 +178,19 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
         });
       }
 
-      // 过 (always available in WaitingPass)
-      result.push({
-        type: "pass",
-        onAction: () => socketClient.actionPass(),
-      });
-
       // 胡
       if (TileCore.canHu(player.handTiles, latestTile)) {
         result.push({
           type: "hu",
           onAction: () => socketClient.actionHu(),
+        });
+      }
+
+      // 过 (if there are any other options, player can choose to pass)
+      if (result.length > 0) {
+        result.push({
+          type: "pass",
+          onAction: () => socketClient.actionPass(),
         });
       }
 
@@ -261,6 +268,7 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
             hoverable={true}
             back={false}
             onClick={isMyTurn ? setSelectedTile : undefined}
+            onDoubleClick={isMyTurn ? () => dropSelectedTile(tid) : undefined}
             selected={tid === selectedTile}
           />
         ))}

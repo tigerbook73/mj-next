@@ -116,6 +116,7 @@ export interface TileProps extends VariantProps<typeof tileVariants> {
   taken?: boolean;
   className?: string;
   onClick?: (tileId: number) => void;
+  onDoubleClick?: (tileId: number) => void;
   theme?: "Regular" | "Black";
   size?: TileSize;
   direction?: Direction;
@@ -136,6 +137,7 @@ export const Tile = ({
   direction = Direction.Bottom,
   className,
   onClick,
+  onDoubleClick,
   theme = "Regular",
   ...props
 }: TileProps) => {
@@ -172,6 +174,7 @@ export const Tile = ({
   const clickable = !!onClick && !isBack && !isEmpty;
 
   const handleClick = () => clickable && onClick?.(tile.id);
+  const handleDoubleClick = () => clickable && onDoubleClick?.(tile.id);
 
   // --- Empty tile (pure spacing)
   if (isEmpty) {
@@ -199,6 +202,7 @@ export const Tile = ({
       )}
       style={containerStyle}
       onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
       role={clickable ? "button" : undefined}
       tabIndex={clickable ? 0 : undefined}
       {...props}
