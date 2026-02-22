@@ -61,8 +61,11 @@ const meta = {
         "disabled",
         "warning",
         "success",
-        "removed",
       ],
+    },
+    taken: {
+      control: "boolean",
+      description: "Show taken overlay with X icon",
     },
     theme: {
       control: "select",
@@ -76,7 +79,7 @@ const meta = {
       },
     },
   },
-} as Meta<TileProps & { tileSize: number }>;
+} as Meta<TileProps & { tileSize: number; taken: boolean }>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -179,15 +182,15 @@ export const SpecialEffects: Story = {
       <Tile {...args} special="disabled" />
       <Tile {...args} special="warning" />
       <Tile {...args} special="success" />
-      <Tile {...args} special="removed" />
+      <Tile {...args} special="warning" taken />
     </div>
   ),
 };
 
-export const Removed: Story = {
+export const Taken: Story = {
   args: {
     ...defaultArgs,
-    special: "removed",
+    taken: true,
   },
   render: (args) => (
     <div className="flex flex-col items-center gap-6">
@@ -197,8 +200,8 @@ export const Removed: Story = {
         ))}
       </div>
       <div className="flex gap-4">
-        <Tile {...args} special="normal" />
-        <Tile {...args} special="removed" />
+        <Tile {...args} taken={false} />
+        <Tile {...args} taken />
       </div>
     </div>
   ),
