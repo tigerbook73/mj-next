@@ -75,7 +75,9 @@ export default function SpeedDial({
 
   // click 模式外部点击关闭
   useEffect(() => {
-    if (trigger === "hover") return;
+    if (trigger === "hover") {
+return;
+}
     const handleClickOutside = (e: MouseEvent) => {
       if (
         containerRef.current &&
@@ -93,7 +95,9 @@ export default function SpeedDial({
     trigger === "hover"
       ? {
           onMouseEnter: () => {
-            if (hoverTimeout.current) window.clearTimeout(hoverTimeout.current);
+            if (hoverTimeout.current) {
+window.clearTimeout(hoverTimeout.current);
+}
             setOpen(true);
           },
           onMouseLeave: () => {
@@ -173,7 +177,9 @@ export default function SpeedDial({
                       size="icon"
                       onClick={() => {
                         action.onClick();
-                        if (trigger === "click") setOpen(false);
+                        if (trigger === "click") {
+setOpen(false);
+}
                       }}
                       className="bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 w-10 rounded-full shadow-md"
                     >

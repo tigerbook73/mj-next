@@ -1,5 +1,5 @@
 import type { Player, Position } from "../core/mj.game";
-import { Game } from "../core/mj.game";
+import { Game, GameHistoryRecord } from "../core/mj.game";
 import { type TileId } from "../core/mj.tile-core";
 import { ClientModel } from "../models/client.model";
 import type { PlayerModel } from "../models/player.model";
@@ -39,7 +39,8 @@ export const GameRequestType = {
   ACTION_HU: "actionHu",
 } as const;
 
-export type GameRequestType = (typeof GameRequestType)[keyof typeof GameRequestType];
+export type GameRequestType =
+  (typeof GameRequestType)[keyof typeof GameRequestType];
 
 export interface GameRequest {
   type: GameRequestType;
@@ -268,15 +269,24 @@ export interface ActionHuResponse extends GameResponse {
 
 export const GameEventType = {
   GAME_UPDATED: "gameUpdated",
+  ACTION: "action",
 } as const;
 
 export type GameEventType = (typeof GameEventType)[keyof typeof GameEventType];
 
 export interface GameEvent {
-  type: GameEventType;
+  type: typeof GameEventType.GAME_UPDATED;
   data: {
     clients: ClientModel[];
     rooms: RoomModel[];
+  };
+}
+
+export interface GameActionEvent {
+  type: typeof GameEventType.ACTION;
+  data: {
+    roomName: string;
+    record: GameHistoryRecord;
   };
 }
 
@@ -310,7 +320,7 @@ export class SocketClient {
     this.gameSocket.onDisconnect(callback);
   }
 
-  onReceive(callback: (data: GameEvent) => void) {
+  onReceive(callback: (data: GameEvent | GameActionEvent) => void) {
     this.gameSocket.onReceive(callback);
   }
 
@@ -318,7 +328,10 @@ export class SocketClient {
    * auth APIs
    */
 
-  protected async sendRequest<REQ extends GameRequest, RES extends GameResponse>(request: REQ): Promise<RES> {
+  protected async sendRequest<
+    REQ extends GameRequest,
+    RES extends GameResponse,
+  >(request: REQ): Promise<RES> {
     const response = await this.gameSocket.sendAndWait<RES>(request);
     if (response.status === "error") {
       throw new Error(response.message);
@@ -337,7 +350,10 @@ export class SocketClient {
     const request: ListClientRequest = {
       type: GameRequestType.LIST_CLIENT,
     };
-    const response = await this.sendRequest<ListClientRequest, ListClientResponse>(request);
+    const response = await this.sendRequest<
+      ListClientRequest,
+      ListClientResponse
+    >(request);
     return response.data.map((data) => ClientModel.fromJSON(data));
   }
 
@@ -348,7 +364,9 @@ export class SocketClient {
     const request: ListUserRequest = {
       type: GameRequestType.LIST_USER,
     };
-    const response = await this.sendRequest<ListUserRequest, ListUserResponse>(request);
+    const response = await this.sendRequest<ListUserRequest, ListUserResponse>(
+      request,
+    );
     return response.data.map((data) => UserModel.fromJSON(data));
   }
 
@@ -372,7 +390,10 @@ export class SocketClient {
         name: roomName,
       },
     };
-    const response = await this.sendRequest<CreateRoomRequest, CreateRoomResponse>(request);
+    const response = await this.sendRequest<
+      CreateRoomRequest,
+      CreateRoomResponse
+    >(request);
     return RoomModel.fromJSON(response.data);
   }
 
@@ -390,7 +411,9 @@ export class SocketClient {
     const request: ListRoomRequest = {
       type: GameRequestType.LIST_ROOM,
     };
-    const response = await this.sendRequest<ListRoomRequest, ListRoomResponse>(request);
+    const response = await this.sendRequest<ListRoomRequest, ListRoomResponse>(
+      request,
+    );
     return response.data.map((data) => RoomModel.fromJSON(data));
   }
 
@@ -402,7 +425,9 @@ export class SocketClient {
         position,
       },
     };
-    const response = await this.sendRequest<JoinRoomRequest, JoinRoomResponse>(request);
+    const response = await this.sendRequest<JoinRoomRequest, JoinRoomResponse>(
+      request,
+    );
     return RoomModel.fromJSON(response.data);
   }
 
@@ -423,7 +448,10 @@ export class SocketClient {
         roomName,
       },
     };
-    const response = await this.sendRequest<EnterGameRequest, EnterGameResponse>(request);
+    const response = await this.sendRequest<
+      EnterGameRequest,
+      EnterGameResponse
+    >(request);
     return RoomModel.fromJSON(response.data);
   }
 
@@ -434,7 +462,9 @@ export class SocketClient {
         roomName,
       },
     };
-    const response = await this.sendRequest<QuitGameRequest, QuitGameResponse>(request);
+    const response = await this.sendRequest<QuitGameRequest, QuitGameResponse>(
+      request,
+    );
     return RoomModel.fromJSON(response.data);
   }
 
@@ -445,7 +475,10 @@ export class SocketClient {
     const request: StartGameRequest = {
       type: GameRequestType.START_GAME,
     };
-    const response = await this.sendRequest<StartGameRequest, StartGameResponse>(request);
+    const response = await this.sendRequest<
+      StartGameRequest,
+      StartGameResponse
+    >(request);
     return Game.fromJSON(response.data);
   }
 
@@ -453,7 +486,10 @@ export class SocketClient {
     const request: ResetGameRequest = {
       type: GameRequestType.RESET_GAME,
     };
-    const response = await this.sendRequest<ResetGameRequest, ResetGameResponse>(request);
+    const response = await this.sendRequest<
+      ResetGameRequest,
+      ResetGameResponse
+    >(request);
     return Game.fromJSON(response.data);
   }
 
@@ -464,7 +500,10 @@ export class SocketClient {
         tileId,
       },
     };
-    const response = await this.sendRequest<ActionDropRequest, ActionDropResponse>(request);
+    const response = await this.sendRequest<
+      ActionDropRequest,
+      ActionDropResponse
+    >(request);
     return Game.fromJSON(response.data);
   }
 
@@ -475,7 +514,10 @@ export class SocketClient {
         tileIds,
       },
     };
-    const response = await this.sendRequest<ActionAngangRequest, ActionAngangResponse>(request);
+    const response = await this.sendRequest<
+      ActionAngangRequest,
+      ActionAngangResponse
+    >(request);
     return Game.fromJSON(response.data);
   }
 
@@ -483,7 +525,10 @@ export class SocketClient {
     const request: ActionZimoRequest = {
       type: GameRequestType.ACTION_ZIMO,
     };
-    const response = await this.sendRequest<ActionZimoRequest, ActionZimoResponse>(request);
+    const response = await this.sendRequest<
+      ActionZimoRequest,
+      ActionZimoResponse
+    >(request);
     return Game.fromJSON(response.data);
   }
 
@@ -491,7 +536,10 @@ export class SocketClient {
     const request: ActionPassRequest = {
       type: GameRequestType.ACTION_PASS,
     };
-    const response = await this.sendRequest<ActionPassRequest, ActionPassResponse>(request);
+    const response = await this.sendRequest<
+      ActionPassRequest,
+      ActionPassResponse
+    >(request);
     return Game.fromJSON(response.data);
   }
 
@@ -502,7 +550,10 @@ export class SocketClient {
         tileIds,
       },
     };
-    const response = await this.sendRequest<ActionChiRequest, ActionChiResponse>(request);
+    const response = await this.sendRequest<
+      ActionChiRequest,
+      ActionChiResponse
+    >(request);
     return Game.fromJSON(response.data);
   }
 
@@ -513,7 +564,10 @@ export class SocketClient {
         tileIds,
       },
     };
-    const response = await this.sendRequest<ActionPengRequest, ActionPengResponse>(request);
+    const response = await this.sendRequest<
+      ActionPengRequest,
+      ActionPengResponse
+    >(request);
     return Game.fromJSON(response.data);
   }
 
@@ -524,7 +578,10 @@ export class SocketClient {
         tileIds,
       },
     };
-    const response = await this.sendRequest<ActionGangRequest, ActionGangResponse>(request);
+    const response = await this.sendRequest<
+      ActionGangRequest,
+      ActionGangResponse
+    >(request);
     return Game.fromJSON(response.data);
   }
 
@@ -532,7 +589,9 @@ export class SocketClient {
     const request: ActionHuRequest = {
       type: GameRequestType.ACTION_HU,
     };
-    const response = await this.sendRequest<ActionHuRequest, ActionHuResponse>(request);
+    const response = await this.sendRequest<ActionHuRequest, ActionHuResponse>(
+      request,
+    );
     return Game.fromJSON(response.data);
   }
 
@@ -543,8 +602,12 @@ export class SocketClient {
     return {
       type: event.type as GameEventType,
       data: {
-        clients: event.data.clients.map((data: any) => ClientModel.fromJSON(data)) as ClientModel[],
-        rooms: event.data.rooms.map((data: any) => RoomModel.fromJSON(data)) as RoomModel[],
+        clients: event.data.clients.map((data: any) =>
+          ClientModel.fromJSON(data),
+        ) as ClientModel[],
+        rooms: event.data.rooms.map((data: any) =>
+          RoomModel.fromJSON(data),
+        ) as RoomModel[],
       },
     };
   }
@@ -577,7 +640,11 @@ export class SocketClient {
       return null;
     }
 
-    return event.data.rooms.find((room) => room.players.find((player) => player.userName === user.name)) || null;
+    return (
+      event.data.rooms.find((room) =>
+        room.players.find((player) => player.userName === user.name),
+      ) || null
+    );
   }
 
   findMyPlayerModel(event: GameEvent): PlayerModel | null {
@@ -614,6 +681,10 @@ export class SocketClient {
       return null;
     }
 
-    return game.players.find((player) => player?.position === playerModel.position) || null;
+    return (
+      game.players.find(
+        (player) => player?.position === playerModel.position,
+      ) || null
+    );
   }
 }

@@ -2,9 +2,12 @@ import { useAppStatusStore } from "@/store/app-status-store";
 import { useGameStore } from "@/store/game-store";
 import { useRoomStore } from "@/store/room-store";
 import { useUserStore } from "@/store/user-store";
+import { useActionStore } from "@/store/action-store";
 import { authService } from "./auth-service";
 import { eventBus } from "./event-bus";
 import { initSocket, socketClient } from "./socket-client";
+import { GameEventType } from "@/common";
+import type { GameActionEvent } from "@/common";
 
 export class AppService {
   private initialized = false;
@@ -14,7 +17,9 @@ export class AppService {
    * then kick off auth initialization. Idempotent.
    */
   initialize(): void {
-    if (this.initialized) return;
+    if (this.initialized) {
+      return;
+    }
     this.initialized = true;
 
     initSocket();
@@ -40,6 +45,7 @@ export class AppService {
       const { setGame } = useGameStore.getState();
       setSignedIn(false); // also clears user fields via store logic
       setGame(null);
+      useActionStore.getState().clearAll();
       socketClient?.disconnect();
       useAppStatusStore.getState().setReady(true);
     });
@@ -64,19 +70,25 @@ export class AppService {
     });
 
     eventBus.on("socket:data", (event) => {
-      const { setRoomList, setMyRoom, setMyPosition } =
-        useRoomStore.getState();
-      const { setGame } = useGameStore.getState();
-      const parsedEvent = socketClient.parseEvent(event);
+      if (event.type === GameEventType.GAME_UPDATED) {
+        const { setRoomList, setMyRoom, setMyPosition } =
+          useRoomStore.getState();
+        const { setGame } = useGameStore.getState();
+        const parsedEvent = socketClient.parseEvent(event);
 
-      setRoomList(parsedEvent.data.rooms);
-      setMyRoom(socketClient.findMyRoom(parsedEvent));
-      setMyPosition(
-        socketClient.findMyPlayerModel(parsedEvent)?.position ?? null,
-      );
-      setGame(socketClient.findMyGame(parsedEvent));
+        setRoomList(parsedEvent.data.rooms);
+        setMyRoom(socketClient.findMyRoom(parsedEvent));
+        setMyPosition(
+          socketClient.findMyPlayerModel(parsedEvent)?.position ?? null,
+        );
+        setGame(socketClient.findMyGame(parsedEvent));
 
-      useAppStatusStore.getState().setReady(true);
+        useAppStatusStore.getState().setReady(true);
+      } else if (event.type === GameEventType.ACTION) {
+        // only when playing a game, to avoid noise during lobby browsing
+        const actionEvent = event as unknown as GameActionEvent;
+        useActionStore.getState().setAction(actionEvent.data.record);
+      }
     });
   }
 }

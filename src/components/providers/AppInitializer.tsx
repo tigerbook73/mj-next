@@ -7,7 +7,9 @@ export function AppInitializer() {
   const isInitialized = useRef(false);
 
   useEffect(() => {
-    if (isInitialized.current) return;
+    if (isInitialized.current) {
+return;
+}
     isInitialized.current = true;
     appService.initialize();
   }, []);

@@ -15,10 +15,7 @@ import { socketClient } from "@/lib/socket-client";
 // ---------------------------------------------------------------------------
 
 /** Returns pairs of hand tiles that can form a valid Chi with `target`. */
-function getChiCombinations(
-  handTiles: readonly TileId[],
-  target: TileId,
-): [TileId, TileId][] {
+function getChiCombinations(handTiles: readonly TileId[], target: TileId): [TileId, TileId][] {
   const targetTile = TileCore.fromId(target);
   // Honor / special tiles cannot be used in Chi
   if (!targetTile.isWan() && !targetTile.isTong() && !targetTile.isTiao()) {
@@ -39,21 +36,27 @@ function getChiCombinations(
   if (idx >= 3) {
     const t1 = find(idx - 2);
     const t2 = find(idx - 1);
-    if (t1 !== undefined && t2 !== undefined) combinations.push([t1, t2]);
+    if (t1 !== undefined && t2 !== undefined) {
+      combinations.push([t1, t2]);
+    }
   }
 
   // Case 2: t-1, target, t+1  (target in middle)
   if (idx >= 2 && idx <= 8) {
     const t1 = find(idx - 1);
     const t2 = find(idx + 1);
-    if (t1 !== undefined && t2 !== undefined) combinations.push([t1, t2]);
+    if (t1 !== undefined && t2 !== undefined) {
+      combinations.push([t1, t2]);
+    }
   }
 
   // Case 3: target, t+1, t+2  (target at start)
   if (idx <= 7) {
     const t1 = find(idx + 1);
     const t2 = find(idx + 2);
-    if (t1 !== undefined && t2 !== undefined) combinations.push([t1, t2]);
+    if (t1 !== undefined && t2 !== undefined) {
+      combinations.push([t1, t2]);
+    }
   }
 
   return combinations;
@@ -63,9 +66,7 @@ function getChiCombinations(
  * Returns 4 tiles of the same type for Angang, or null if not possible.
  * Uses name-based grouping (TileCore.canAngang uses raw IDs which is unreliable).
  */
-function getAngangTiles(
-  allTiles: readonly TileId[],
-): [TileId, TileId, TileId, TileId] | null {
+function getAngangTiles(allTiles: readonly TileId[]): [TileId, TileId, TileId, TileId] | null {
   const groups = new Map<string, TileId[]>();
   for (const t of allTiles) {
     const name = TileCore.fromId(t).name;
@@ -74,7 +75,9 @@ function getAngangTiles(
     groups.set(name, g);
   }
   for (const g of groups.values()) {
-    if (g.length >= 4) return g.slice(0, 4) as [TileId, TileId, TileId, TileId];
+    if (g.length >= 4) {
+      return g.slice(0, 4) as [TileId, TileId, TileId, TileId];
+    }
   }
   return null;
 }
@@ -99,10 +102,7 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
   const game = useGameStore((state) => state.game)!;
   const myPosition = useRoomStore((state) => state.myPosition)!;
 
-  const myAbsolutePosition = CommonUtil.mapPosition(
-    myPosition,
-    Direction.Bottom,
-  );
+  const myAbsolutePosition = CommonUtil.mapPosition(myPosition, Direction.Bottom);
   const player = game.players[myAbsolutePosition]!;
 
   const [selectedTile, setSelectedTile] = useState<TileId | null>(null);
@@ -117,29 +117,24 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
     setSelectedTile(null);
   }, [game.state, game.current?.position]);
 
-  const isMyTurn =
-    game.state === GameState.WaitingAction &&
-    game.current?.position === myAbsolutePosition;
+  const isMyTurn = game.state === GameState.WaitingAction && game.current?.position === myAbsolutePosition;
 
   // ---------------------------------------------------------------------------
   // Compute available actions
   // ---------------------------------------------------------------------------
   const actions = useMemo<ActionItem[]>(() => {
-    if (!player) return [];
+    if (!player) {
+      return [];
+    }
 
     // ── WaitingPass: another player just discarded ──────────────────────────
-    if (
-      game.state === GameState.WaitingPass &&
-      game.current?.position !== myAbsolutePosition
-    ) {
+    if (game.state === GameState.WaitingPass && game.current?.position !== myAbsolutePosition) {
       const latestTile = game.latestTile;
       const result: ActionItem[] = [];
 
       // 碰
       if (TileCore.canPeng(player.handTiles, latestTile)) {
-        const tiles = player.handTiles
-          .filter((t) => TileCore.isSame(t, latestTile))
-          .slice(0, 2) as [TileId, TileId];
+        const tiles = player.handTiles.filter((t) => TileCore.isSame(t, latestTile)).slice(0, 2) as [TileId, TileId];
         result.push({
           type: "peng",
           latestTile,
@@ -150,10 +145,7 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
 
       // 吃 — only the next player after current can Chi
       const nextPosition = ((game.current?.position ?? 0) + 3) % 4;
-      if (
-        myAbsolutePosition === nextPosition &&
-        TileCore.canChi(player.handTiles, latestTile)
-      ) {
+      if (myAbsolutePosition === nextPosition && TileCore.canChi(player.handTiles, latestTile)) {
         const options = getChiCombinations(player.handTiles, latestTile);
         if (options.length > 0) {
           result.push({
@@ -167,9 +159,11 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
 
       // 杠
       if (TileCore.canGang(player.handTiles, latestTile)) {
-        const tiles = player.handTiles
-          .filter((t) => TileCore.isSame(t, latestTile))
-          .slice(0, 3) as [TileId, TileId, TileId];
+        const tiles = player.handTiles.filter((t) => TileCore.isSame(t, latestTile)).slice(0, 3) as [
+          TileId,
+          TileId,
+          TileId,
+        ];
         result.push({
           type: "gang",
           latestTile,
@@ -182,6 +176,7 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
       if (TileCore.canHu(player.handTiles, latestTile)) {
         result.push({
           type: "hu",
+          latestTile,
           onAction: () => socketClient.actionHu(),
         });
       }
@@ -199,9 +194,7 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
 
     // ── WaitingAction: my turn to act ────────────────────────────────────────
     if (isMyTurn) {
-      const allTiles = [...player.handTiles, player.picked].filter(
-        (t) => t !== TileCore.voidId,
-      );
+      const allTiles = [...player.handTiles, player.picked].filter((t) => t !== TileCore.voidId);
       const result: ActionItem[] = [];
 
       // 暗杠
@@ -209,6 +202,7 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
       if (angangTiles) {
         result.push({
           type: "angang",
+          tiles: angangTiles,
           onAction: () => socketClient.actionAngang(angangTiles),
         });
       }
@@ -216,7 +210,8 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
       // 胡 (自摸)
       if (TileCore.canHu(allTiles)) {
         result.push({
-          type: "hu",
+          type: "zimo",
+          tiles: [player.picked],
           onAction: () => socketClient.actionZimo(),
         });
       }
@@ -253,12 +248,7 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
           <ActionPanel actions={actions} />
         </div>
       )}
-      <div
-        className={cn(
-          "flex items-center justify-center",
-          flexClasses[Direction.Bottom],
-        )}
-      >
+      <div className={cn("flex items-center justify-center", flexClasses[Direction.Bottom])}>
         {tiles.map((tid, index) => (
           <Tile
             key={`${tid}-${index}`}

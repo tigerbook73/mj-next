@@ -6,6 +6,7 @@ import { Tile } from "./Tile";
 import { Direction } from "@/lib/game-utils";
 import { TileCore } from "@/common/core/mj.tile-core";
 import type { TileId } from "@/common/core/mj.tile-core";
+import { late } from "zod/v3";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -13,7 +14,17 @@ import type { TileId } from "@/common/core/mj.tile-core";
 
 export type ActionItem =
   | {
-      type: "angang" | "hu" | "pass";
+      type: "pass";
+      onAction: () => void;
+    }
+  | {
+      type: "hu";
+      latestTile: TileId;
+      onAction: () => void;
+    }
+  | {
+      type: "zimo";
+      tiles: [TileId];
       onAction: () => void;
     }
   | {
@@ -30,6 +41,11 @@ export type ActionItem =
       latestTile: TileId;
       /** Three hand tiles used for the Gang */
       tiles: [TileId, TileId, TileId];
+      onAction: () => void;
+    }
+  | {
+      type: "angang";
+      tiles: [TileId, TileId, TileId, TileId];
       onAction: () => void;
     }
   | {
@@ -51,13 +67,14 @@ export type ActionItem =
 // ---------------------------------------------------------------------------
 
 const actionLabels: Record<ActionItem["type"], string> = {
-  peng: "碰",
   chi: "吃",
+  peng: "碰",
   gang: "杠",
-  angang: "暗杠",
   hu: "胡",
+  angang: "暗杠",
   pass: "过",
   drop: "出牌",
+  zimo: "自摸",
 };
 
 const buttonBaseClasses =
@@ -104,23 +121,15 @@ function ChiCard({ action }: ChiCardProps) {
     { tileId: action.latestTile, isLatest: true },
     { tileId: currentOption[0], isLatest: false },
     { tileId: currentOption[1], isLatest: false },
-  ].sort(
-    (a, b) => TileCore.fromId(a.tileId).index - TileCore.fromId(b.tileId).index,
-  );
+  ].sort((a, b) => TileCore.fromId(a.tileId).index - TileCore.fromId(b.tileId).index);
 
   return (
     <div className="flex flex-col items-center gap-1">
-      <button
-        onClick={() => action.onAction(currentOption)}
-        className={cn(buttonBaseClasses, "mb-3")}
-      >
+      <button onClick={() => action.onAction(currentOption)} className={cn(buttonBaseClasses, "mb-3")}>
         {actionLabels.chi}
       </button>
       <div
-        className={cn(
-          "flex items-end gap-0.5",
-          action.options.length > 1 && "cursor-pointer",
-        )}
+        className={cn("flex items-end gap-0.5", action.options.length > 1 && "cursor-pointer")}
         onClick={cycleOption}
         title={action.options.length > 1 ? "点击切换吃牌方式" : undefined}
       >
@@ -147,10 +156,7 @@ interface DropCardProps {
 function DropCard({ action }: DropCardProps) {
   return (
     <div className="flex flex-col items-center gap-1">
-      <button
-        onClick={action.onAction}
-        className={cn(buttonBaseClasses, "mb-3")}
-      >
+      <button onClick={action.onAction} className={cn(buttonBaseClasses, "mb-3")}>
         {actionLabels.drop}
       </button>
       <Tile tileId={action.tileId} direction={Direction.Bottom} size="md" />
@@ -172,9 +178,7 @@ function TiledCard({ label, latestTile, handTiles, onAction }: TiledCardProps) {
   const sortedTiles = [
     { tileId: latestTile, isLatest: true },
     ...handTiles.map((tileId) => ({ tileId, isLatest: false })),
-  ].sort(
-    (a, b) => TileCore.fromId(a.tileId).index - TileCore.fromId(b.tileId).index,
-  );
+  ].sort((a, b) => TileCore.fromId(a.tileId).index - TileCore.fromId(b.tileId).index);
 
   return (
     <div className="flex flex-col items-center gap-1">
@@ -206,7 +210,9 @@ interface ActionPanelProps {
 }
 
 export function ActionPanel({ actions, className }: ActionPanelProps) {
-  if (actions.length === 0) return null;
+  if (actions.length === 0) {
+    return null;
+  }
 
   return (
     <div
@@ -245,11 +251,7 @@ export function ActionPanel({ actions, className }: ActionPanelProps) {
           );
         }
         return (
-          <SimpleCard
-            key={`${action.type}-${index}`}
-            label={actionLabels[action.type]}
-            onAction={action.onAction}
-          />
+          <SimpleCard key={`${action.type}-${index}`} label={actionLabels[action.type]} onAction={action.onAction} />
         );
       })}
     </div>

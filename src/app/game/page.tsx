@@ -65,7 +65,9 @@ export default function Game() {
   }, []);
 
   useEffect(() => {
-    if (!isMounted || !containerRef.current || !setTileSize) return;
+    if (!isMounted || !containerRef.current || !setTileSize) {
+return;
+}
 
     const updateSize = () => {
       if (containerRef.current) {
