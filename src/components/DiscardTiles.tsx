@@ -39,7 +39,9 @@ export function DiscardTiles({
 
   const takenTiles = new Set<TileId>();
   for (const player of game.players) {
-    if (!player) continue;
+    if (!player) {
+continue;
+}
     for (const set of player.openedSets) {
       takenTiles.add(set.target);
     }

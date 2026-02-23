@@ -108,7 +108,9 @@ export class CommonUtil {
     const openedTiles = new Set<TileId>();
 
     for (const player of game.players) {
-      if (!player) continue;
+      if (!player) {
+continue;
+}
 
       for (const openedSet of player.openedSets) {
         openedTiles.add(openedSet.target);

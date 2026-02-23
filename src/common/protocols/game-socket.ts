@@ -2,6 +2,8 @@ import type { Socket } from "socket.io-client";
 import { io } from "socket.io-client";
 import type { GameEvent, GameRequest, GameResponse } from "./apis.models";
 
+export const GAME_EVENT_TYPE = "mj:game";
+
 export class GameSocket {
   private socket: Socket;
   private connectedCallback = () => {};
@@ -23,7 +25,7 @@ export class GameSocket {
     this.socket.on("connect", this.onConnected);
     this.socket.on("disconnect", this.onDisconnected);
     this.socket.on("connect_error", this.onConnectError);
-    this.socket.on("mj:game", this.onReceived);
+    this.socket.on(GAME_EVENT_TYPE, this.onReceived);
   }
 
   getSocketId() {
@@ -116,7 +118,7 @@ export class GameSocket {
     if (!this.isConnected()) {
       throw new Error("Socket not initialized");
     }
-    this.socket.emit("mj:game", data);
+    this.socket.emit(GAME_EVENT_TYPE, data);
   }
 
   sendAndWait<T extends GameResponse>(data: GameRequest): Promise<T> {
@@ -127,7 +129,7 @@ export class GameSocket {
         message: "There is no connection to the server",
       });
     } else {
-      return this.socket.timeout(2000).emitWithAck("mj:game", data);
+      return this.socket.timeout(2000).emitWithAck(GAME_EVENT_TYPE, data);
     }
   }
 }

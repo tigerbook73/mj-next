@@ -143,6 +143,35 @@ export class Discard {
   }
 }
 
+export const GameHistoryActionType = {
+  Init: "init",
+  Start: "start",
+  Drop: "drop",
+  Pick: "pick",
+  PickReverse: "pick_reverse",
+  Chi: "chi",
+  Peng: "peng",
+  Gang: "gang",
+  Angang: "angang",
+  Zimo: "zimo",
+  Hu: "hu",
+} as const;
+
+export type GameHistoryActionType = (typeof GameHistoryActionType)[keyof typeof GameHistoryActionType];
+
+export class GameHistoryRecord {
+  constructor(
+    public readonly type: GameHistoryActionType,
+    public readonly position: Position | null, // null for game-level actions (init, start)
+    public readonly tiles: TileId[] = [], // hand tiles used in the action
+    public readonly target: TileId = TileCore.voidId, // claimed tile (chi/peng/gang/hu)
+  ) {}
+
+  static fromJSON(data: any): GameHistoryRecord {
+    return new GameHistoryRecord(data.type, data.position, data.tiles ?? [], data.target ?? TileCore.voidId);
+  }
+}
+
 export class Game {
   public name;
   public players: (Player | null)[] = []; // 玩家
@@ -159,6 +188,8 @@ export class Game {
 
   public passedPlayers: Player[] = []; // 已经过的玩家，该属性仅用于client side
   public queuedActions: ActionDetail[] = []; // 等待处理的动作，该属性不用于Client Side
+  public history: GameHistoryRecord[] = []; // 游戏历史记录
+  public onAction?: (record: GameHistoryRecord) => void; // callback fired after each executed action
 
   // logger
   static logger = console;
@@ -171,6 +202,9 @@ export class Game {
    * 初始化，进入发牌前状态
    */
   public init(positions: Position[]) {
+    // reset history
+    this.history = [];
+
     // 0: 东，1: 南，2: 西，3: 北
     this.players = []; // 没有玩家的位置是null
     this.players.length = 4;
@@ -219,6 +253,8 @@ export class Game {
     for (let i = 0; i < positions.length; i++) {
       this.setPlayer(new Player(positions[i]));
     }
+
+    this.recordAction(new GameHistoryRecord(GameHistoryActionType.Init, null));
   }
 
   /**
@@ -228,6 +264,8 @@ export class Game {
     this.assignDealer();
     this.dice();
     this.dispatch();
+
+    this.recordAction(new GameHistoryRecord(GameHistoryActionType.Start, this.dealer!.position));
 
     Game.logger.log(`Game "${this.name}": started.`);
   }
@@ -269,6 +307,7 @@ export class Game {
     // need a timeout
     this.handleQueuedActions();
 
+    this.recordAction(new GameHistoryRecord(GameHistoryActionType.Drop, this.current.position, [tile]));
     Game.logger.log(`Game "${this.name}": Player ${this.current.position}: dropped "${TileCore.fromId(tile).name}".`);
     return this;
   }
@@ -308,11 +347,10 @@ export class Game {
       ),
     );
 
-    this.setState(GameState.WaitingPass);
-
     this.pickReverse();
     this.setState(GameState.WaitingAction);
 
+    this.recordAction(new GameHistoryRecord(GameHistoryActionType.Angang, this.current.position, [...tileIds]));
     Game.logger.log(
       `Game "${this.name}": Player ${this.current.position}: angang "${TileCore.fromId(tileIds[0]).name}".`,
     );
@@ -334,6 +372,7 @@ export class Game {
       throw new Error("you cannot hu");
     }
 
+    this.recordAction(new GameHistoryRecord(GameHistoryActionType.Zimo, this.current.position, [this.current.picked]));
     this.setState(GameState.End);
 
     Game.logger.log(`Game "${this.name}": Player ${this.current.position}: zimo.`);
@@ -522,6 +561,14 @@ export class Game {
   }
 
   /**
+   * Record an action to the game history
+   */
+  private recordAction(record: GameHistoryRecord): void {
+    this.history.push(record);
+    this.onAction?.(record);
+  }
+
+  /**
    * prepare the queue actions
    */
   private prepareQueueActions(): this {
@@ -665,6 +712,14 @@ export class Game {
    */
   private executeChiOrPeng(action: ActionDetail): this {
     action.status = ActionResult.Accepted;
+    this.recordAction(
+      new GameHistoryRecord(
+        action.type as GameHistoryActionType,
+        action.player.position,
+        [...action.tiles],
+        this.latestTile,
+      ),
+    );
     this.removeTilesFromHand(action.player, action.tiles);
     action.player.openedSets.push(
       new OpenedSet(
@@ -685,6 +740,9 @@ export class Game {
    */
   private executeGang(action: ActionDetail): this {
     action.status = ActionResult.Accepted;
+    this.recordAction(
+      new GameHistoryRecord(GameHistoryActionType.Gang, action.player.position, [...action.tiles], this.latestTile),
+    );
     this.removeTilesFromHand(action.player, action.tiles);
     action.player.openedSets.push(
       new OpenedSet(
@@ -706,6 +764,7 @@ export class Game {
    */
   private executeHu(action: ActionDetail): this {
     action.status = ActionResult.Accepted;
+    this.recordAction(new GameHistoryRecord(GameHistoryActionType.Hu, action.player.position, [], this.latestTile));
     this.clearQueue();
     action.player.picked = this.latestTile;
     this.setCurrentPlayer(action.player);
@@ -970,6 +1029,7 @@ export class Game {
     }
 
     this.current.picked = this.pickTile();
+    this.recordAction(new GameHistoryRecord(GameHistoryActionType.Pick, this.current.position, [this.current.picked]));
 
     return this;
   }
@@ -988,6 +1048,9 @@ export class Game {
     }
 
     this.current.picked = this.pickTile(true);
+    this.recordAction(
+      new GameHistoryRecord(GameHistoryActionType.PickReverse, this.current.position, [this.current.picked]),
+    );
     return this;
   }
 
@@ -1066,6 +1129,7 @@ export class Game {
     game.reversePickPosition = data.reversePickPosition;
     game.reversePickIndex = data.reversePickIndex;
     game.passedPlayers = data.passedPlayers.map((position: Position) => game.players[position]);
+    game.history = (data.history ?? []).map((r: any) => GameHistoryRecord.fromJSON(r));
     return game;
   }
 }

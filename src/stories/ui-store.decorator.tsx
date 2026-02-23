@@ -8,7 +8,9 @@ export const UIStoreDecorator = (Story: any, context: any) => {
 
   const setTileSize = useUIStore((state) => state.setTileSize);
   const tileSize = context.args.tileSize;
-  if (setTileSize) setTileSize(40);
+  if (setTileSize) {
+setTileSize(40);
+}
 
   useEffect(() => {
     if (setOpenTiles && typeof openTiles === "boolean") {

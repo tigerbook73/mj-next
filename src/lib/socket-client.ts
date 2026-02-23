@@ -18,10 +18,14 @@ export let socketClient: SocketClient;
  */
 export const initSocket = () => {
   // Guard: server-side
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined") {
+return;
+}
 
   // Already initialized
-  if (socketClient) return socketClient;
+  if (socketClient) {
+return socketClient;
+}
 
   const url = process.env.NEXT_PUBLIC_WS_URL;
 

@@ -24,7 +24,9 @@ export class AuthService {
    * Idempotent — deduplicates concurrent calls.
    */
   async initialize(): Promise<UserProfile | null> {
-    if (this.initialized) return this.currentUser;
+    if (this.initialized) {
+return this.currentUser;
+}
     if (!this.initPromise) {
       this.initPromise = this.doInitialize();
     }
@@ -122,7 +124,9 @@ export class AuthService {
   private async fetchProfile(): Promise<UserProfile | null> {
     try {
       const { data, error } = await client.GET("/api/auth/me");
-      if (error || !data) return null;
+      if (error || !data) {
+return null;
+}
       this.currentUser = data as UserProfile;
       this.initialized = true;
       return this.currentUser;
