@@ -30,9 +30,5 @@
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "githubPullRequests.defaultMergeMethod": "squash",
-  "git.branchProtection": [
-    "main"
-  ],
-  "git.branchProtectionPrompt": "alwaysCommitToNewBranch"
+  "githubPullRequests.defaultMergeMethod": "squash"
 }
