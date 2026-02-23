@@ -107,7 +107,20 @@ export const AllActions: Story = {
       },
       {
         type: "hu",
+        latestTile: 8, // Man3 (discarded)
         onAction: () => console.log("胡"),
+      },
+    ],
+  },
+};
+
+export const ZimoOnly: Story = {
+  args: {
+    actions: [
+      {
+        type: "zimo",
+        tiles: [8], // Man3 (self-drawn)
+        onAction: () => console.log("自摸"),
       },
     ],
   },
@@ -118,11 +131,28 @@ export const AnGangAndHu: Story = {
     actions: [
       {
         type: "angang",
-        onAction: () => console.log("暗杠"),
+        options: [[0, 1, 2, 3]], // 4x Man1
+        onAction: (tiles) => console.log("暗杠", tiles),
       },
       {
         type: "hu",
+        latestTile: 8, // Man3 (discarded)
         onAction: () => console.log("胡"),
+      },
+    ],
+  },
+};
+
+export const AnGangMultipleOptions: Story = {
+  args: {
+    actions: [
+      {
+        type: "angang",
+        options: [
+          [0, 1, 2, 3], // 4x Man1
+          [24, 25, 26, 27], // 4x Pin1
+        ],
+        onAction: (tiles) => console.log("暗杠", tiles),
       },
     ],
   },

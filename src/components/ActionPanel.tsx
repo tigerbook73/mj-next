@@ -6,7 +6,6 @@ import { Tile } from "./Tile";
 import { Direction } from "@/lib/game-utils";
 import { TileCore } from "@/common/core/mj.tile-core";
 import type { TileId } from "@/common/core/mj.tile-core";
-import { late } from "zod/v3";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -45,8 +44,9 @@ export type ActionItem =
     }
   | {
       type: "angang";
-      tiles: [TileId, TileId, TileId, TileId];
-      onAction: () => void;
+      /** All valid sets of 4 tiles the player can declare for Angang */
+      options: [TileId, TileId, TileId, TileId][];
+      onAction: (tiles: [TileId, TileId, TileId, TileId]) => void;
     }
   | {
       type: "chi";
@@ -149,6 +149,41 @@ function ChiCard({ action }: ChiCardProps) {
 
 // ---------------------------------------------------------------------------
 
+interface AnGangCardProps {
+  action: Extract<ActionItem, { type: "angang" }>;
+}
+
+function AnGangCard({ action }: AnGangCardProps) {
+  const [optionIndex, setOptionIndex] = useState(0);
+
+  const currentOption = action.options[optionIndex] ?? action.options[0];
+
+  const cycleOption = () => {
+    if (action.options.length > 1) {
+      setOptionIndex((prev) => (prev + 1) % action.options.length);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <button onClick={() => action.onAction(currentOption)} className={cn(buttonBaseClasses, "mb-3")}>
+        {actionLabels.angang}
+      </button>
+      <div
+        className={cn("flex items-end gap-0.5", action.options.length > 1 && "cursor-pointer")}
+        onClick={cycleOption}
+        title={action.options.length > 1 ? "点击切换暗杠方式" : undefined}
+      >
+        {currentOption.map((tileId) => (
+          <Tile key={tileId} tileId={tileId} direction={Direction.Bottom} size="md" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+
 interface DropCardProps {
   action: Extract<ActionItem, { type: "drop" }>;
 }
@@ -168,7 +203,7 @@ function DropCard({ action }: DropCardProps) {
 
 interface TiledCardProps {
   label: string;
-  latestTile: TileId;
+  latestTile?: TileId;
   handTiles: readonly TileId[];
   onAction: () => void;
 }
@@ -176,7 +211,7 @@ interface TiledCardProps {
 /** Renders a button + sorted tile row, highlighting the claimed tile. */
 function TiledCard({ label, latestTile, handTiles, onAction }: TiledCardProps) {
   const sortedTiles = [
-    { tileId: latestTile, isLatest: true },
+    ...(latestTile !== undefined ? [{ tileId: latestTile, isLatest: true }] : []),
     ...handTiles.map((tileId) => ({ tileId, isLatest: false })),
   ].sort((a, b) => TileCore.fromId(a.tileId).index - TileCore.fromId(b.tileId).index);
 
@@ -225,8 +260,32 @@ export function ActionPanel({ actions, className }: ActionPanelProps) {
         if (action.type === "chi") {
           return <ChiCard key={`${action.type}-${index}`} action={action} />;
         }
+        if (action.type === "angang") {
+          return <AnGangCard key={`${action.type}-${index}`} action={action} />;
+        }
         if (action.type === "drop") {
           return <DropCard key={`${action.type}-${index}`} action={action} />;
+        }
+        if (action.type === "hu") {
+          return (
+            <TiledCard
+              key={`${action.type}-${index}`}
+              label={actionLabels.hu}
+              latestTile={action.latestTile}
+              handTiles={[]}
+              onAction={action.onAction}
+            />
+          );
+        }
+        if (action.type === "zimo") {
+          return (
+            <TiledCard
+              key={`${action.type}-${index}`}
+              label={actionLabels.zimo}
+              handTiles={[action.tiles[0]]}
+              onAction={action.onAction}
+            />
+          );
         }
         if (action.type === "peng") {
           return (

@@ -63,10 +63,10 @@ function getChiCombinations(handTiles: readonly TileId[], target: TileId): [Tile
 }
 
 /**
- * Returns 4 tiles of the same type for Angang, or null if not possible.
+ * Returns all possible Angang options (groups of 4 same tiles).
  * Uses name-based grouping (TileCore.canAngang uses raw IDs which is unreliable).
  */
-function getAngangTiles(allTiles: readonly TileId[]): [TileId, TileId, TileId, TileId] | null {
+function getAngangOptions(allTiles: readonly TileId[]): [TileId, TileId, TileId, TileId][] {
   const groups = new Map<string, TileId[]>();
   for (const t of allTiles) {
     const name = TileCore.fromId(t).name;
@@ -74,12 +74,13 @@ function getAngangTiles(allTiles: readonly TileId[]): [TileId, TileId, TileId, T
     g.push(t);
     groups.set(name, g);
   }
+  const options: [TileId, TileId, TileId, TileId][] = [];
   for (const g of groups.values()) {
     if (g.length >= 4) {
-      return g.slice(0, 4) as [TileId, TileId, TileId, TileId];
+      options.push(g.slice(0, 4) as [TileId, TileId, TileId, TileId]);
     }
   }
-  return null;
+  return options;
 }
 
 // ---------------------------------------------------------------------------
@@ -198,12 +199,12 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
       const result: ActionItem[] = [];
 
       // 暗杠
-      const angangTiles = getAngangTiles(allTiles);
-      if (angangTiles) {
+      const angangOptions = getAngangOptions(allTiles);
+      if (angangOptions.length > 0) {
         result.push({
           type: "angang",
-          tiles: angangTiles,
-          onAction: () => socketClient.actionAngang(angangTiles),
+          options: angangOptions,
+          onAction: (tiles) => socketClient.actionAngang(tiles),
         });
       }
 
