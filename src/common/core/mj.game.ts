@@ -186,6 +186,7 @@ export class Game {
   public reversePickPosition: Position = Position.East; // 反向摸牌位置（东南西北）(杠)
   public reversePickIndex: number = 0; // 反向摸牌位置
 
+  public winner: Position | null = null; // 赢家的位置，null 表示游戏未结束
   public passedPlayers: Player[] = []; // 已经过的玩家，该属性仅用于client side
   public queuedActions: ActionDetail[] = []; // 等待处理的动作，该属性不用于Client Side
   public history: GameHistoryRecord[] = []; // 游戏历史记录
@@ -204,6 +205,7 @@ export class Game {
   public init(positions: Position[]) {
     // reset history
     this.history = [];
+    this.winner = null;
 
     // 0: 东，1: 南，2: 西，3: 北
     this.players = []; // 没有玩家的位置是null
@@ -299,6 +301,7 @@ export class Game {
     }
 
     this.discards[this.current.position].tiles.push(tile);
+    this.recordAction(new GameHistoryRecord(GameHistoryActionType.Drop, this.current.position, [tile]));
 
     this.setLatestTile(tile);
     this.setState(GameState.WaitingPass);
@@ -307,7 +310,6 @@ export class Game {
     // need a timeout
     this.handleQueuedActions();
 
-    this.recordAction(new GameHistoryRecord(GameHistoryActionType.Drop, this.current.position, [tile]));
     Game.logger.log(`Game "${this.name}": Player ${this.current.position}: dropped "${TileCore.fromId(tile).name}".`);
     return this;
   }
@@ -374,6 +376,7 @@ export class Game {
 
     this.recordAction(new GameHistoryRecord(GameHistoryActionType.Zimo, this.current.position, [this.current.picked]));
     this.setState(GameState.End);
+    this.winner = this.current.position;
 
     Game.logger.log(`Game "${this.name}": Player ${this.current.position}: zimo.`);
     return this;
@@ -769,6 +772,7 @@ export class Game {
     action.player.picked = this.latestTile;
     this.setCurrentPlayer(action.player);
     this.setState(GameState.End);
+    this.winner = action.player.position;
     return this;
   }
 
@@ -1111,6 +1115,7 @@ export class Game {
       reversePickPosition: this.reversePickPosition,
       reversePickIndex: this.reversePickIndex,
       passedPlayers: passedPlayers.map((player) => player.position),
+      winner: this.winner,
     };
   }
 
@@ -1130,6 +1135,7 @@ export class Game {
     game.reversePickIndex = data.reversePickIndex;
     game.passedPlayers = data.passedPlayers.map((position: Position) => game.players[position]);
     game.history = (data.history ?? []).map((r: any) => GameHistoryRecord.fromJSON(r));
+    game.winner = data.winner ?? null;
     return game;
   }
 }

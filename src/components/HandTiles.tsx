@@ -26,8 +26,7 @@ export function HandTiles({ direction, className }: HandTilesProps) {
   const position = CommonUtil.mapPosition(myPosition, direction);
   const player = game.players[position]!;
 
-  const isGameOver = game.state === GameState.End;
-  const isWinner = isGameOver && game.current?.position === player.position;
+  const isWinner = game.winner === player.position;
 
   const tiles = player.handTiles.slice();
   tiles.push(-1);
