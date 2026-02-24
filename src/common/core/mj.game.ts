@@ -332,7 +332,7 @@ export class Game {
     }
 
     // check if the tiles are in the hand
-    if (!this.isTileInHand(this.current, tileIds)) {
+    if (!this.isTileInHandOrPicked(this.current, tileIds)) {
       throw new Error("tiles are not in your hand");
     }
 
@@ -349,6 +349,7 @@ export class Game {
       ),
     );
 
+    this.setState(GameState.WaitingPass); // to make sure the next pickReverse success
     this.pickReverse();
     this.setState(GameState.WaitingAction);
 
@@ -417,7 +418,7 @@ export class Game {
   /**
    * 吃, 吃完后进入 WaitingAction 状态
    */
-  public chi(tileIds: [TileId, TileId]): this {
+  public chi(player: Player, tileIds: [TileId, TileId]): this {
     if (!([GameState.WaitingPass] as GameState[]).includes(this.state)) {
       throw new Error("Chi can only be done in WaitingPass state");
     }
@@ -426,7 +427,9 @@ export class Game {
       throw new Error("current player is not set");
     }
 
-    const player = this.getNextPlayer();
+    if (player !== this.getNextPlayer()) {
+      throw new Error("Player is not the next player of the current player");
+    }
 
     // check if the tiles are consecutive
     if (!TileCore.isConsecutive(tileIds[0], tileIds[1], this.latestTile)) {
@@ -784,14 +787,35 @@ export class Game {
       tiles = [tiles];
     }
 
-    for (let i = 0; i < tiles.length; i++) {
-      if (player.handTiles.indexOf(tiles[i]) === -1) {
+    for (const tile of tiles) {
+      if (player.handTiles.indexOf(tile) === -1) {
         return false;
       }
     }
     return true;
   }
 
+  /**
+   * check if the tile is in the player's hand or picked tile
+   */
+  isTileInHandOrPicked(player: Player, tiles: TileId | TileId[]): boolean {
+    if (!Array.isArray(tiles)) {
+      tiles = [tiles];
+    }
+
+    for (const tile of tiles) {
+      if (player.handTiles.indexOf(tile) === -1 && player.picked !== tile) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * remove tiles from player's hand, if the tile is the picked tile, set picked to voidId
+   * @param player
+   * @param tiles
+   */
   removeTilesFromHand(player: Player, tiles: TileId | TileId[]) {
     if (!Array.isArray(tiles)) {
       tiles = [tiles];
@@ -801,6 +825,9 @@ export class Game {
       const index = player.handTiles.indexOf(tile);
       if (index !== -1) {
         player.handTiles.splice(index, 1);
+      }
+      if (player.picked === tile) {
+        player.picked = TileCore.voidId;
       }
     }
   }
@@ -1058,27 +1085,6 @@ export class Game {
     return this;
   }
 
-  extractAllPaires(tiles: TileId[]) {
-    // find all possible pairs
-    const pairs: TileId[][] = [];
-
-    let i = 0;
-    while (i < tiles.length - 1) {
-      if (TileCore.fromId(tiles[i]).name !== TileCore.fromId(tiles[i + 1]).name) {
-        continue;
-      }
-      pairs.push([i, i + 1]);
-
-      const first = i;
-
-      // change i to next tile with diffent name
-      while (i < tiles.length - 1 && TileCore.fromId(first).name === TileCore.fromId(tiles[i + 1]).name) {
-        i++;
-      }
-    }
-    return tiles;
-  }
-
   /**
    * Serialize the game state to a JSON object
    */
@@ -1103,6 +1109,7 @@ export class Game {
     }
 
     return {
+      name: this.name,
       players: this.players,
       walls: this.walls,
       discards: this.discards,
@@ -1135,7 +1142,6 @@ export class Game {
     game.reversePickIndex = data.reversePickIndex;
     game.passedPlayers = data.passedPlayers.map((position: Position) => game.players[position]);
     game.history = (data.history ?? []).map((r: any) => GameHistoryRecord.fromJSON(r));
-    game.winner = data.winner ?? null;
     return game;
   }
 }
