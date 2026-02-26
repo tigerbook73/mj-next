@@ -7,33 +7,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@/components/ui/input-group";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
 import { authService } from "@/lib/auth-service";
 
 // Form validation schema
 const signInSchema = z.object({
-  email: z
-    .email("Please enter a valid email address")
-    .max(254, "Email is too long"), // RFC limit
-  password: z
-    .string()
-    .min(1, "Password is required")
-    .min(8, "Password must be at least 8 characters") // More secure
-    .max(128, "Password is too long"),
+  email: z.email("Please enter a valid email address").max(254, "Email is too long"), // RFC limit
+  password: z.string().min(1, "Password is required"), // do not enforce length here
 });
 
 type SignInFormData = z.infer<typeof signInSchema>;
@@ -67,10 +50,7 @@ export default function SignIn() {
     setTimeout(() => {
       if (passwordInputRef.current) {
         passwordInputRef.current.focus();
-        passwordInputRef.current.setSelectionRange(
-          currentPosition,
-          currentPosition,
-        );
+        passwordInputRef.current.setSelectionRange(currentPosition, currentPosition);
       }
     }, 0);
   };
@@ -98,19 +78,13 @@ export default function SignIn() {
     <div className="from-background to-muted flex min-h-screen flex-col items-center justify-center bg-gradient-to-br p-4 sm:p-8">
       <div className="w-full max-w-sm space-y-6 sm:max-w-md sm:space-y-8">
         <header className="space-y-2 px-4 text-center">
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Welcome to Mahjong Online
-          </h1>
-          <p className="text-muted-foreground text-sm sm:text-base">
-            Play Mahjong Online with Friends
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Welcome to Mahjong Online</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Play Mahjong Online with Friends</p>
         </header>
 
         <Card className="mx-auto w-full">
           <CardHeader className="space-y-1 pb-4 sm:pb-6">
-            <CardTitle className="text-center text-xl sm:text-2xl">
-              Sign In
-            </CardTitle>
+            <CardTitle className="text-center text-xl sm:text-2xl">Sign In</CardTitle>
             <CardDescription className="text-center text-sm">
               Enter your credentials to access your account
             </CardDescription>
@@ -120,10 +94,7 @@ export default function SignIn() {
               {/* Mobile-first: Stacked layout for mobile, horizontal for larger screens */}
               <div className="space-y-2">
                 <div className="flex flex-col space-y-1 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
-                  <Label
-                    htmlFor="email"
-                    className="text-sm font-medium sm:w-20 sm:text-right"
-                  >
+                  <Label htmlFor="email" className="text-sm font-medium sm:w-20 sm:text-right">
                     Email
                   </Label>
                   <div className="flex-1">
@@ -140,19 +111,14 @@ export default function SignIn() {
                 {errors.email && (
                   <div className="flex flex-col sm:flex-row">
                     <div className="hidden sm:block sm:w-20"></div>
-                    <p className="text-destructive flex-1 text-sm sm:ml-4">
-                      {errors.email.message}
-                    </p>
+                    <p className="text-destructive flex-1 text-sm sm:ml-4">{errors.email.message}</p>
                   </div>
                 )}
               </div>
 
               <div className="space-y-2">
                 <div className="flex flex-col space-y-1 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
-                  <Label
-                    htmlFor="password"
-                    className="text-sm font-medium sm:w-20 sm:text-right"
-                  >
+                  <Label htmlFor="password" className="text-sm font-medium sm:w-20 sm:text-right">
                     Password
                   </Label>
                   <InputGroup className="flex-1">
@@ -171,16 +137,10 @@ export default function SignIn() {
                         variant="ghost"
                         size="icon-sm" // Larger touch target for mobile
                         onClick={togglePasswordVisibility}
-                        aria-label={
-                          showPassword ? "Hide password" : "Show password"
-                        }
+                        aria-label={showPassword ? "Hide password" : "Show password"}
                         className="h-9 w-9 sm:h-7 sm:w-7" // Ensure good touch target size
                       >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </InputGroupButton>
                     </InputGroupAddon>
                   </InputGroup>
@@ -188,9 +148,7 @@ export default function SignIn() {
                 {errors.password && (
                   <div className="flex flex-col sm:flex-row">
                     <div className="hidden sm:block sm:w-20"></div>
-                    <p className="text-destructive flex-1 text-sm sm:ml-4">
-                      {errors.password.message}
-                    </p>
+                    <p className="text-destructive flex-1 text-sm sm:ml-4">{errors.password.message}</p>
                   </div>
                 )}
               </div>
