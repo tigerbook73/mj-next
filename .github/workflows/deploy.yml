@@ -1,0 +1,14 @@
+name: Trigger Render Deploy
+
+on:
+  push:
+    branches:
+      - main # 或你的默认分支
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Web Service
+        run: |
+          curl -X POST ${{ secrets.RENDER_WEB_HOOK }}
