@@ -3,7 +3,6 @@
 import { Tile } from "./Tile";
 import { cn } from "@/lib/utils";
 import { CommonUtil, Direction } from "@/lib/game-utils";
-import { GameState } from "@/common/core/mj.game";
 import { useGameStore, useRoomStore } from "@/store";
 
 const flexClasses: Record<Direction, string> = {

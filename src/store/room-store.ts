@@ -34,15 +34,9 @@ export const useRoomStore = create<RoomState>()(
       setMyRoom: (myRoom) => set({ myRoom }, undefined, "setMyRoom"),
 
       myPosition: null,
-      setMyPosition: (myPosition) =>
-        set({ myPosition }, undefined, "setMyPosition"),
+      setMyPosition: (myPosition) => set({ myPosition }, undefined, "setMyPosition"),
 
-      reset: () =>
-        set(
-          { roomList: [], myRoom: null, myPosition: null },
-          undefined,
-          "reset",
-        ),
+      reset: () => set({ roomList: [], myRoom: null, myPosition: null }, undefined, "reset"),
     }),
     { name: "RoomStore" },
   ),
