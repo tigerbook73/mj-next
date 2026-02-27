@@ -25,8 +25,8 @@ export class AuthService {
    */
   async initialize(): Promise<UserProfile | null> {
     if (this.initialized) {
-return this.currentUser;
-}
+      return this.currentUser;
+    }
     if (!this.initPromise) {
       this.initPromise = this.doInitialize();
     }
@@ -80,19 +80,13 @@ return this.currentUser;
    * Register a new account.
    * Returns the user profile, or throws on failure.
    */
-  async register(
-    email: string,
-    name: string,
-    password: string,
-  ): Promise<UserProfile> {
+  async register(email: string, name: string, password: string): Promise<UserProfile> {
     const { data, error } = await client.POST("/api/auth/register", {
       body: { email, name, password },
     });
 
     if (error || !data) {
-      throw new Error(
-        "Registration failed. Please check your information and try again.",
-      );
+      throw new Error("Registration failed. Please check your information and try again.");
     }
 
     const profile = await this.fetchProfile();
@@ -125,8 +119,8 @@ return this.currentUser;
     try {
       const { data, error } = await client.GET("/api/auth/me");
       if (error || !data) {
-return null;
-}
+        return null;
+      }
       this.currentUser = data as UserProfile;
       this.initialized = true;
       return this.currentUser;
