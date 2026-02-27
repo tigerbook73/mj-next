@@ -1142,6 +1142,7 @@ export class Game {
     game.reversePickIndex = data.reversePickIndex;
     game.passedPlayers = data.passedPlayers.map((position: Position) => game.players[position]);
     game.history = (data.history ?? []).map((r: any) => GameHistoryRecord.fromJSON(r));
+    game.winner = data.winner !== null ? data.winner : null;
     return game;
   }
 }

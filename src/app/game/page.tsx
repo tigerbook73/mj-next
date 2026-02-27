@@ -12,6 +12,7 @@ import { WallTiles } from "@/components/WallTiles";
 import { Direction } from "@/lib/game-utils";
 import { DiscardTiles } from "@/components/DiscardTiles";
 import { CtlOpenTiles } from "@/components/CtlOpenTiles";
+import { PlayerInfoLabel } from "@/components/PlayerInfoLabel";
 import { useGameStore, useRoomStore, useUIStore } from "@/store";
 import { useEffect, useRef, useState } from "react";
 import { socketClient } from "@/lib/socket-client";
@@ -66,8 +67,8 @@ export default function Game() {
 
   useEffect(() => {
     if (!isMounted || !containerRef.current || !setTileSize) {
-return;
-}
+      return;
+    }
 
     const updateSize = () => {
       if (containerRef.current) {
@@ -109,71 +110,56 @@ return;
         </div>
 
         {/* Wall layer (middle 3x3 grid) */}
-        <div
-          className={`grid ${middleEdge} overflow-hidden bg-green-800 ring-2 ring-green-500`}
-        >
+        <div className={`grid ${middleEdge} overflow-hidden bg-green-800 ring-2 ring-green-500`}>
           {/* First row */}
-          <div className="flex items-center justify-center text-xs">
-            {/* W-TL */}
-          </div>
+          <div className="flex items-center justify-center text-xs">{/* W-TL */}</div>
           <div className="flex items-center justify-center text-xs">
             <WallTiles direction={Direction.Top} />
           </div>
-          <div className="flex items-center justify-center text-xs">
-            {/* W-TR */}
-          </div>
+          <div className="flex items-center justify-center text-xs">{/* W-TR */}</div>
           {/* Second row */}
           <div className="flex items-center justify-center text-xs">
             <WallTiles direction={Direction.Left} />
           </div>
 
           {/* Discard layer (inner 3x3 grid) */}
-          <div
-            className={`grid ${innerEdge} overflow-hidden bg-cyan-700 ring-2 ring-lime-500`}
-          >
+          <div className={`grid ${innerEdge} overflow-hidden bg-cyan-700 ring-2 ring-lime-500`}>
             {/* First row */}
-            <div className="flex items-center justify-center text-[10px]">
-              {/* D-TL */}
-            </div>
+            <div className="flex items-center justify-center text-[10px]">{/* D-TL */}</div>
             <div className="flex items-center justify-center text-[10px]">
               <DiscardTiles direction={Direction.Top} />
             </div>
-            <div className="flex items-center justify-center text-[10px]">
-              {/* D-TR */}
-            </div>
+            <div className="flex items-center justify-center text-[10px]">{/* D-TR */}</div>
 
             {/* Second row */}
             <div className="flex items-center justify-center text-[10px]">
               <DiscardTiles direction={Direction.Left} />
             </div>
-            <div className="flex items-center justify-center bg-gray-300 text-[10px]">
+            {/* Center layer */}
+            <div className="relative flex items-center justify-center bg-gray-300 text-[10px]">
               <Button
                 variant="default"
                 size="sm"
                 className="aspect-square"
-                onClick={
-                  game.state === GameState.Init
-                    ? handleStartGame
-                    : handleResetGame
-                }
+                onClick={game.state === GameState.Init ? handleStartGame : handleResetGame}
               >
                 {game.state === GameState.Init ? "开始" : "重置"}
               </Button>
+              <PlayerInfoLabel direction={Direction.Bottom} />
+              <PlayerInfoLabel direction={Direction.Top} />
+              <PlayerInfoLabel direction={Direction.Left} />
+              <PlayerInfoLabel direction={Direction.Right} />
             </div>
             <div className="flex items-center justify-center text-[10px]">
               <DiscardTiles direction={Direction.Right} />
             </div>
 
             {/* Third row */}
-            <div className="flex items-center justify-center text-[10px]">
-              {/* D-BL */}
-            </div>
+            <div className="flex items-center justify-center text-[10px]">{/* D-BL */}</div>
             <div className="flex h-full w-full items-center justify-center text-[10px]">
               <DiscardTiles direction={Direction.Bottom} />
             </div>
-            <div className="flex items-center justify-center text-[10px]">
-              {/* D-BR */}
-            </div>
+            <div className="flex items-center justify-center text-[10px]">{/* D-BR */}</div>
           </div>
 
           <div className="flex items-center justify-center text-xs">
@@ -181,15 +167,11 @@ return;
           </div>
 
           {/* Third row */}
-          <div className="flex items-center justify-center text-xs">
-            {/* W-BL */}
-          </div>
+          <div className="flex items-center justify-center text-xs">{/* W-BL */}</div>
           <div className="flex items-center justify-center text-xs">
             <WallTiles direction={Direction.Bottom} />
           </div>
-          <div className="flex items-center justify-center text-xs">
-            {/* W-BR */}
-          </div>
+          <div className="flex items-center justify-center text-xs">{/* W-BR */}</div>
         </div>
 
         <div className="flex items-center justify-center">
