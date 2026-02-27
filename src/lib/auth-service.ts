@@ -38,14 +38,16 @@ export class AuthService {
     try {
       const profile = await this.fetchProfile();
       if (!profile) {
-        eventBus.emit("user:signed-out", undefined);
+        // Invalid or expired token → logout to clear server-side cookie
+        await this.logout();
         return null;
       }
       this.currentUser = profile;
       eventBus.emit("user:signed-in", profile);
       await this.fetchAndEmitWsToken();
     } catch {
-      eventBus.emit("user:signed-out", undefined);
+      // Error during initialization → logout to clear server-side cookie
+      await this.logout();
     } finally {
       this.initialized = true;
     }
