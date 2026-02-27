@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const protectedPaths = ["/lobby", "/game"];
-const guestOnlyPaths = ["/", "/signup"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -9,10 +8,6 @@ export function middleware(request: NextRequest) {
 
   if (protectedPaths.some((p) => pathname.startsWith(p)) && !hasAuthToken) {
     return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  if (guestOnlyPaths.includes(pathname) && hasAuthToken) {
-    return NextResponse.redirect(new URL("/lobby", request.url));
   }
 
   return NextResponse.next();
