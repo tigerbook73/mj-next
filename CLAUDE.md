@@ -63,7 +63,7 @@ yarn test:coverage      # Jest with coverage
 - `src/common/models/` — Data models (user, room, player, client)
 - `src/common/test/` — Shared test utilities
 - `src/store/` — Zustand stores with devtools
-- `src/hooks/` — Custom hooks (`useAuth`, `useIsCurrentPlayer`)
+- `src/hooks/` — Custom hooks (`useIsCurrentPlayer`)
 - `src/lib/` — Utilities (`cn()`, authService, client, socket-client, event-bus, app-service, game-utils)
 - `src/stories/` — Storybook stories with store decorators
 - `src/middleware.ts` — Route protection
@@ -75,9 +75,9 @@ yarn test:coverage      # Jest with coverage
 
 ### Auth Flow
 
-- JWT-based: tokens in cookies, user profile in localStorage
+- JWT-based: tokens in cookies, user profile held in-memory by `AuthService`
 - `authService` restores session via `GET /api/auth/me`
-- `useAuth` hook syncs auth state via event bus (no Zustand selectors)
+- Auth state synced to Zustand stores by `appService.wireEvents()` via event bus
 - REST API client injects Bearer tokens automatically
 
 ### State Management (Zustand + Devtools)
@@ -94,7 +94,8 @@ All stores exported from `src/store/index.ts`.
 ### Event Bus
 
 - Mitt-based (`src/lib/event-bus.ts`)
-- Decouples modules: auth emits events (`user:signed-in`, `user:signed-out`, etc.), AppInitializer & hooks subscribe
+- Decouples modules: `appService` subscribes and updates Zustand stores
+- Events: `user:pending`, `user:signed-in`, `user:signed-out`, `user:ws-token`, `socket:pending`, `socket:connected`, `socket:disconnected`, `socket:data`
 
 ### API Layer
 
