@@ -16,9 +16,9 @@ export function TileFlightOverlay() {
 
   return createPortal(
     <>
-      {flights.map(({ tileId, fromRect, toRect }) => {
+      {flights.map(({ tileId, fromRect, toRect, back }) => {
         const tile = TileCore.fromId(tileId);
-        const fileName = TILE_MAP[tile.tid] ?? "Blank";
+        const fileName = back ? (TILE_MAP[0] ?? "Back") : (TILE_MAP[tile.tid] ?? "Blank");
         const imagePath = `/tiles/Regular/${fileName}.svg`;
 
         return (

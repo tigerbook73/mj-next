@@ -5,8 +5,8 @@
 - final version of the game should have the motion of the tiles, which means that the tiles will move to the destination when there is an action.
 - step1: implement the motion of the tiles when the player clicks on them (HandTiles only).
 - step2: implement the motion of the first time appearance of one tile or id from -1 to valid
-- step4: implement the motion of the tiles when the player discard one tile (move the discarded tile from the hand to the discard area).
-- step3: implement the motion of the tiles when the player clicks on them (HandTiles only).
+- step3: implement the motion of the tiles when the player discard one tile (move the discarded tile from the hand to the discard area).
+- step4: implement the motion of the tiles when the player picks a new tile from the wall.
 - step5: implement the motion of the tiles when the player peng/gang/zhi one tile
 
 when doing the real plan, we shall implement them step by step.
@@ -17,57 +17,59 @@ when doing the real plan, we shall implement them step by step.
 
 ## step2 - DONE
 
-## step3 - REVERTED (needs redesign)
+## step3 - DONE
 
-### goal
-When the bottom player discards a tile, it visually flies from the hand area to the discard area.
+## step4 - DONE
 
-### mechanism — Framer Motion `layoutId`
-- Each physical tile has a unique `id` (confirmed: TileCore comment — "4 tiles with the same face have different ids", `id` is 0–135).
-- When a tile leaves `HandTilesBottom` and appears in `DiscardTiles`, both render the same `layoutId`.
-- Framer Motion animates it between the two positions automatically.
-- `AnimatePresence` in `HandTilesBottom` is required to enable the exit side of the animation.
-- `LayoutGroup` at the game page level scopes all layout animations together.
+### Goal
+When any player picks a tile from the wall, a ghost tile (back face) flies from the wall slot to the player's hand.
 
-### prerequisite concern — `initial={{ opacity: 0 }}` (step 2)
-When `layoutId` matches an existing element, Framer Motion **skips** `initial` and uses the layout animation instead. So:
-- Discarded tile flying from hand → discard: ✓ layout animation takes over, no opacity-0 flash
-- Opponent tile newly appearing in discard: ✓ no matching `layoutId` → fades in normally (step 2)
+### Mechanism — same FLIP + Ghost Portal as step 3
 
-### plan
+**`fromRect`** — captured in `app-service.ts` when the `Pick` / `PickReverse` ACTION event arrives.
+At that moment the wall tile is still in the DOM with `data-tile-id={tileId}` (all wall tiles carry their real IDs even though rendered face-down).
+`record.tiles[0]` gives the exact tileId. Store rect in `tilePositionRegistry`.
 
-**1. `src/components/Tile.tsx`**
-- Add `layoutId?: string` to `TileProps`
-- Pass it to `motion.div`: `<motion.div layoutId={layoutId} ...>`
+**`toRect`** — captured in a `useLayoutEffect` inside `HandTilesBottom` / `HandTiles` after GAME_UPDATED.
+Detect that `player.picked` changed from void to a valid ID, then query `[data-tile-id="${player.picked}"]` inside the hand container.
 
-**2. `src/components/HandTilesBottom.tsx`**
-- Import `AnimatePresence` from `framer-motion`
-- Wrap the tiles `<div>` in `<AnimatePresence>`
-- Pass `layoutId={tid >= 0 ? String(tid) : undefined}` on each `<Tile>` (skip `-1` empty slots)
+**Ghost face** — always the **back** tile image (`TILE_MAP[0]` = "Back"), because the tile comes from the wall face-down. The `FlightRecord` gets an optional `back` flag; `TileFlightOverlay` uses `TILE_MAP[0]` when it is set.
 
-**3. `src/components/DiscardTiles.tsx`**
-- Pass `layoutId={tid >= 0 ? String(tid) : undefined}` on each `<Tile>` (skip `-1` empty slots)
+### Flow
+```
+① ACTION(Pick / PickReverse) arrives
+   → app-service.ts: querySelector([data-tile-id="X"]) in wall DOM → fromRect
+   → tilePositionRegistry.capture(X, fromRect)
 
-**4. `src/app/game/page.tsx`**
-- Import `LayoutGroup` from `framer-motion`
-- Wrap the inner game board `<div>` (the `aspect-square` grid) in `<LayoutGroup>`
+② GAME_UPDATED → React re-renders
+   → wall slot X becomes void / empty
+   → player.picked = X (appears at end of hand)
 
-### scope
-- 4 files, all changes additive (new prop, new wrapper)
-- `HandTiles.tsx` (opponent hands): no changes — opponent discards have no matching `layoutId` in their hand, so they just fade in via step 2
-- Risk: Medium
+③ useLayoutEffect in HandTilesBottom (or HandTiles for opponents)
+   → prevPickedRef.current !== player.picked && player.picked ≥ 0
+   → querySelector([data-tile-id="X"]) in containerRef → toRect
+   → tilePositionRegistry.get(X) → fromRect
+   → startFlight(X, fromRect, toRect, back=true)
 
----
+④ TileFlightOverlay: ghost (back face) flies from wall slot → hand slot, fades out
+```
 
-## step4 - TODO
+### Files
 
-When a new tile is picked from the wall:
+| File | Change |
+|---|---|
+| `src/store/tile-flight-store.ts` | Add `back?: boolean` to `FlightRecord`; add `back?` param to `startFlight` |
+| `src/components/TileFlightOverlay.tsx` | When `flight.back`, use `TILE_MAP[0]` ("Back") image |
+| `src/lib/app-service.ts` | Add `Pick` and `PickReverse` to the ACTION capture block |
+| `src/components/HandTilesBottom.tsx` | Add `containerRef`, `prevPickedRef`, `useLayoutEffect` for toRect capture |
+| `src/components/HandTiles.tsx` | Same as HandTilesBottom for opponent players |
 
-- The `picked` slot in `HandTilesBottom` animates in (slide + fade from the right/top).
-- Use `AnimatePresence` + `initial` / `animate` on the picked tile's `motion.div`.
-- Trigger: `player.picked` changes while it was previously `TileCore.voidId`.
-
-Files likely involved: `HandTilesBottom.tsx`, possibly `Tile.tsx`.
+### Key details
+- `record.tiles[0]` in a Pick record is `this.current.picked` — the exact physical tile ID.
+- Wall tiles already have `data-tile-id` set to the real tile ID in the DOM (even though rendered back), so the query works without any WallTiles changes.
+- `PickReverse` is the gang-draw variant (from the other end of the wall) — same capture logic.
+- `prevPickedRef` is updated in `useLayoutEffect` without deps (runs after every render), same pattern used in HandTiles for the discard animation.
+- Risk: Low — 5 files, all changes additive.
 
 ---
 

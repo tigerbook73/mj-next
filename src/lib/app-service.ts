@@ -91,11 +91,15 @@ export class AppService {
         const record = actionEvent.data.record;
         useActionStore.getState().setAction(record);
 
-        // Capture the "from" position of a dropped tile before GAME_UPDATED
-        // re-renders the DOM and removes it from the player's hand.
-        // Stored in the registry (not the animation store) so that DiscardTiles
-        // can later combine it with the landing rect and start the animation atomically.
-        if (record.type === GameHistoryActionType.Drop) {
+        // Capture the "from" position of tiles before GAME_UPDATED re-renders the DOM.
+        // Stored in the registry so that the receiving component can combine it with
+        // the landing rect and start the animation atomically.
+        const captureFirstTile =
+          record.type === GameHistoryActionType.Drop ||
+          record.type === GameHistoryActionType.Pick ||
+          record.type === GameHistoryActionType.PickReverse;
+
+        if (captureFirstTile) {
           const tileId = record.tiles[0];
           if (tileId !== undefined && tileId >= 0) {
             const el = document.querySelector(`[data-tile-id="${tileId}"]`);

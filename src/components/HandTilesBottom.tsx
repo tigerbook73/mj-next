@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
 import { Tile } from "./Tile";
 import { cn } from "@/lib/utils";
 import { CommonUtil, Direction } from "@/lib/game-utils";
-import { useGameStore, useRoomStore } from "@/store";
+import { useGameStore, useRoomStore, useTileFlightStore } from "@/store";
 import { GameState, TileCore } from "@/common";
 import type { TileId } from "@/common";
 import { ActionPanel, type ActionItem } from "./ActionPanel";
 import { socketClient } from "@/lib/socket-client";
+import { tilePositionRegistry } from "@/lib/tile-position-registry";
 
 // ---------------------------------------------------------------------------
 // Helpers (replicating private TileCore methods with public APIs)
@@ -107,6 +108,27 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
   const player = game.players[myAbsolutePosition]!;
 
   const [selectedTile, setSelectedTile] = useState<TileId | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const prevPickedRef = useRef(player.picked);
+
+  // Animate the newly picked tile flying from its wall slot to the hand.
+  useLayoutEffect(() => {
+    const prev = prevPickedRef.current;
+    prevPickedRef.current = player.picked;
+
+    if (player.picked === prev || player.picked < 0) {
+      return;
+    }
+    const fromRect = tilePositionRegistry.get(player.picked);
+    if (!fromRect) {
+      return;
+    }
+    const el = containerRef.current?.querySelector(`[data-tile-id="${player.picked}"]`);
+    if (el) {
+      tilePositionRegistry.delete(player.picked);
+      useTileFlightStore.getState().startFlight(player.picked, fromRect, el.getBoundingClientRect(), true);
+    }
+  });
 
   const dropSelectedTile = (tile: TileId) => {
     socketClient.actionDrop(tile);
@@ -248,7 +270,7 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
           <ActionPanel actions={actions} />
         </div>
       )}
-      <div className={cn("flex items-center justify-center", flexClasses[Direction.Bottom])}>
+      <div ref={containerRef} className={cn("flex items-center justify-center", flexClasses[Direction.Bottom])}>
         {tiles.map((tid, index) => (
           <Tile
             key={`${tid}-${index}`}
