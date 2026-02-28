@@ -8,7 +8,7 @@ import { useTileFlightStore, useGameStore, useRoomStore } from "@/store";
 import { TileId } from "@/common";
 import { tilePositionRegistry } from "@/lib/tile-position-registry";
 
-const defaultCols = 16;
+const defaultCols = 14;
 const defaultRows = 2;
 
 // Please node: the classes shall work with displayTiles logic below
@@ -26,11 +26,7 @@ interface WallTilesProps {
   rows?: number; // number of rows in horizontal layout (e.g. 3 or 2)
 }
 
-export function DiscardTiles({
-  direction,
-  cols = defaultCols,
-  rows = defaultRows,
-}: WallTilesProps) {
+export function DiscardTiles({ direction, cols = defaultCols, rows = defaultRows }: WallTilesProps) {
   const game = useGameStore((state) => state.game)!;
   const myPosition = useRoomStore((state) => state.myPosition)!;
 
@@ -43,8 +39,8 @@ export function DiscardTiles({
   const takenTiles = new Set<TileId>();
   for (const player of game.players) {
     if (!player) {
-continue;
-}
+      continue;
+    }
     for (const set of player.openedSets) {
       takenTiles.add(set.target);
     }
@@ -72,7 +68,7 @@ continue;
       tilePositionRegistry.delete(lastTile);
       useTileFlightStore.getState().startFlight(lastTile, fromRect, el.getBoundingClientRect());
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [discard.tiles.length, direction]);
 
   const displayTiles = (() => {
@@ -123,7 +119,7 @@ continue;
           key={`${tid}-${index}`}
           tileId={tid}
           direction={direction}
-          size={65}
+          size={70}
           taken={takenTiles.has(tid)}
           special={tid === game.latestTile ? "warning" : undefined}
         />
