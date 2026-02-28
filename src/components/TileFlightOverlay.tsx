@@ -48,7 +48,7 @@ export function TileFlightOverlay() {
               y: toRect.top,
               width: toRect.width,
               height: toRect.height,
-              opacity: 0,
+              opacity: 0.5,
             }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
             onAnimationComplete={() => clearFlight(tileId)}
