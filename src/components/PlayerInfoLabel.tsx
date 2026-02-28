@@ -5,7 +5,7 @@ import { CommonUtil, Direction } from "@/lib/game-utils";
 import { useRoomStore } from "@/store";
 import { Position } from "@/common/core/mj.game";
 import type { CSSProperties } from "react";
-import { currentPlayerClasses, useIsCurrentPlayer } from "@/hooks/useIsCurrentPlayer";
+import { useIsCurrentPlayer } from "@/hooks/useIsCurrentPlayer";
 import { cn } from "@/lib/utils";
 
 interface PlayerInfoLabelProps {
