@@ -1,10 +1,12 @@
 "use client";
 
+import { useLayoutEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Tile } from "./Tile";
 import { CommonUtil, Direction } from "@/lib/game-utils";
 import { JSX } from "react";
-import { useGameStore, useRoomStore } from "@/store";
+import { useTileFlightStore, useGameStore, useRoomStore } from "@/store";
+import { tilePositionRegistry } from "@/lib/tile-position-registry";
 
 const flexClasses: Record<Direction, string> = {
   [Direction.Bottom]: "flex-row",
@@ -21,6 +23,7 @@ const scaleClasses: Record<Direction, string> = {
   [Direction.Right]: "origin-bottom-left scale-100 -ml-2",
   [Direction.None]: "",
 };
+
 interface OpenSetTilesProps {
   direction: Direction;
   className?: string;
@@ -38,8 +41,46 @@ export function OpenSetTiles({
 
   const openSets = player.openedSets;
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const prevLengthRef = useRef(openSets.length);
+
+  // When a new meld set appears, fly each tile from its captured "from" position
+  // (hand or discard) to its landing slot in the meld area simultaneously.
+  useLayoutEffect(() => {
+    const prev = prevLengthRef.current;
+    prevLengthRef.current = openSets.length;
+
+    if (openSets.length <= prev) {
+      return;
+    }
+
+    const newSet = openSets[openSets.length - 1];
+    if (!newSet) {
+      return;
+    }
+
+    for (const tid of newSet.tiles) {
+      const fromRect = tilePositionRegistry.get(tid);
+      if (!fromRect) {
+        continue;
+      }
+      const el = containerRef.current?.querySelector(`[data-tile-id="${tid}"]`);
+      if (!el) {
+        continue;
+      }
+      tilePositionRegistry.delete(tid);
+      // Claimed discard tile is always face-up; hand tiles are face-up for the
+      // bottom player and back-face for opponents.
+      const isHandTile = tid !== newSet.target;
+      const back = isHandTile && direction !== Direction.Bottom;
+      useTileFlightStore.getState().startFlight(tid, fromRect, el.getBoundingClientRect(), back);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openSets.length]);
+
   return (
     <div
+      ref={containerRef}
       className={cn(
         "flex items-center gap-2",
         flexClasses[direction],

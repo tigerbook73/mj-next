@@ -7,7 +7,7 @@ import { authService } from "./auth-service";
 import { eventBus } from "./event-bus";
 import { initSocket, socketClient } from "./socket-client";
 import { tilePositionRegistry } from "./tile-position-registry";
-import { GameEventType, GameHistoryActionType } from "@/common";
+import { GameEventType, GameHistoryActionType, TileCore } from "@/common";
 import type { GameActionEvent } from "@/common";
 
 export class AppService {
@@ -105,6 +105,28 @@ export class AppService {
             const el = document.querySelector(`[data-tile-id="${tileId}"]`);
             if (el) {
               tilePositionRegistry.capture(tileId, el.getBoundingClientRect());
+            }
+          }
+        }
+
+        // For meld actions, capture all hand tiles + the claimed discard tile.
+        const isMeld =
+          record.type === GameHistoryActionType.Chi ||
+          record.type === GameHistoryActionType.Peng ||
+          record.type === GameHistoryActionType.Gang ||
+          record.type === GameHistoryActionType.Angang;
+
+        if (isMeld) {
+          for (const tileId of record.tiles) {
+            const el = document.querySelector(`[data-tile-id="${tileId}"]`);
+            if (el) {
+              tilePositionRegistry.capture(tileId, el.getBoundingClientRect());
+            }
+          }
+          if (record.target !== TileCore.voidId) {
+            const el = document.querySelector(`[data-tile-id="${record.target}"]`);
+            if (el) {
+              tilePositionRegistry.capture(record.target, el.getBoundingClientRect());
             }
           }
         }
