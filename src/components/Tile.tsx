@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useUIStore } from "@/store";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -82,15 +83,11 @@ const rotateClasses: Record<Direction, string> = {
 
 // --- cva ---
 const tileVariants = cva(
-  "relative inline-block select-none overflow-hidden rounded-[15%] border border-gray-900 shadow-md transition-transform duration-200",
+  "relative inline-block select-none overflow-hidden rounded-[15%] border border-gray-900 shadow-md",
   {
     variants: {
       hoverable: {
         true: "hover:scale-110",
-        false: "",
-      },
-      selected: {
-        true: "-translate-y-1/8",
         false: "",
       },
       special: {
@@ -104,7 +101,6 @@ const tileVariants = cva(
     },
     defaultVariants: {
       hoverable: false,
-      selected: false,
       special: "normal",
     },
   },
@@ -114,6 +110,7 @@ export interface TileProps extends VariantProps<typeof tileVariants> {
   tileId: number;
   back?: boolean;
   taken?: boolean;
+  selected?: boolean;
   className?: string;
   onClick?: (tileId: number) => void;
   onDoubleClick?: (tileId: number) => void;
@@ -149,15 +146,13 @@ export const Tile = ({
 
   const isBack = tile.tid === TID.BACK || (back && !openTiles);
   const isEmpty = tile.tid === TID.EMPTY_SPACE;
-  const isVertical =
-    direction === Direction.Left || direction === Direction.Right;
+  const isVertical = direction === Direction.Left || direction === Direction.Right;
 
   // Aspect ratio
   const aspectClass = isVertical ? ASPECT_LANDSCAPE : ASPECT_PORTRAIT;
 
   // Final pixel size
-  const scale =
-    (storeTileSize * (typeof size === "number" ? size : sizeScale[size])) / 100;
+  const scale = (storeTileSize * (typeof size === "number" ? size : sizeScale[size])) / 100;
 
   const containerStyle = {
     [isVertical ? "height" : "width"]: scale,
@@ -178,28 +173,20 @@ export const Tile = ({
 
   // --- Empty tile (pure spacing)
   if (isEmpty) {
-    return (
-      <div
-        className={cn(aspectClass, className)}
-        style={containerStyle}
-        {...props}
-      />
-    );
+    return <div className={cn(aspectClass, className)} style={containerStyle} {...props} />;
   }
 
   return (
-    <div
+    <motion.div
       className={cn(
-        tileVariants({ hoverable, selected, special }),
+        tileVariants({ hoverable, special }),
         aspectClass,
-        isBack
-          ? "border-gray-700 bg-teal-600"
-          : theme === "Black"
-            ? "bg-gray-800"
-            : "bg-white",
+        isBack ? "border-gray-700 bg-teal-600" : theme === "Black" ? "bg-gray-800" : "bg-white",
         clickable && "cursor-pointer",
         className,
       )}
+      animate={{ y: selected ? "-20%" : "0%" }}
+      transition={{ type: "spring", stiffness: 500, damping: 35 }}
       style={containerStyle}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
@@ -229,7 +216,7 @@ export const Tile = ({
           <X className="h-full w-full text-red-600" strokeWidth={3} />
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
