@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef } from "react";
 import { Tile } from "./Tile";
 import { cn } from "@/lib/utils";
 import { CommonUtil, Direction } from "@/lib/game-utils";
-import { useAnimationStore, useGameStore, useRoomStore } from "@/store";
+import { useTileFlightStore, useGameStore, useRoomStore } from "@/store";
 import { TileId } from "@/common";
 import { tilePositionRegistry } from "@/lib/tile-position-registry";
 
@@ -70,7 +70,7 @@ continue;
     const el = gridRef.current?.querySelector(`[data-tile-id="${lastTile}"]`);
     if (el) {
       tilePositionRegistry.delete(lastTile);
-      useAnimationStore.getState().startFlightImmediate(lastTile, fromRect, el.getBoundingClientRect());
+      useTileFlightStore.getState().startFlight(lastTile, fromRect, el.getBoundingClientRect());
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [discard.tiles.length, direction]);

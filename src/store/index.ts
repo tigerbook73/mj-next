@@ -4,4 +4,4 @@ export * from "./room-store";
 export * from "./user-store";
 export * from "./app-status-store";
 export * from "./action-store";
-export * from "./animation-store";
+export * from "./tile-flight-store";
