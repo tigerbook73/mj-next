@@ -10,7 +10,7 @@ import { TileCore } from "@/common/core/mj.tile-core";
 import { Direction } from "@/lib/game-utils";
 
 // --- TILE MAP ---
-const TILE_MAP: Record<number, string> = {
+export const TILE_MAP: Record<number, string> = {
   1: "Man1",
   2: "Man2",
   3: "Man3",
@@ -185,6 +185,7 @@ export const Tile = ({
         clickable && "cursor-pointer",
         className,
       )}
+      data-tile-id={tileId}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1, y: selected ? "-20%" : "0%" }}
       transition={{ opacity: { duration: 0.4 } }}

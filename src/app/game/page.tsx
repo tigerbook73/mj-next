@@ -17,6 +17,7 @@ import { useGameStore, useRoomStore, useUIStore } from "@/store";
 import { useEffect, useRef, useState } from "react";
 import { socketClient } from "@/lib/socket-client";
 import { GameState } from "@/common";
+import { FlyingTileOverlay } from "@/components/FlyingTileOverlay";
 
 export default function Game() {
   const [isMounted, setIsMounted] = useState(false);
@@ -187,6 +188,7 @@ export default function Game() {
       </div>
 
       <SpeedDial actions={actions} position="top-right" direction="down" />
+      <FlyingTileOverlay />
     </div>
   );
 }

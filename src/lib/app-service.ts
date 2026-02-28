@@ -6,7 +6,8 @@ import { useActionStore } from "@/store/action-store";
 import { authService } from "./auth-service";
 import { eventBus } from "./event-bus";
 import { initSocket, socketClient } from "./socket-client";
-import { GameEventType } from "@/common";
+import { tilePositionRegistry } from "./tile-position-registry";
+import { GameEventType, GameHistoryActionType } from "@/common";
 import type { GameActionEvent } from "@/common";
 
 export class AppService {
@@ -87,7 +88,22 @@ export class AppService {
       } else if (event.type === GameEventType.ACTION) {
         // only when playing a game, to avoid noise during lobby browsing
         const actionEvent = event as unknown as GameActionEvent;
-        useActionStore.getState().setAction(actionEvent.data.record);
+        const record = actionEvent.data.record;
+        useActionStore.getState().setAction(record);
+
+        // Capture the "from" position of a dropped tile before GAME_UPDATED
+        // re-renders the DOM and removes it from the player's hand.
+        // Stored in the registry (not the animation store) so that DiscardTiles
+        // can later combine it with the landing rect and start the animation atomically.
+        if (record.type === GameHistoryActionType.Drop) {
+          const tileId = record.tiles[0];
+          if (tileId !== undefined && tileId >= 0) {
+            const el = document.querySelector(`[data-tile-id="${tileId}"]`);
+            if (el) {
+              tilePositionRegistry.capture(tileId, el.getBoundingClientRect());
+            }
+          }
+        }
       }
     });
   }

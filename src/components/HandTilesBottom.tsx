@@ -223,8 +223,7 @@ export function HandTilesBottom({ className }: HandTilesBottomProps) {
           type: "drop",
           tileId: selectedTile,
           onAction: () => {
-            socketClient.actionDrop(selectedTile);
-            setSelectedTile(null);
+            dropSelectedTile(selectedTile);
           },
         });
       }

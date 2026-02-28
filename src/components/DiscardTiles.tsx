@@ -1,10 +1,12 @@
 "use client";
 
+import { useLayoutEffect, useRef } from "react";
 import { Tile } from "./Tile";
 import { cn } from "@/lib/utils";
 import { CommonUtil, Direction } from "@/lib/game-utils";
-import { useGameStore, useRoomStore } from "@/store";
+import { useAnimationStore, useGameStore, useRoomStore } from "@/store";
 import { TileId } from "@/common";
+import { tilePositionRegistry } from "@/lib/tile-position-registry";
 
 const defaultCols = 16;
 const defaultRows = 2;
@@ -34,6 +36,7 @@ export function DiscardTiles({
 
   const position = CommonUtil.mapPosition(myPosition, direction);
   const discard = game.discards[position]!;
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const tiles: number[] = discard.tiles.slice();
 
@@ -51,6 +54,26 @@ continue;
   for (let i = tiles.length; i < fullLength; i++) {
     tiles.push(-1);
   }
+
+  // Once the new tile appears in this discard grid, assemble both rects and
+  // start the animation atomically. The "from" rect was captured by the ACTION
+  // event handler (app-service) before GAME_UPDATED removed the tile from the hand.
+  useLayoutEffect(() => {
+    const lastTile = discard.tiles[discard.tiles.length - 1];
+    if (lastTile === undefined || lastTile < 0) {
+      return;
+    }
+    const fromRect = tilePositionRegistry.get(lastTile);
+    if (!fromRect) {
+      return;
+    }
+    const el = gridRef.current?.querySelector(`[data-tile-id="${lastTile}"]`);
+    if (el) {
+      tilePositionRegistry.delete(lastTile);
+      useAnimationStore.getState().startFlightImmediate(lastTile, fromRect, el.getBoundingClientRect());
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [discard.tiles.length, direction]);
 
   const displayTiles = (() => {
     if (direction === Direction.Top) {
@@ -80,6 +103,7 @@ continue;
 
   return (
     <div
+      ref={gridRef}
       className={cn("grid gap-[1px]", flexClasses[direction])}
       style={
         direction === Direction.Left || direction === Direction.Right
