@@ -319,7 +319,7 @@ export class SocketClient {
     this.gameSocket.onDisconnect(callback);
   }
 
-  onReceive(callback: (data: GameEvent) => void) {
+  onReceive(callback: (data: GameEvent | GameActionEvent) => void) {
     this.gameSocket.onReceive(callback);
   }
 
@@ -549,11 +549,29 @@ export class SocketClient {
    * event parser
    */
   parseEvent(event: any): GameEvent {
+    if (event.type !== GameEventType.GAME_UPDATED) {
+      throw new Error("Invalid game event");
+    }
+
     return {
-      type: event.type as GameEventType,
+      type: GameEventType.GAME_UPDATED,
       data: {
         clients: event.data.clients.map((data: any) => ClientModel.fromJSON(data)) as ClientModel[],
         rooms: event.data.rooms.map((data: any) => RoomModel.fromJSON(data)) as RoomModel[],
+      },
+    };
+  }
+
+  parseActionEvent(event: any): GameActionEvent {
+    if (event.type !== GameEventType.ACTION) {
+      throw new Error("Invalid action event");
+    }
+
+    return {
+      type: GameEventType.ACTION,
+      data: {
+        roomName: event.data.roomName,
+        record: GameHistoryRecord.fromJSON(event.data.record),
       },
     };
   }

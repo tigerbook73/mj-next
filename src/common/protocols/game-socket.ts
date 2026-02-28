@@ -1,6 +1,6 @@
 import type { Socket } from "socket.io-client";
 import { io } from "socket.io-client";
-import type { GameEvent, GameRequest, GameResponse } from "./apis.models";
+import type { GameActionEvent, GameEvent, GameRequest, GameResponse } from "./apis.models";
 
 export const GAME_EVENT_TYPE = "mj:game";
 
@@ -9,7 +9,7 @@ export class GameSocket {
   private connectedCallback = () => {};
   private disconnectedCallback = () => {};
   private errorCallback = (_err: Error) => {};
-  private onReceiveCallback = (_data: GameEvent) => {};
+  private onReceiveCallback = (_data: GameEvent | GameActionEvent) => {};
 
   constructor(url?: string, token?: string) {
     // "undefined" means the URL will be computed from the `window.location` object
@@ -46,7 +46,7 @@ export class GameSocket {
     this.disconnectedCallback();
   };
 
-  private onReceived = (data: GameEvent) => {
+  private onReceived = (data: GameEvent | GameActionEvent) => {
     console.log("Received data:", data);
     this.onReceiveCallback(data);
   };
@@ -72,7 +72,7 @@ export class GameSocket {
     this.errorCallback = callback;
   }
 
-  onReceive(callback: (data: GameEvent) => void) {
+  onReceive(callback: (data: GameEvent | GameActionEvent) => void) {
     this.onReceiveCallback = callback;
   }
 
@@ -108,7 +108,7 @@ export class GameSocket {
     this.connectedCallback = () => {};
     this.disconnectedCallback = () => {};
     this.errorCallback = (_err: Error) => {};
-    this.onReceiveCallback = (_data: GameEvent) => {};
+    this.onReceiveCallback = (_data: GameEvent | GameActionEvent) => {};
 
     socket.disconnect();
     socket.removeAllListeners();
