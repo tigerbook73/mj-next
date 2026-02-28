@@ -185,8 +185,9 @@ export const Tile = ({
         clickable && "cursor-pointer",
         className,
       )}
-      animate={{ y: selected ? "-20%" : "0%" }}
-      transition={{ type: "spring", stiffness: 500, damping: 35 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1, y: selected ? "-20%" : "0%" }}
+      transition={{ opacity: { duration: 0.4 } }}
       style={containerStyle}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
