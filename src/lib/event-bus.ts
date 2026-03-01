@@ -1,6 +1,6 @@
 import mitt from "mitt";
 import type { UserProfile } from "./auth-service";
-import type { GameEvent } from "@/common";
+import type { GameActionEvent, GameEvent } from "@/common";
 
 export type AppEvents = {
   "user:pending": undefined;
@@ -10,7 +10,7 @@ export type AppEvents = {
   "socket:pending": undefined;
   "socket:connected": undefined;
   "socket:disconnected": undefined;
-  "socket:data": GameEvent;
+  "socket:data": GameEvent | GameActionEvent;
 };
 
 export const eventBus = mitt<AppEvents>();
