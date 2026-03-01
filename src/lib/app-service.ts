@@ -130,6 +130,19 @@ export class AppService {
             }
           }
         }
+
+        // For dispatching, capture each tile's position in the wall before GAME_UPDATED
+        // removes them — same pattern as Pick.
+        if (record.type === GameHistoryActionType.Dispatching) {
+          for (const tileId of record.tiles) {
+            if (tileId !== undefined && tileId >= 0) {
+              const el = document.querySelector(`[data-tile-id="${tileId}"]`);
+              if (el) {
+                tilePositionRegistry.capture(tileId, el.getBoundingClientRect());
+              }
+            }
+          }
+        }
       }
     });
   }

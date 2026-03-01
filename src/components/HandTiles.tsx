@@ -31,23 +31,40 @@ export function HandTiles({ direction, className }: HandTilesProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const prevPickedRef = useRef(player.picked);
+  const prevHandTilesLengthRef = useRef(player.handTiles.length);
 
   // Animate the newly picked tile flying from its wall slot to the hand.
+  // Also handles batches of dispatched tiles (same pattern, multiple tiles).
   useLayoutEffect(() => {
     const prev = prevPickedRef.current;
     prevPickedRef.current = player.picked;
 
-    if (player.picked === prev || player.picked < 0) {
-      return;
+    if (player.picked !== prev && player.picked >= 0) {
+      const fromRect = tilePositionRegistry.get(player.picked);
+      if (fromRect) {
+        const el = containerRef.current?.querySelector(`[data-tile-id="${player.picked}"]`);
+        if (el) {
+          tilePositionRegistry.delete(player.picked);
+          useTileFlightStore.getState().startFlight(player.picked, fromRect, el.getBoundingClientRect(), true);
+        }
+      }
     }
-    const fromRect = tilePositionRegistry.get(player.picked);
-    if (!fromRect) {
-      return;
-    }
-    const el = containerRef.current?.querySelector(`[data-tile-id="${player.picked}"]`);
-    if (el) {
-      tilePositionRegistry.delete(player.picked);
-      useTileFlightStore.getState().startFlight(player.picked, fromRect, el.getBoundingClientRect(), true);
+
+    const prevLen = prevHandTilesLengthRef.current;
+    prevHandTilesLengthRef.current = player.handTiles.length;
+
+    if (player.handTiles.length > prevLen) {
+      for (const tileId of player.handTiles.slice(prevLen)) {
+        const fromRect = tilePositionRegistry.get(tileId);
+        if (!fromRect) {
+          continue;
+        }
+        const el = containerRef.current?.querySelector(`[data-tile-id="${tileId}"]`);
+        if (el) {
+          tilePositionRegistry.delete(tileId);
+          useTileFlightStore.getState().startFlight(tileId, fromRect, el.getBoundingClientRect(), true);
+        }
+      }
     }
   });
 

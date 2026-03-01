@@ -14,6 +14,7 @@ export const ActionType = {
   Angang: "angang",
   Hu: "hu",
   Pass: "pass",
+  Pick: "pick",
 } as const;
 
 export type ActionType = (typeof ActionType)[keyof typeof ActionType];

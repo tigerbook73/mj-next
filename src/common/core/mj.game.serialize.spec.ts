@@ -1,5 +1,5 @@
 import { Game, GameState, Position } from "./mj.game";
-import { type TileId } from "./mj.tile-core";
+import { ActionType, type TileId } from "./mj.tile-core";
 
 describe("Game serialization", () => {
   it("should serialize and deserialize the game state correctly", () => {
@@ -26,10 +26,14 @@ describe("Game serialization", () => {
     jsonNew.passedPlayers = [];
     expect(jsonNew).toEqual(json);
 
-    // pass all players
+    // pass all players (or resolve pick sentinel)
     while (game.state === GameState.WaitingPass) {
-      const next = game.getNextPlayer(game.current);
-      game.pass(next);
+      if (game.queuedActions.some((a) => a.type === ActionType.Pick)) {
+        game.handleQueuedActions();
+      } else {
+        const next = game.getNextPlayer(game.current);
+        game.pass(next);
+      }
       json = game.toJSON();
       json.passedPlayers = [];
       jsonNew = Game.fromJSON(json).toJSON();

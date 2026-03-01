@@ -146,6 +146,7 @@ export class Discard {
 export const GameHistoryActionType = {
   Init: "init",
   Start: "start",
+  Dispatching: "dispatching",
   Drop: "drop",
   Pick: "pick",
   PickReverse: "pick_reverse",
@@ -189,6 +190,7 @@ export class Game {
   public winner: Position | null = null; // 赢家的位置，null 表示游戏未结束
   public passedPlayers: Player[] = []; // 已经过的玩家，该属性仅用于client side
   public queuedActions: ActionDetail[] = []; // 等待处理的动作，该属性不用于Client Side
+  private dispatchQueue: { position: Position; count: number }[] = []; // 发牌队列
   public history: GameHistoryRecord[] = []; // 游戏历史记录
   public onAction?: (record: GameHistoryRecord) => void; // callback fired after each executed action
 
@@ -265,7 +267,7 @@ export class Game {
   public start() {
     this.assignDealer();
     this.dice();
-    this.dispatch();
+    this.prepareDispatch();
 
     this.recordAction(new GameHistoryRecord(GameHistoryActionType.Start, this.dealer!.position));
 
@@ -306,9 +308,6 @@ export class Game {
     this.setLatestTile(tile);
     this.setState(GameState.WaitingPass);
     this.prepareQueueActions();
-
-    // need a timeout
-    this.handleQueuedActions();
 
     Game.logger.log(`Game "${this.name}": Player ${this.current.position}: dropped "${TileCore.fromId(tile).name}".`);
     return this;
@@ -615,6 +614,11 @@ export class Game {
       }
     }
 
+    // pick: no other actions possible — advance to next player after autoPlay delay
+    if (this.queuedActions.length === 0) {
+      this.queuedActions.push(new ActionDetail(ActionType.Pick, this.getNextPlayer(), [], ActionResult.Accepting));
+    }
+
     return this;
   }
 
@@ -626,11 +630,7 @@ export class Game {
    * - Sets the latest tile to a void ID.
    * - Updates the game state to `WaitingAction`.
    */
-  private handleQueuedActions(): this {
-    if (this.queuedActions.length === 0) {
-      return this.advanceToNextPlayer();
-    }
-
+  public handleQueuedActions(): this {
     if (!([GameState.WaitingPass] as GameState[]).includes(this.state)) {
       throw new Error("Queued actions can only be handled in WaitingPass state");
     }
@@ -644,6 +644,9 @@ export class Game {
         return this;
       }
 
+      if (action.type === ActionType.Pick) {
+        return this.executePick(action);
+      }
       if (action.type === ActionType.Chi || action.type === ActionType.Peng) {
         return this.executeChiOrPeng(action);
       }
@@ -711,6 +714,11 @@ export class Game {
     this.pick();
     this.setState(GameState.WaitingAction);
     return this;
+  }
+
+  public executePick(action: ActionDetail): this {
+    action.status = ActionResult.Accepting;
+    return this.advanceToNextPlayer();
   }
 
   /**
@@ -974,7 +982,11 @@ export class Game {
     }
   }
 
-  dispatch(): this {
+  /**
+   * 准备发牌：进入 Dispatching 状态，预先从牌墙取出所有牌并按顺序存入队列。
+   * 由 start() 调用，实际发牌由 doDispatch() 逐步完成。
+   */
+  prepareDispatch(): void {
     // dispatch tiles to players
     // rules
     // 1. players start from the dealer, then the next valid player
@@ -988,62 +1000,76 @@ export class Game {
       throw new Error("dealer is not assigned");
     }
 
-    if (!([GameState.Init] as GameState[]).includes(this.state)) {
-      throw new Error("Dispatch can only be done in init state");
+    if (this.state !== GameState.Init) {
+      throw new Error("prepareDispatch can only be called in init state");
     }
 
     this.setState(GameState.Dispatching);
+    this.dispatchQueue = [];
 
-    // each player pick 12 tiles
+    // each player gets 4 tiles for 3 rounds
     for (let i = 0; i < 3; i++) {
       let position = this.dealer.position;
       for (let j = 0; j < 4; j++) {
         const player = this.players[position];
         position = (position - 1 + 4) % 4;
         if (player) {
-          player.handTiles.push(this.pickTile());
-          player.handTiles.push(this.pickTile());
-          player.handTiles.push(this.pickTile());
-          player.handTiles.push(this.pickTile());
+          this.dispatchQueue.push({ position: player.position, count: 4 });
         }
       }
     }
 
-    // each player pick 1 tile
+    // each player gets 1 more tile
     {
       let position = this.dealer.position;
       for (let j = 0; j < 4; j++) {
         const player = this.players[position];
         position = (position - 1 + 4) % 4;
         if (player) {
-          player.handTiles.push(this.pickTile());
+          this.dispatchQueue.push({ position: player.position, count: 1 });
         }
       }
     }
 
-    // dealer pick 1 more tile
-    {
-      this.dealer.handTiles.push(this.pickTile());
+    // dealer gets 1 extra tile
+    this.dispatchQueue.push({ position: this.dealer.position, count: 1 });
+  }
+
+  /**
+   * 执行一次发牌：从队列中取出一批牌发给对应玩家。
+   * 全部发完后排序手牌、设置庄家 picked 牌，进入 WaitingAction 状态。
+   * 由定时器调用，每次调用发一批。
+   */
+  doDispatch(): { position: Position; tiles: TileId[]; hasMore: boolean } {
+    if (this.state !== GameState.Dispatching) {
+      throw new Error("doDispatch can only be called in dispatching state");
     }
 
-    {
+    const batch = this.dispatchQueue.shift()!;
+    const tiles: TileId[] = [];
+    for (let i = 0; i < batch.count; i++) {
+      tiles.push(this.pickTile());
+    }
+    const player = this.players[batch.position];
+    if (player) {
+      player.handTiles.push(...tiles);
+    }
+
+    this.history.push(new GameHistoryRecord(GameHistoryActionType.Dispatching, batch.position, tiles));
+
+    const hasMore = this.dispatchQueue.length > 0;
+
+    if (!hasMore) {
       // sort hand tiles
-      for (let i = 0; i < this.players.length; i++) {
-        const player = this.players[i];
-        if (player) {
-          player.handTiles.sort((a, b) => a - b);
-        }
+      for (const p of this.players) {
+        if (p) p.handTiles.sort((a, b) => a - b);
       }
+      this.dealer!.picked = this.dealer!.handTiles.pop() as TileId;
+      this.setCurrentPlayer(this.dealer!);
+      this.setState(GameState.WaitingAction);
     }
 
-    {
-      this.dealer.picked = this.dealer.handTiles.pop() as TileId;
-    }
-
-    this.setCurrentPlayer(this.dealer);
-    this.setState(GameState.WaitingAction);
-
-    return this;
+    return { position: batch.position, tiles, hasMore };
   }
 
   pick(): this {
